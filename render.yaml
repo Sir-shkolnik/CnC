@@ -10,10 +10,12 @@ services:
     buildCommand: |
       python -m pip install --upgrade pip
       pip install -r requirements.txt
+      pip install uvicorn[standard]==0.24.0
       pip install prisma
       prisma generate
     startCommand: |
-      python -m uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT
+      source .venv/bin/activate
+      uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -67,7 +69,7 @@ services:
       npm run build
     startCommand: |
       cd apps/frontend
-      npm start
+      next start -p $PORT
     envVars:
       - key: NEXT_PUBLIC_API_URL
         value: https://c-and-c-crm-api.onrender.com
@@ -91,7 +93,7 @@ services:
       npm run build
     startCommand: |
       cd apps/frontend
-      npm start
+      next start -p $PORT
     envVars:
       - key: NEXT_PUBLIC_API_URL
         value: https://c-and-c-crm-api.onrender.com
@@ -117,7 +119,7 @@ services:
       npm run build
     startCommand: |
       cd apps/frontend
-      npm start
+      next start -p $PORT
     envVars:
       - key: NEXT_PUBLIC_API_URL
         value: https://c-and-c-crm-api.onrender.com
