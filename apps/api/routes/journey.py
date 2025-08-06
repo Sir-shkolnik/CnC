@@ -118,13 +118,28 @@ class GPSUpdate(BaseModel):
 def get_db_connection():
     """Get database connection"""
     import os
-    return psycopg2.connect(
-        host=os.getenv("DB_HOST", "postgres"),
-        port=os.getenv("DB_PORT", "5432"),
-        database=os.getenv("DB_NAME", "c_and_c_crm"),
-        user=os.getenv("DB_USER", "c_and_c_user"),
-        password=os.getenv("DB_PASSWORD", "c_and_c_password")
-    )
+    from urllib.parse import urlparse
+    
+    DATABASE_URL = os.getenv("DATABASE_URL")
+    if DATABASE_URL:
+        # Parse DATABASE_URL for psycopg2
+        parsed = urlparse(DATABASE_URL)
+        return psycopg2.connect(
+            host=parsed.hostname,
+            port=parsed.port or 5432,
+            database=parsed.path[1:],  # Remove leading slash
+            user=parsed.username,
+            password=parsed.password
+        )
+    else:
+        # Fallback to individual environment variables
+        return psycopg2.connect(
+            host=os.getenv("DB_HOST", "postgres"),
+            port=os.getenv("DB_PORT", "5432"),
+            database=os.getenv("DB_NAME", "c_and_c_crm"),
+            user=os.getenv("DB_USER", "c_and_c_user"),
+            password=os.getenv("DB_PASSWORD", "c_and_c_password")
+        )
 
 def get_current_user(current_user: Dict[str, Any] = Depends(verify_token)) -> Dict[str, Any]:
     """Get current user from JWT token"""
