@@ -131,11 +131,11 @@ export default function JourneysPage() {
           <p className="text-text-secondary text-sm">Manage and track all truck journeys</p>
         </div>
         <div className="flex items-center space-x-2 flex-shrink-0">
-          <Button variant="outline" size="sm" className="h-9">
+          <Button variant="secondary" size="sm" className="h-9">
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
-          <Button variant="outline" size="sm" className="h-9">
+          <Button variant="secondary" size="sm" className="h-9">
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
           </Button>

@@ -8,12 +8,12 @@ services:
     env: python
     plan: starter
     buildCommand: |
+      python -m pip install --upgrade pip
       pip install -r requirements.txt
       pip install prisma
       prisma generate
     startCommand: |
-      source .venv/bin/activate
-      uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT
+      python -m uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DATABASE_URL
         fromDatabase:

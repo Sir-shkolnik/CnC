@@ -14,7 +14,7 @@ export default function AuditPage() {
     const variants = {
       CREATE: 'success',
       UPDATE: 'warning',
-      DELETE: 'destructive',
+      DELETE: 'error',
       UPLOAD: 'info',
       VIEW: 'default'
     } as const;
@@ -27,7 +27,7 @@ export default function AuditPage() {
   const getStatusBadge = (status: string) => {
     return status === 'SUCCESS' ? 
       <Badge variant="success">Success</Badge> : 
-      <Badge variant="destructive">Failed</Badge>;
+      <Badge variant="error">Failed</Badge>;
   };
 
   const formatTimestamp = (timestamp: string) => {
@@ -48,11 +48,11 @@ export default function AuditPage() {
           <p className="text-text-secondary mt-2">View audit logs and compliance information</p>
         </div>
         <div className="flex space-x-3">
-          <Button variant="outline">
+          <Button variant="secondary">
             <Filter className="w-4 h-4 mr-2" />
             Filter Logs
           </Button>
-          <Button variant="outline">
+          <Button variant="secondary">
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>

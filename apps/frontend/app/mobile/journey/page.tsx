@@ -201,7 +201,7 @@ export default function MobileJourneyPage() {
         <div className="fixed bottom-4 left-4 right-4">
           <div className="flex gap-2">
             <Button
-              variant="outline"
+              variant="secondary"
               onClick={() => handleBackToStep(currentStep - 1)}
               className="flex-1"
             >

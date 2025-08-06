@@ -25,7 +25,8 @@ import {
   Globe,
   Users,
   Package,
-  DollarSign
+  DollarSign,
+  Calendar
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -124,7 +125,7 @@ export default function StorageSystemPage() {
           
           <div className="flex items-center gap-2">
             <Button
-              variant="outline"
+              variant="secondary"
               size="sm"
               className="h-8"
               onClick={() => {
@@ -218,7 +219,7 @@ export default function StorageSystemPage() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
               <Button
-                variant="outline"
+                variant="secondary"
                 className="h-16 flex flex-col items-center justify-center gap-1"
                 onClick={() => setViewMode('GRID')}
               >
@@ -227,7 +228,7 @@ export default function StorageSystemPage() {
               </Button>
               
               <Button
-                variant="outline"
+                variant="secondary"
                 className="h-16 flex flex-col items-center justify-center gap-1"
                 onClick={() => window.location.href = '/storage/booking'}
               >
@@ -236,7 +237,7 @@ export default function StorageSystemPage() {
               </Button>
               
               <Button
-                variant="outline"
+                variant="secondary"
                 className="h-16 flex flex-col items-center justify-center gap-1"
                 onClick={() => window.location.href = '/storage/units'}
               >
@@ -245,7 +246,7 @@ export default function StorageSystemPage() {
               </Button>
               
               <Button
-                variant="outline"
+                variant="secondary"
                 className="h-16 flex flex-col items-center justify-center gap-1"
                 onClick={() => window.location.href = '/storage/billing'}
               >
@@ -340,7 +341,7 @@ export default function StorageSystemPage() {
                   placeholder="Search locations..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  icon={<Search className="w-4 h-4" />}
+
                 />
               </div>
               
@@ -456,11 +457,11 @@ export default function StorageSystemPage() {
         {/* Main Content Area */}
         <div className="h-[600px]">
           {viewMode === 'GRID' && (
-            <InteractiveMap locationId={selectedLocation} />
+            <InteractiveMap locationId={selectedLocation || undefined} />
           )}
           
           {viewMode === 'ANALYTICS' && (
-            <StorageAnalytics locationId={selectedLocation} />
+            <StorageAnalytics locationId={selectedLocation || undefined} />
           )}
           
           {viewMode === 'LIST' && (

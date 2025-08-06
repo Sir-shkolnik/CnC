@@ -15,7 +15,7 @@ export default function CrewPage() {
       AVAILABLE: 'success',
       ON_JOURNEY: 'warning',
       OFF_DUTY: 'default',
-      SICK: 'destructive'
+      SICK: 'error'
     } as const;
     
     const labels = {
@@ -45,7 +45,7 @@ export default function CrewPage() {
           <p className="text-text-secondary mt-2">Manage crew assignments, scheduling, and performance</p>
         </div>
         <div className="flex space-x-3">
-          <Button variant="outline">
+          <Button variant="secondary">
             <Calendar className="w-4 h-4 mr-2" />
             Schedule View
           </Button>
@@ -170,8 +170,8 @@ export default function CrewPage() {
                 <div>
                   <p className="text-sm font-medium text-text-primary mb-2">Skills</p>
                   <div className="flex flex-wrap gap-1">
-                    {member.skills.map((skill, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
+                    {member.skills.map((skill: string, index: number) => (
+                      <Badge key={index} variant="secondary" className="text-xs">
                         {skill}
                       </Badge>
                     ))}

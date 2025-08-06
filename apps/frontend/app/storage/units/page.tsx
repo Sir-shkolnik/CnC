@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useStorageStore, useStorageUnits, useStorageLocations } from '@/stores/storageStore';
-import { StorageUnit, StorageUnitType, StorageUnitStatus } from '@/types/storage';
+import { StorageUnit } from '@/types/storage';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/atoms/Card';
 import { Button } from '@/components/atoms/Button';
 import { Input } from '@/components/atoms/Input';
@@ -39,8 +39,8 @@ export default function StorageUnitsPage() {
   const { fetchStorageUnits, deleteStorageUnit, isDeleting } = useStorageStore();
   
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<StorageUnitType | 'ALL'>('ALL');
-  const [filterStatus, setFilterStatus] = useState<StorageUnitStatus | 'ALL'>('ALL');
+  const [filterType, setFilterType] = useState<string>('ALL');
+  const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [filterLocation, setFilterLocation] = useState<string>('ALL');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedUnit, setSelectedUnit] = useState<StorageUnit | null>(null);
@@ -65,10 +65,8 @@ export default function StorageUnitsPage() {
   const handleDeleteUnit = async (unitId: string) => {
     if (confirm('Are you sure you want to delete this storage unit?')) {
       try {
-        const result = await deleteStorageUnit(unitId);
-        if (result.success) {
-          toast.success('Storage unit deleted successfully');
-        }
+        await deleteStorageUnit(unitId);
+        toast.success('Storage unit deleted successfully');
       } catch (error) {
         toast.error('Failed to delete storage unit');
       }
@@ -80,7 +78,7 @@ export default function StorageUnitsPage() {
     setIsEditModalOpen(true);
   };
 
-  const getUnitIcon = (type: StorageUnitType) => {
+  const getUnitIcon = (type: string) => {
     switch (type) {
       case 'POD':
         return '📦';
@@ -93,7 +91,7 @@ export default function StorageUnitsPage() {
     }
   };
 
-  const getStatusColor = (status: StorageUnitStatus) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'AVAILABLE':
         return 'bg-green-500';
@@ -110,7 +108,7 @@ export default function StorageUnitsPage() {
     }
   };
 
-  const getStatusText = (status: StorageUnitStatus) => {
+  const getStatusText = (status: string) => {
     return status.replace('_', ' ');
   };
 
@@ -178,7 +176,7 @@ export default function StorageUnitsPage() {
               <div className="space-y-2 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Status:</span>
-                  <Badge variant={unit.status === 'AVAILABLE' ? 'success' : unit.status === 'OCCUPIED' ? 'danger' : 'warning'}>
+                  <Badge variant={unit.status === 'AVAILABLE' ? 'success' : unit.status === 'OCCUPIED' ? 'error' : 'warning'}>
                     {getStatusText(unit.status)}
                   </Badge>
                 </div>
@@ -208,7 +206,7 @@ export default function StorageUnitsPage() {
                   <div className="flex flex-wrap gap-1">
                     {unit.features.slice(0, 2).map((feature, index) => (
                       <Badge key={index} variant="secondary" className="text-xs">
-                        {feature}
+                        {String(feature)}
                       </Badge>
                     ))}
                     {unit.features.length > 2 && (
@@ -271,7 +269,7 @@ export default function StorageUnitsPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <Badge variant={unit.status === 'AVAILABLE' ? 'success' : unit.status === 'OCCUPIED' ? 'danger' : 'warning'}>
+                    <Badge variant={unit.status === 'AVAILABLE' ? 'success' : unit.status === 'OCCUPIED' ? 'error' : 'warning'}>
                       {getStatusText(unit.status)}
                     </Badge>
                   </td>
@@ -290,7 +288,7 @@ export default function StorageUnitsPage() {
                     <div className="flex flex-wrap gap-1">
                       {unit.features.slice(0, 2).map((feature, index) => (
                         <Badge key={index} variant="secondary" className="text-xs">
-                          {feature}
+                          {String(feature)}
                         </Badge>
                       ))}
                       {unit.features.length > 2 && (
@@ -337,7 +335,7 @@ export default function StorageUnitsPage() {
         </div>
         <div className="flex gap-3">
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={exportUnits}
           >
             <Download className="w-4 h-4 mr-2" />
@@ -427,7 +425,7 @@ export default function StorageUnitsPage() {
                 placeholder="Search units..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                icon={<Search className="w-4 h-4" />}
+
               />
             </div>
             
@@ -435,7 +433,7 @@ export default function StorageUnitsPage() {
               <select
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={filterType}
-                onChange={(e) => setFilterType(e.target.value as StorageUnitType | 'ALL')}
+                onChange={(e) => setFilterType(e.target.value)}
               >
                 <option value="ALL">All Types</option>
                 <option value="POD">POD</option>
@@ -446,7 +444,7 @@ export default function StorageUnitsPage() {
               <select
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value as StorageUnitStatus | 'ALL')}
+                onChange={(e) => setFilterStatus(e.target.value)}
               >
                 <option value="ALL">All Status</option>
                 <option value="AVAILABLE">Available</option>

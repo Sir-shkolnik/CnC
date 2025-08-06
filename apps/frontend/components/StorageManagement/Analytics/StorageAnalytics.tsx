@@ -288,7 +288,7 @@ export const StorageAnalytics: React.FC<StorageAnalyticsProps> = ({
                     <p className="text-lg font-bold text-gray-900">
                       {operationalKPIs.customerService.responseTime}h
                     </p>
-                    {getStatusIcon(operationalKPIs.customerService.responseTime, 2, true)}
+                    {getStatusIcon(operationalKPIs.customerService.responseTime, 2)}
                   </div>
                 </div>
 
@@ -466,7 +466,7 @@ export const StorageAnalytics: React.FC<StorageAnalyticsProps> = ({
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Button
-              variant="outline"
+              variant="secondary"
               className="h-20 flex flex-col items-center justify-center gap-2"
               onClick={() => setViewMode('GRID')}
             >
@@ -475,7 +475,7 @@ export const StorageAnalytics: React.FC<StorageAnalyticsProps> = ({
             </Button>
             
             <Button
-              variant="outline"
+              variant="secondary"
               className="h-20 flex flex-col items-center justify-center gap-2"
               onClick={() => {
                 // TODO: Open booking modal
@@ -487,7 +487,7 @@ export const StorageAnalytics: React.FC<StorageAnalyticsProps> = ({
             </Button>
             
             <Button
-              variant="outline"
+              variant="secondary"
               className="h-20 flex flex-col items-center justify-center gap-2"
               onClick={() => {
                 // TODO: Open report generator

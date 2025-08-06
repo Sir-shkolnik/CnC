@@ -20,7 +20,7 @@ export const useMenuItems = () => {
         activeJourneys: journeys.filter(j => j.status !== 'COMPLETED').length,
         unreadMessages: 0, // TODO: Implement chat store
         pendingAudits: 0, // TODO: Implement audit store
-        user
+        user: user as any
       });
 
       return { ...item, badge };

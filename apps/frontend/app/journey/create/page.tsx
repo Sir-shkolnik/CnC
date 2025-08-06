@@ -81,8 +81,13 @@ export default function CreateJourneyPage() {
         id: `journey_${Date.now()}`,
         truckNumber: formData.truckNumber,
         date: formData.date,
-        status: formData.status,
-        notes: formData.notes
+        status: 'MORNING_PREP' as const,
+        notes: formData.notes,
+        locationId: 'default-location',
+        clientId: 'default-client',
+        createdById: 'default-user',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
       
       addJourney(newJourney);
@@ -219,7 +224,7 @@ export default function CreateJourneyPage() {
                         handleInputChange('crewMembers', newCrew);
                       }}
                     />
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="secondary" className="text-xs">
                       {role}
                     </Badge>
                   </div>
@@ -321,7 +326,7 @@ export default function CreateJourneyPage() {
           </div>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm">
+          <Button variant="secondary" size="sm">
             <Save className="w-4 h-4 mr-2" />
             Save Draft
           </Button>
@@ -381,7 +386,7 @@ export default function CreateJourneyPage() {
       {/* Navigation */}
       <div className="flex items-center justify-between">
         <Button
-          variant="outline"
+          variant="secondary"
           onClick={handlePrevious}
           disabled={currentStep === 1}
         >
@@ -391,7 +396,7 @@ export default function CreateJourneyPage() {
         
         <div className="flex items-center space-x-2">
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={() => router.push('/journeys')}
           >
             <X className="w-4 h-4 mr-2" />

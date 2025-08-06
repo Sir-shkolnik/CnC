@@ -28,7 +28,7 @@ export const MenuItems: React.FC<MenuItemsProps> = ({
           item={item}
           isCollapsed={isCollapsed}
           isMobile={isMobile}
-          onItemClick={onItemClick}
+
         />
       ))}
     </div>

@@ -17,9 +17,13 @@ export default function ApiTestPage() {
   const testHealthCheck = async () => {
     setLoading(true)
     try {
-      const health = await apiClient.healthCheck()
-      setHealthStatus(health)
-      toast.success('Health check successful!')
+      const response = await apiClient.healthCheck()
+      setHealthStatus(response)
+      if (response.success) {
+        toast.success('Health check successful!')
+      } else {
+        toast.error('Health check failed')
+      }
     } catch (error) {
       console.error('Health check failed:', error)
       toast.error('Health check failed')
@@ -36,9 +40,13 @@ export default function ApiTestPage() {
 
     setLoading(true)
     try {
-      const journeyData = await apiClient.getJourneys()
-      setJourneys(journeyData)
-      toast.success(`Found ${journeyData.length} journeys`)
+      const response = await apiClient.getJourneys()
+      if (response.success && response.data) {
+        setJourneys(response.data)
+        toast.success(`Found ${response.data.length} journeys`)
+      } else {
+        toast.error('Failed to fetch journeys')
+      }
     } catch (error) {
       console.error('Failed to fetch journeys:', error)
       toast.error('Failed to fetch journeys')
@@ -220,8 +228,8 @@ export default function ApiTestPage() {
               </div>
               <div>
                 <span className="text-text-secondary">Token Status: </span>
-                <Badge variant={apiClient.isAuthenticated() ? 'success' : 'error'} className="text-xs">
-                  {apiClient.isAuthenticated() ? 'Present' : 'Missing'}
+                <Badge variant={isAuthenticated ? 'success' : 'error'} className="text-xs">
+                  {isAuthenticated ? 'Present' : 'Missing'}
                 </Badge>
               </div>
             </div>

@@ -1,6 +1,8 @@
 // Storage System TypeScript Interfaces
 // Based on 17_storage_system.md and 18_storage_system_manager.md
-import { 
+
+// Re-export enums for convenience
+export type {
   StorageUnitType, 
   StorageUnitStatus, 
   StorageLocationType, 

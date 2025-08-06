@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useStorageStore, useStorageLocations, useStorageUnitsByLocation } from '@/stores/storageStore';
-import { StorageUnit, StorageUnitType, StorageBooking } from '@/types/storage';
+import { StorageUnit, StorageBooking } from '@/types/storage';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/atoms/Card';
 import { Button } from '@/components/atoms/Button';
 import { Input } from '@/components/atoms/Input';
@@ -35,7 +35,7 @@ export default function StorageBookingPage() {
   
   const [selectedLocation, setSelectedLocation] = useState<string>('');
   const [selectedUnit, setSelectedUnit] = useState<StorageUnit | null>(null);
-  const [filterType, setFilterType] = useState<StorageUnitType | 'ALL'>('ALL');
+  const [filterType, setFilterType] = useState<string>('ALL');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentStep, setCurrentStep] = useState<'location' | 'unit' | 'details' | 'payment' | 'confirmation'>('location');
   
@@ -147,7 +147,7 @@ export default function StorageBookingPage() {
     }
   };
 
-  const getUnitIcon = (type: StorageUnitType) => {
+  const getUnitIcon = (type: string) => {
     switch (type) {
       case 'POD':
         return '📦';
@@ -260,7 +260,7 @@ export default function StorageBookingPage() {
                 placeholder="Search units..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                icon={<Search className="w-4 h-4" />}
+
               />
             </div>
             
@@ -318,7 +318,7 @@ export default function StorageBookingPage() {
                   <div className="flex flex-wrap gap-1">
                     {unit.features.slice(0, 3).map((feature, index) => (
                       <Badge key={index} variant="secondary" className="text-xs">
-                        {feature}
+                        {String(feature)}
                       </Badge>
                     ))}
                     {unit.features.length > 3 && (
@@ -395,7 +395,7 @@ export default function StorageBookingPage() {
                     <div className="flex flex-wrap gap-2">
                       {selectedUnit.features.map((feature, index) => (
                         <Badge key={index} variant="secondary" className="text-xs">
-                          {feature}
+                          {String(feature)}
                         </Badge>
                       ))}
                     </div>
@@ -694,7 +694,7 @@ export default function StorageBookingPage() {
           Back to Storage
         </Button>
         <Button
-          variant="outline"
+          variant="secondary"
           onClick={() => window.print()}
         >
           Print Receipt

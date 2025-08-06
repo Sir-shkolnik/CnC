@@ -81,7 +81,7 @@ export default function StorageBillingPage() {
       dueDate: new Date(Date.now() + (index * 24 * 60 * 60 * 1000)),
       paidDate: index % 3 === 0 ? new Date(Date.now() - (index * 24 * 60 * 60 * 1000)) : undefined,
       invoiceNumber: `INV-${String(index + 1).padStart(4, '0')}`,
-      description: `Storage rental for ${booking.endDate.toLocaleDateString()}`
+      description: `Storage rental for ${booking.endDate?.toLocaleDateString() || 'ongoing'}`
     }));
     setBillingRecords(records);
   }, [bookings, locations]);
@@ -167,7 +167,7 @@ export default function StorageBillingPage() {
       case 'PENDING':
         return <Badge variant="warning">Pending</Badge>;
       case 'OVERDUE':
-        return <Badge variant="danger">Overdue</Badge>;
+        return <Badge variant="error">Overdue</Badge>;
       case 'CANCELLED':
         return <Badge variant="secondary">Cancelled</Badge>;
       default:
@@ -185,7 +185,7 @@ export default function StorageBillingPage() {
         </div>
         <div className="flex gap-3">
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={exportBillingData}
           >
             <Download className="w-4 h-4 mr-2" />
@@ -193,7 +193,7 @@ export default function StorageBillingPage() {
           </Button>
           <Button
             variant="primary"
-            onClick={() => toast.info('Generate new invoice feature coming soon')}
+            onClick={() => toast.success('Generate new invoice feature coming soon')}
           >
             <FileText className="w-4 h-4 mr-2" />
             New Invoice
@@ -275,7 +275,6 @@ export default function StorageBillingPage() {
                 placeholder="Search invoices or customers..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                icon={<Search className="w-4 h-4" />}
               />
             </div>
             
@@ -504,25 +503,25 @@ export default function StorageBillingPage() {
           <CardContent>
             <div className="space-y-3">
               <Button
-                variant="outline"
+                variant="secondary"
                 className="w-full justify-start"
-                onClick={() => toast.info('Send payment reminders feature coming soon')}
+                onClick={() => toast.success('Send payment reminders feature coming soon')}
               >
                 <Mail className="w-4 h-4 mr-2" />
                 Send Reminders
               </Button>
               <Button
-                variant="outline"
+                variant="secondary"
                 className="w-full justify-start"
-                onClick={() => toast.info('Generate financial reports feature coming soon')}
+                onClick={() => toast.success('Generate financial reports feature coming soon')}
               >
                 <FileText className="w-4 h-4 mr-2" />
                 Generate Reports
               </Button>
               <Button
-                variant="outline"
+                variant="secondary"
                 className="w-full justify-start"
-                onClick={() => toast.info('Reconcile payments feature coming soon')}
+                onClick={() => toast.success('Reconcile payments feature coming soon')}
               >
                 <CreditCard className="w-4 h-4 mr-2" />
                 Reconcile Payments
@@ -585,7 +584,7 @@ export default function StorageBillingPage() {
                   Print Invoice
                 </Button>
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => handleSendInvoice(selectedRecord)}
                 >
                   <Send className="w-4 h-4 mr-2" />

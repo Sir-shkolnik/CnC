@@ -16,13 +16,13 @@ export default function ClientsPage() {
     }
     return type === 'CORPORATE' ? 
       <Badge variant="default">Corporate</Badge> : 
-      <Badge variant="outline">{type}</Badge>;
+      <Badge variant="secondary">{type}</Badge>;
   };
 
   const getStatusBadge = (status: string) => {
     return status === 'ACTIVE' ? 
       <Badge variant="success">Active</Badge> : 
-      <Badge variant="destructive">Inactive</Badge>;
+      <Badge variant="error">Inactive</Badge>;
   };
 
   return (
@@ -34,7 +34,7 @@ export default function ClientsPage() {
           <p className="text-text-secondary mt-2">Manage clients and their locations</p>
         </div>
         <div className="flex space-x-3">
-          <Button variant="outline">
+          <Button variant="secondary">
             <MapPin className="w-4 h-4 mr-2" />
             Manage Locations
           </Button>
@@ -171,15 +171,15 @@ export default function ClientsPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-20 flex-col">
+            <Button variant="secondary" className="h-20 flex-col">
               <Building2 className="w-6 h-6 mb-2" />
               <span>Add New Client</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col">
+            <Button variant="secondary" className="h-20 flex-col">
               <MapPin className="w-6 h-6 mb-2" />
               <span>Add Location</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col">
+            <Button variant="secondary" className="h-20 flex-col">
               <Users className="w-6 h-6 mb-2" />
               <span>Bulk User Import</span>
             </Button>

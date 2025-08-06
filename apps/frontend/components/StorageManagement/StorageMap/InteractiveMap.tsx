@@ -8,7 +8,7 @@ import {
   useSelectedLocation,
   useStorageDragDrop 
 } from '@/stores/storageStore';
-import { StorageUnit, StorageUnitType } from '@/types/storage';
+import { StorageUnit } from '@/types/storage';
 import { Button } from '@/components/atoms/Button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/atoms/Card';
 import { Badge } from '@/components/atoms/Badge';
@@ -187,7 +187,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   };
 
   // Get unit icon based on type
-  const getUnitIcon = (type: StorageUnitType) => {
+  const getUnitIcon = (type: string) => {
     switch (type) {
       case 'POD':
         return '📦';
