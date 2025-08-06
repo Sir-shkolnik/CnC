@@ -11,7 +11,6 @@ services:
       pip install -r requirements.txt
       pip install prisma
       prisma generate
-      python -c "import prisma; prisma.generate()"
     startCommand: uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT --reload
     envVars:
       - key: DATABASE_URL
