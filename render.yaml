@@ -31,9 +31,10 @@ services:
       pip install --only-binary=all celery==5.3.4
       pip install --only-binary=all psutil==5.9.6
       prisma generate
-      # Run database migrations
-      python run_migrations.py
     startCommand: |
+      # Run database migrations first
+      python run_migrations.py
+      # Start the API server
       python -m uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DATABASE_URL
