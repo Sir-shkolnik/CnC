@@ -9,13 +9,27 @@ from datetime import datetime
 router = APIRouter(tags=["Journey Steps"])
 
 # Database configuration
-DB_CONFIG = {
-    "host": os.getenv("DB_HOST", "postgres"),
-    "port": os.getenv("DB_PORT", "5432"),
-    "database": os.getenv("DB_NAME", "c_and_c_crm"),
-    "user": os.getenv("DB_USER", "c_and_c_user"),
-    "password": os.getenv("DB_PASSWORD", "c_and_c_password")
-}
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL:
+    # Parse DATABASE_URL for psycopg2
+    from urllib.parse import urlparse
+    parsed = urlparse(DATABASE_URL)
+    DB_CONFIG = {
+        "host": parsed.hostname,
+        "port": parsed.port or 5432,
+        "database": parsed.path[1:],  # Remove leading slash
+        "user": parsed.username,
+        "password": parsed.password
+    }
+else:
+    # Fallback to individual environment variables
+    DB_CONFIG = {
+        "host": os.getenv("DB_HOST", "postgres"),
+        "port": os.getenv("DB_PORT", "5432"),
+        "database": os.getenv("DB_NAME", "c_and_c_crm"),
+        "user": os.getenv("DB_USER", "c_and_c_user"),
+        "password": os.getenv("DB_PASSWORD", "c_and_c_password")
+    }
 
 def get_db_connection():
     """Get database connection"""
