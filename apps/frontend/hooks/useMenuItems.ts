@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { useJourneyStore } from '@/stores/journeyStore';
 import { getRoleBasedMenuItems, hasMenuItemPermission } from '@/utils/menuItems';
-import { MenuItem, BadgeContext } from '@/types/menu';
+import { MenuItem, BadgeContext, UserRole } from '@/types/menu';
 
 export const useMenuItems = () => {
   const { user } = useAuthStore();
@@ -12,7 +12,7 @@ export const useMenuItems = () => {
     if (!user) return [];
 
     // Base menu items based on role
-    let items = getRoleBasedMenuItems(user.role);
+    let items = getRoleBasedMenuItems(user.role as UserRole);
 
     // Add dynamic badges and counts
     items = items.map(item => {

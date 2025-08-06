@@ -486,10 +486,8 @@ export const useStorageStore = create<StorageState>()(
           await new Promise(resolve => setTimeout(resolve, 1000));
           const newLocation: StorageLocation = {
             ...location,
-            id: `loc_${Date.now()}`,
-            createdAt: new Date(),
-            updatedAt: new Date()
-          };
+            id: `loc_${Date.now()}`
+          } as StorageLocation;
           set((state) => ({ 
             locations: [...state.locations, newLocation], 
             isCreating: false 
@@ -507,10 +505,8 @@ export const useStorageStore = create<StorageState>()(
           await new Promise(resolve => setTimeout(resolve, 1000));
           const newUnit: StorageUnit = {
             ...unit,
-            id: `unit_${Date.now()}`,
-            createdAt: new Date(),
-            updatedAt: new Date()
-          };
+            id: `unit_${Date.now()}`
+          } as StorageUnit;
           set((state) => ({ 
             storageUnits: [...state.storageUnits, newUnit], 
             isCreating: false 
@@ -528,10 +524,8 @@ export const useStorageStore = create<StorageState>()(
           await new Promise(resolve => setTimeout(resolve, 1000));
           const newBooking: StorageBooking = {
             ...booking,
-            id: `booking_${Date.now()}`,
-            createdAt: new Date(),
-            updatedAt: new Date()
-          };
+            id: `booking_${Date.now()}`
+          } as StorageBooking;
           set((state) => ({ 
             bookings: [...state.bookings, newBooking], 
             isCreating: false 

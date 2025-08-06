@@ -1,8 +1,7 @@
 // Storage System TypeScript Interfaces
 // Based on 17_storage_system.md and 18_storage_system_manager.md
 
-// Re-export enums for convenience
-export type {
+import type {
   StorageUnitType, 
   StorageUnitStatus, 
   StorageLocationType, 
@@ -26,6 +25,7 @@ export type {
   ChangeType,
   ApiResponseStatus
 } from './enums';
+
 
 // Storage Unit Interfaces
 export interface StorageSize {
@@ -426,7 +426,7 @@ export interface BookingWorkflow {
     customerRegistration: {
       personalInfo: CustomerInfo;
       contactInfo: ContactDetails;
-      paymentInfo: PaymentMethod;
+      paymentInfo: StoragePaymentMethod;
       termsAcceptance: boolean;
     };
   };
@@ -470,7 +470,7 @@ export interface ContactDetails {
   address: string;
 }
 
-export interface PaymentMethod {
+export interface StoragePaymentMethod {
   type: PaymentMethod;
   details: any;
   autoRenewal: boolean;

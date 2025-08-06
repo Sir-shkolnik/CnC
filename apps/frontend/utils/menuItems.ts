@@ -17,9 +17,9 @@ const adminMenuItems: MenuItem[] = [
     href: '/journeys',
     badge: null,
     children: [
-      { id: 'journey-list', label: 'All Journeys', href: '/journeys' },
-      { id: 'journey-create', label: 'Create Journey', href: '/journey/create' },
-      { id: 'journey-calendar', label: 'Calendar View', href: '/calendar' }
+      { id: 'journey-list', label: 'All Journeys', href: '/journeys', icon: 'List' },
+      { id: 'journey-create', label: 'Create Journey', href: '/journey/create', icon: 'Plus' },
+      { id: 'journey-calendar', label: 'Calendar View', href: '/calendar', icon: 'Calendar' }
     ]
   },
   {
@@ -29,9 +29,9 @@ const adminMenuItems: MenuItem[] = [
     href: '/users',
     badge: null,
     children: [
-      { id: 'user-list', label: 'All Users', href: '/users' },
-      { id: 'user-create', label: 'Create User', href: '/users/create' },
-      { id: 'roles', label: 'Role Management', href: '/users/roles' }
+      { id: 'user-list', label: 'All Users', href: '/users', icon: 'Settings' },
+      { id: 'user-create', label: 'Create User', href: '/users/create', icon: 'Settings' },
+      { id: 'roles', label: 'Role Management', href: '/users/roles', icon: 'Settings' }
     ]
   },
   {
@@ -41,9 +41,9 @@ const adminMenuItems: MenuItem[] = [
     href: '/clients',
     badge: null,
     children: [
-      { id: 'client-list', label: 'All Clients', href: '/clients' },
-      { id: 'client-create', label: 'Create Client', href: '/clients/create' },
-      { id: 'locations', label: 'Locations', href: '/clients/locations' }
+      { id: 'client-list', label: 'All Clients', href: '/clients', icon: 'Settings' },
+      { id: 'client-create', label: 'Create Client', href: '/clients/create', icon: 'Settings' },
+      { id: 'locations', label: 'Locations', href: '/clients/locations', icon: 'Settings' }
     ]
   },
   {
@@ -53,9 +53,9 @@ const adminMenuItems: MenuItem[] = [
     href: '/crew',
     badge: null,
     children: [
-      { id: 'crew-list', label: 'All Crew', href: '/crew' },
-      { id: 'crew-schedule', label: 'Scheduling', href: '/crew/schedule' },
-      { id: 'crew-performance', label: 'Performance', href: '/crew/performance' }
+      { id: 'crew-list', label: 'All Crew', href: '/crew', icon: 'Settings' },
+      { id: 'crew-schedule', label: 'Scheduling', href: '/crew/schedule', icon: 'Settings' },
+      { id: 'crew-performance', label: 'Performance', href: '/crew/performance', icon: 'Settings' }
     ]
   },
   {
@@ -65,9 +65,9 @@ const adminMenuItems: MenuItem[] = [
     href: '/audit',
     badge: null,
     children: [
-      { id: 'audit-logs', label: 'Audit Logs', href: '/audit/logs' },
-      { id: 'compliance', label: 'Compliance', href: '/audit/compliance' },
-      { id: 'reports', label: 'Reports', href: '/audit/reports' }
+      { id: 'audit-logs', label: 'Audit Logs', href: '/audit/logs', icon: 'Settings' },
+      { id: 'compliance', label: 'Compliance', href: '/audit/compliance', icon: 'Settings' },
+      { id: 'reports', label: 'Reports', href: '/audit/reports', icon: 'Settings' }
     ]
   },
   {
@@ -77,9 +77,9 @@ const adminMenuItems: MenuItem[] = [
     href: '/feedback',
     badge: null,
     children: [
-      { id: 'feedback-list', label: 'All Feedback', href: '/feedback' },
-      { id: 'feedback-ratings', label: 'Ratings', href: '/feedback/ratings' },
-      { id: 'feedback-nps', label: 'NPS Scores', href: '/feedback/nps' }
+      { id: 'feedback-list', label: 'All Feedback', href: '/feedback', icon: 'Settings' },
+      { id: 'feedback-ratings', label: 'Ratings', href: '/feedback/ratings', icon: 'Settings' },
+      { id: 'feedback-nps', label: 'NPS Scores', href: '/feedback/nps', icon: 'Settings' }
     ]
   },
   {
@@ -89,9 +89,9 @@ const adminMenuItems: MenuItem[] = [
     href: '/mobile',
     badge: null,
     children: [
-      { id: 'mobile-app', label: 'Mobile App', href: '/mobile' },
-      { id: 'mobile-journeys', label: 'Active Journeys', href: '/mobile/journeys' },
-      { id: 'mobile-tracking', label: 'Live Tracking', href: '/mobile/tracking' }
+      { id: 'mobile-app', label: 'Mobile App', href: '/mobile', icon: 'Settings' },
+      { id: 'mobile-journeys', label: 'Active Journeys', href: '/mobile/journeys', icon: 'Settings' },
+      { id: 'mobile-tracking', label: 'Live Tracking', href: '/mobile/tracking', icon: 'Settings' }
     ]
   },
   {
@@ -101,9 +101,9 @@ const adminMenuItems: MenuItem[] = [
     href: '/settings',
     badge: null,
     children: [
-      { id: 'general', label: 'General', href: '/settings/general' },
-      { id: 'security', label: 'Security', href: '/settings/security' },
-      { id: 'integrations', label: 'Integrations', href: '/settings/integrations' }
+      { id: 'general', label: 'General', href: '/settings/general', icon: 'Settings' },
+      { id: 'security', label: 'Security', href: '/settings/security', icon: 'Settings' },
+      { id: 'integrations', label: 'Integrations', href: '/settings/integrations', icon: 'Settings' }
     ]
   }
 ];
@@ -125,9 +125,9 @@ const dispatcherMenuItems: MenuItem[] = [
     href: '/journeys',
     badge: 'active-journeys-count',
     children: [
-      { id: 'journey-list', label: 'My Journeys', href: '/journeys' },
-      { id: 'journey-create', label: 'Create Journey', href: '/journey/create' },
-      { id: 'journey-calendar', label: 'Calendar View', href: '/calendar' }
+      { id: 'journey-list', label: 'My Journeys', href: '/journeys', icon: 'Settings' },
+      { id: 'journey-create', label: 'Create Journey', href: '/journey/create', icon: 'Settings' },
+      { id: 'journey-calendar', label: 'Calendar View', href: '/calendar', icon: 'Settings' }
     ]
   },
   {
@@ -137,8 +137,8 @@ const dispatcherMenuItems: MenuItem[] = [
     href: '/crew',
     badge: null,
     children: [
-      { id: 'crew-list', label: 'Available Crew', href: '/crew' },
-      { id: 'crew-schedule', label: 'Schedule', href: '/crew/schedule' }
+      { id: 'crew-list', label: 'Available Crew', href: '/crew', icon: 'Settings' },
+      { id: 'crew-schedule', label: 'Schedule', href: '/crew/schedule', icon: 'Settings' }
     ]
   },
   {
@@ -148,8 +148,8 @@ const dispatcherMenuItems: MenuItem[] = [
     href: '/dispatch',
     badge: 'pending-assignments',
     children: [
-      { id: 'active-journeys', label: 'Active Journeys', href: '/dispatch/active' },
-      { id: 'pending-journeys', label: 'Pending', href: '/dispatch/pending' }
+      { id: 'active-journeys', label: 'Active Journeys', href: '/dispatch/active', icon: 'Settings' },
+      { id: 'pending-journeys', label: 'Pending', href: '/dispatch/pending', icon: 'Settings' }
     ]
   },
   {
@@ -159,8 +159,8 @@ const dispatcherMenuItems: MenuItem[] = [
     href: '/feedback',
     badge: 'new-feedback-count',
     children: [
-      { id: 'feedback-list', label: 'Recent Feedback', href: '/feedback' },
-      { id: 'feedback-ratings', label: 'Ratings', href: '/feedback/ratings' }
+      { id: 'feedback-list', label: 'Recent Feedback', href: '/feedback', icon: 'Settings' },
+      { id: 'feedback-ratings', label: 'Ratings', href: '/feedback/ratings', icon: 'Settings' }
     ]
   },
   {
@@ -170,9 +170,9 @@ const dispatcherMenuItems: MenuItem[] = [
     href: '/mobile',
     badge: 'active-field-ops',
     children: [
-      { id: 'mobile-app', label: 'Mobile App', href: '/mobile' },
-      { id: 'mobile-journeys', label: 'Active Journeys', href: '/mobile/journeys' },
-      { id: 'mobile-tracking', label: 'Live Tracking', href: '/mobile/tracking' }
+      { id: 'mobile-app', label: 'Mobile App', href: '/mobile', icon: 'Settings' },
+      { id: 'mobile-journeys', label: 'Active Journeys', href: '/mobile/journeys', icon: 'Settings' },
+      { id: 'mobile-tracking', label: 'Live Tracking', href: '/mobile/tracking', icon: 'Settings' }
     ]
   },
   {
@@ -182,7 +182,7 @@ const dispatcherMenuItems: MenuItem[] = [
     href: '/audit',
     badge: null,
     children: [
-      { id: 'audit-entries', label: 'My Actions', href: '/audit/entries' }
+      { id: 'audit-entries', label: 'My Actions', href: '/audit/entries', icon: 'Settings' }
     ]
   },
   {
@@ -192,8 +192,8 @@ const dispatcherMenuItems: MenuItem[] = [
     href: '/settings',
     badge: null,
     children: [
-      { id: 'profile', label: 'Profile', href: '/settings/profile' },
-      { id: 'preferences', label: 'Preferences', href: '/settings/preferences' }
+      { id: 'profile', label: 'Profile', href: '/settings/profile', icon: 'Settings' },
+      { id: 'preferences', label: 'Preferences', href: '/settings/preferences', icon: 'Settings' }
     ]
   }
 ];
@@ -215,8 +215,8 @@ const driverMenuItems: MenuItem[] = [
     href: '/journeys',
     badge: 'active-journey-count',
     children: [
-      { id: 'current-journey', label: 'Current Journey', href: '/journey/current' },
-      { id: 'journey-history', label: 'History', href: '/journeys/history' }
+      { id: 'current-journey', label: 'Current Journey', href: '/journey/current', icon: 'Settings' },
+      { id: 'journey-history', label: 'History', href: '/journeys/history', icon: 'Settings' }
     ]
   },
   {
@@ -226,8 +226,8 @@ const driverMenuItems: MenuItem[] = [
     href: '/gps',
     badge: null,
     children: [
-      { id: 'live-tracking', label: 'Live Tracking', href: '/gps/live' },
-      { id: 'route-history', label: 'Route History', href: '/gps/history' }
+      { id: 'live-tracking', label: 'Live Tracking', href: '/gps/live', icon: 'Settings' },
+      { id: 'route-history', label: 'Route History', href: '/gps/history', icon: 'Settings' }
     ]
   },
   {
@@ -237,8 +237,8 @@ const driverMenuItems: MenuItem[] = [
     href: '/media',
     badge: null,
     children: [
-      { id: 'upload-photos', label: 'Upload Photos', href: '/media/upload' },
-      { id: 'media-gallery', label: 'Gallery', href: '/media/gallery' }
+      { id: 'upload-photos', label: 'Upload Photos', href: '/media/upload', icon: 'Settings' },
+      { id: 'media-gallery', label: 'Gallery', href: '/media/gallery', icon: 'Settings' }
     ]
   },
   {
@@ -248,9 +248,9 @@ const driverMenuItems: MenuItem[] = [
     href: '/mobile',
     badge: 'active-field-ops',
     children: [
-      { id: 'mobile-app', label: 'Mobile App', href: '/mobile' },
-      { id: 'mobile-journeys', label: 'Active Journeys', href: '/mobile/journeys' },
-      { id: 'mobile-tracking', label: 'Live Tracking', href: '/mobile/tracking' }
+      { id: 'mobile-app', label: 'Mobile App', href: '/mobile', icon: 'Settings' },
+      { id: 'mobile-journeys', label: 'Active Journeys', href: '/mobile/journeys', icon: 'Settings' },
+      { id: 'mobile-tracking', label: 'Live Tracking', href: '/mobile/tracking', icon: 'Settings' }
     ]
   },
   {
@@ -260,8 +260,8 @@ const driverMenuItems: MenuItem[] = [
     href: '/chat',
     badge: 'unread-messages',
     children: [
-      { id: 'active-chats', label: 'Active Chats', href: '/chat' },
-      { id: 'chat-history', label: 'History', href: '/chat/history' }
+      { id: 'active-chats', label: 'Active Chats', href: '/chat', icon: 'Settings' },
+      { id: 'chat-history', label: 'History', href: '/chat/history', icon: 'Settings' }
     ]
   },
   {
@@ -271,8 +271,8 @@ const driverMenuItems: MenuItem[] = [
     href: '/settings',
     badge: null,
     children: [
-      { id: 'profile', label: 'Profile', href: '/settings/profile' },
-      { id: 'gps-settings', label: 'GPS Settings', href: '/settings/gps' }
+      { id: 'profile', label: 'Profile', href: '/settings/profile', icon: 'Settings' },
+      { id: 'gps-settings', label: 'GPS Settings', href: '/settings/gps', icon: 'Settings' }
     ]
   }
 ];
@@ -294,8 +294,8 @@ const moverMenuItems: MenuItem[] = [
     href: '/journeys',
     badge: 'active-journey-count',
     children: [
-      { id: 'current-journey', label: 'Current Journey', href: '/journey/current' },
-      { id: 'journey-history', label: 'History', href: '/journeys/history' }
+      { id: 'current-journey', label: 'Current Journey', href: '/journey/current', icon: 'Settings' },
+      { id: 'journey-history', label: 'History', href: '/journeys/history', icon: 'Settings' }
     ]
   },
   {
@@ -305,9 +305,9 @@ const moverMenuItems: MenuItem[] = [
     href: '/media',
     badge: null,
     children: [
-      { id: 'upload-photos', label: 'Upload Photos', href: '/media/upload' },
-      { id: 'upload-videos', label: 'Upload Videos', href: '/media/videos' },
-      { id: 'media-gallery', label: 'Gallery', href: '/media/gallery' }
+      { id: 'upload-photos', label: 'Upload Photos', href: '/media/upload', icon: 'Settings' },
+      { id: 'upload-videos', label: 'Upload Videos', href: '/media/videos', icon: 'Settings' },
+      { id: 'media-gallery', label: 'Gallery', href: '/media/gallery', icon: 'Settings' }
     ]
   },
   {
@@ -317,9 +317,9 @@ const moverMenuItems: MenuItem[] = [
     href: '/mobile',
     badge: 'active-field-ops',
     children: [
-      { id: 'mobile-app', label: 'Mobile App', href: '/mobile' },
-      { id: 'mobile-journeys', label: 'Active Journeys', href: '/mobile/journeys' },
-      { id: 'mobile-tracking', label: 'Live Tracking', href: '/mobile/tracking' }
+      { id: 'mobile-app', label: 'Mobile App', href: '/mobile', icon: 'Settings' },
+      { id: 'mobile-journeys', label: 'Active Journeys', href: '/mobile/journeys', icon: 'Settings' },
+      { id: 'mobile-tracking', label: 'Live Tracking', href: '/mobile/tracking', icon: 'Settings' }
     ]
   },
   {
@@ -329,8 +329,8 @@ const moverMenuItems: MenuItem[] = [
     href: '/activities',
     badge: null,
     children: [
-      { id: 'log-activity', label: 'Log Activity', href: '/activities/log' },
-      { id: 'activity-history', label: 'History', href: '/activities/history' }
+      { id: 'log-activity', label: 'Log Activity', href: '/activities/log', icon: 'Settings' },
+      { id: 'activity-history', label: 'History', href: '/activities/history', icon: 'Settings' }
     ]
   },
   {
@@ -340,7 +340,7 @@ const moverMenuItems: MenuItem[] = [
     href: '/chat',
     badge: 'unread-messages',
     children: [
-      { id: 'active-chats', label: 'Active Chats', href: '/chat' }
+      { id: 'active-chats', label: 'Active Chats', href: '/chat', icon: 'Settings' }
     ]
   },
   {
@@ -350,7 +350,7 @@ const moverMenuItems: MenuItem[] = [
     href: '/settings',
     badge: null,
     children: [
-      { id: 'profile', label: 'Profile', href: '/settings/profile' }
+      { id: 'profile', label: 'Profile', href: '/settings/profile', icon: 'Settings' }
     ]
   }
 ];
@@ -372,9 +372,9 @@ const managerMenuItems: MenuItem[] = [
     href: '/journeys',
     badge: 'pending-approvals',
     children: [
-      { id: 'journey-list', label: 'All Journeys', href: '/journeys' },
-      { id: 'journey-calendar', label: 'Calendar View', href: '/calendar' },
-      { id: 'journey-reports', label: 'Reports', href: '/journeys/reports' }
+      { id: 'journey-list', label: 'All Journeys', href: '/journeys', icon: 'Settings' },
+      { id: 'journey-calendar', label: 'Calendar View', href: '/calendar', icon: 'Settings' },
+      { id: 'journey-reports', label: 'Reports', href: '/journeys/reports', icon: 'Settings' }
     ]
   },
   {
@@ -384,9 +384,9 @@ const managerMenuItems: MenuItem[] = [
     href: '/crew',
     badge: null,
     children: [
-      { id: 'crew-list', label: 'All Crew', href: '/crew' },
-      { id: 'crew-performance', label: 'Performance', href: '/crew/performance' },
-      { id: 'crew-schedule', label: 'Scheduling', href: '/crew/schedule' }
+      { id: 'crew-list', label: 'All Crew', href: '/crew', icon: 'Settings' },
+      { id: 'crew-performance', label: 'Performance', href: '/crew/performance', icon: 'Settings' },
+      { id: 'crew-schedule', label: 'Scheduling', href: '/crew/schedule', icon: 'Settings' }
     ]
   },
   {
@@ -396,9 +396,9 @@ const managerMenuItems: MenuItem[] = [
     href: '/reports',
     badge: null,
     children: [
-      { id: 'operational-reports', label: 'Operational', href: '/reports/operational' },
-      { id: 'financial-reports', label: 'Financial', href: '/reports/financial' },
-      { id: 'performance-reports', label: 'Performance', href: '/reports/performance' }
+      { id: 'operational-reports', label: 'Operational', href: '/reports/operational', icon: 'Settings' },
+      { id: 'financial-reports', label: 'Financial', href: '/reports/financial', icon: 'Settings' },
+      { id: 'performance-reports', label: 'Performance', href: '/reports/performance', icon: 'Settings' }
     ]
   },
   {
@@ -408,9 +408,9 @@ const managerMenuItems: MenuItem[] = [
     href: '/mobile',
     badge: 'active-field-ops',
     children: [
-      { id: 'mobile-app', label: 'Mobile App', href: '/mobile' },
-      { id: 'mobile-journeys', label: 'Active Journeys', href: '/mobile/journeys' },
-      { id: 'mobile-tracking', label: 'Live Tracking', href: '/mobile/tracking' }
+      { id: 'mobile-app', label: 'Mobile App', href: '/mobile', icon: 'Settings' },
+      { id: 'mobile-journeys', label: 'Active Journeys', href: '/mobile/journeys', icon: 'Settings' },
+      { id: 'mobile-tracking', label: 'Live Tracking', href: '/mobile/tracking', icon: 'Settings' }
     ]
   },
   {
@@ -420,8 +420,8 @@ const managerMenuItems: MenuItem[] = [
     href: '/audit',
     badge: 'pending-audits',
     children: [
-      { id: 'audit-verify', label: 'Verify Journeys', href: '/audit/verify' },
-      { id: 'audit-logs', label: 'Audit Logs', href: '/audit/logs' }
+      { id: 'audit-verify', label: 'Verify Journeys', href: '/audit/verify', icon: 'Settings' },
+      { id: 'audit-logs', label: 'Audit Logs', href: '/audit/logs', icon: 'Settings' }
     ]
   },
   {
@@ -431,9 +431,9 @@ const managerMenuItems: MenuItem[] = [
     href: '/feedback',
     badge: 'new-feedback-count',
     children: [
-      { id: 'feedback-overview', label: 'Overview', href: '/feedback' },
-      { id: 'feedback-ratings', label: 'Ratings', href: '/feedback/ratings' },
-      { id: 'feedback-nps', label: 'NPS Scores', href: '/feedback/nps' }
+      { id: 'feedback-overview', label: 'Overview', href: '/feedback', icon: 'Settings' },
+      { id: 'feedback-ratings', label: 'Ratings', href: '/feedback/ratings', icon: 'Settings' },
+      { id: 'feedback-nps', label: 'NPS Scores', href: '/feedback/nps', icon: 'Settings' }
     ]
   },
   {
@@ -443,8 +443,8 @@ const managerMenuItems: MenuItem[] = [
     href: '/settings',
     badge: null,
     children: [
-      { id: 'location-settings', label: 'Location', href: '/settings/location' },
-      { id: 'crew-settings', label: 'Crew Settings', href: '/settings/crew' }
+      { id: 'location-settings', label: 'Location', href: '/settings/location', icon: 'Settings' },
+      { id: 'crew-settings', label: 'Crew Settings', href: '/settings/crew', icon: 'Settings' }
     ]
   }
 ];
@@ -466,9 +466,9 @@ const auditorMenuItems: MenuItem[] = [
     href: '/audit',
     badge: 'pending-audits',
     children: [
-      { id: 'audit-logs', label: 'Audit Logs', href: '/audit/logs' },
-      { id: 'audit-verify', label: 'Verify Journeys', href: '/audit/verify' },
-      { id: 'audit-reports', label: 'Audit Reports', href: '/audit/reports' }
+      { id: 'audit-logs', label: 'Audit Logs', href: '/audit/logs', icon: 'Settings' },
+      { id: 'audit-verify', label: 'Verify Journeys', href: '/audit/verify', icon: 'Settings' },
+      { id: 'audit-reports', label: 'Audit Reports', href: '/audit/reports', icon: 'Settings' }
     ]
   },
   {
@@ -478,9 +478,9 @@ const auditorMenuItems: MenuItem[] = [
     href: '/compliance',
     badge: 'compliance-alerts',
     children: [
-      { id: 'compliance-overview', label: 'Overview', href: '/compliance' },
-      { id: 'compliance-reports', label: 'Reports', href: '/compliance/reports' },
-      { id: 'compliance-violations', label: 'Violations', href: '/compliance/violations' }
+      { id: 'compliance-overview', label: 'Overview', href: '/compliance', icon: 'Settings' },
+      { id: 'compliance-reports', label: 'Reports', href: '/compliance/reports', icon: 'Settings' },
+      { id: 'compliance-violations', label: 'Violations', href: '/compliance/violations', icon: 'Settings' }
     ]
   },
   {
@@ -490,8 +490,8 @@ const auditorMenuItems: MenuItem[] = [
     href: '/journeys',
     badge: null,
     children: [
-      { id: 'journey-audit', label: 'Audit Journeys', href: '/journeys/audit' },
-      { id: 'journey-history', label: 'History', href: '/journeys/history' }
+      { id: 'journey-audit', label: 'Audit Journeys', href: '/journeys/audit', icon: 'Settings' },
+      { id: 'journey-history', label: 'History', href: '/journeys/history', icon: 'Settings' }
     ]
   },
   {
@@ -501,8 +501,8 @@ const auditorMenuItems: MenuItem[] = [
     href: '/crew',
     badge: null,
     children: [
-      { id: 'crew-scoreboard', label: 'Scoreboard', href: '/crew/scoreboard' },
-      { id: 'crew-performance', label: 'Performance', href: '/crew/performance' }
+      { id: 'crew-scoreboard', label: 'Scoreboard', href: '/crew/scoreboard', icon: 'Settings' },
+      { id: 'crew-performance', label: 'Performance', href: '/crew/performance', icon: 'Settings' }
     ]
   },
   {
@@ -512,9 +512,9 @@ const auditorMenuItems: MenuItem[] = [
     href: '/reports',
     badge: null,
     children: [
-      { id: 'compliance-reports', label: 'Compliance', href: '/reports/compliance' },
-      { id: 'audit-reports', label: 'Audit', href: '/reports/audit' },
-      { id: 'performance-reports', label: 'Performance', href: '/reports/performance' }
+      { id: 'compliance-reports', label: 'Compliance', href: '/reports/compliance', icon: 'Settings' },
+      { id: 'audit-reports', label: 'Audit', href: '/reports/audit', icon: 'Settings' },
+      { id: 'performance-reports', label: 'Performance', href: '/reports/performance', icon: 'Settings' }
     ]
   },
   {
@@ -524,8 +524,8 @@ const auditorMenuItems: MenuItem[] = [
     href: '/settings',
     badge: null,
     children: [
-      { id: 'audit-settings', label: 'Audit Rules', href: '/settings/audit' },
-      { id: 'compliance-settings', label: 'Compliance', href: '/settings/compliance' }
+      { id: 'audit-settings', label: 'Audit Rules', href: '/settings/audit', icon: 'Settings' },
+      { id: 'compliance-settings', label: 'Compliance', href: '/settings/compliance', icon: 'Settings' }
     ]
   }
 ];
