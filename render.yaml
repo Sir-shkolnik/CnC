@@ -11,7 +11,8 @@ services:
       pip install -r requirements.txt
       pip install prisma
       prisma generate
-    startCommand: uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT
+      python -c "import prisma; prisma.generate()"
+    startCommand: uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT --reload
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -30,7 +31,7 @@ services:
       - key: API_HOST
         value: 0.0.0.0
       - key: CORS_ORIGINS
-        value: https://c-and-c-crm-frontend.onrender.com
+        value: https://c-and-c-crm-frontend.onrender.com,https://c-and-c-crm-mobile.onrender.com,https://c-and-c-crm-storage.onrender.com
       - key: REDIS_URL
         value: redis://c-and-c-crm-redis.onrender.com:6379
       - key: UPLOAD_DIR
@@ -49,6 +50,8 @@ services:
         value: America/Toronto
       - key: DEFAULT_CLIENT_ID
         value: clm_f55e13de_a5c4_4990_ad02_34bb07187daa
+      - key: PYTHONPATH
+        value: .
     healthCheckPath: /health
     autoDeploy: true
 
