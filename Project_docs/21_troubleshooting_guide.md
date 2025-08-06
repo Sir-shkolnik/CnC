@@ -22,14 +22,54 @@
 # In render.yaml - API Service
 buildCommand: |
   python -m pip install --upgrade pip
-  pip install -r requirements.txt
   pip install uvicorn[standard]==0.24.0  # Explicit installation
   pip install prisma
   prisma generate
 
 startCommand: |
-  source .venv/bin/activate
-  uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT
+  python -m uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT
+```
+
+### **Issue 2: "No module named 'fastapi'" Error**
+
+**Error Message:**
+```
+ModuleNotFoundError: No module named 'fastapi'
+```
+
+**Root Cause:** Dependencies not properly installed from requirements.txt
+
+**Solution Applied:**
+```yaml
+# In render.yaml - API Service - Explicit dependency installation
+buildCommand: |
+  python -m pip install --upgrade pip
+  pip install fastapi==0.104.1
+  pip install uvicorn[standard]==0.24.0
+  pip install pydantic==2.5.0
+  pip install pydantic-settings==2.1.0
+  pip install prisma==0.12.0
+  pip install asyncpg==0.29.0
+  pip install psycopg2-binary
+  pip install python-jose[cryptography]==3.3.0
+  pip install PyJWT==2.8.0
+  pip install passlib[bcrypt]==1.7.4
+  pip install python-multipart==0.0.6
+  pip install httpx==0.25.2
+  pip install requests==2.31.0
+  pip install python-magic==0.4.27
+  pip install Pillow==10.1.0
+  pip install python-dotenv==1.0.0
+  pip install python-dateutil==2.8.2
+  pip install structlog==23.2.0
+  pip install redis==5.0.1
+  pip install websockets==12.0
+  pip install celery==5.3.4
+  pip install psutil==5.9.6
+  prisma generate
+
+startCommand: |
+  python -m uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT
 ```
 
 **Verification:**
@@ -42,7 +82,7 @@ curl -I https://c-and-c-crm-api.onrender.com/health
 
 ## 🔍 **Common Deployment Issues**
 
-### **Issue 2: Frontend Build Failures**
+### **Issue 3: Frontend Build Failures**
 
 **Error Types:**
 - TypeScript compilation errors
@@ -62,7 +102,7 @@ startCommand: |
   next start -p $PORT  # Instead of npm start
 ```
 
-### **Issue 3: Database Connection Problems**
+### **Issue 4: Database Connection Problems**
 
 **Error Types:**
 - Connection timeout
@@ -83,7 +123,7 @@ curl https://c-and-c-crm-api.onrender.com/health/database
 docker logs trujourney-postgres
 ```
 
-### **Issue 4: CORS Errors**
+### **Issue 5: CORS Errors**
 
 **Error Types:**
 - Cross-origin request blocked
