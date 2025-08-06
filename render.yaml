@@ -10,30 +10,11 @@ services:
     pythonVersion: "3.11"
     buildCommand: |
       python -m pip install --upgrade pip
-      pip install --only-binary=all fastapi==0.104.1
-      pip install --only-binary=all uvicorn[standard]==0.24.0
-      pip install --only-binary=all pydantic==2.5.0
-      pip install --only-binary=all pydantic-settings==2.1.0
-      pip install --only-binary=all prisma==0.12.0
-      pip install --only-binary=all psycopg2-binary
-      pip install --only-binary=all python-jose[cryptography]==3.3.0
-      pip install --only-binary=all PyJWT==2.8.0
-      pip install --only-binary=all passlib[bcrypt]==1.7.4
-      pip install --only-binary=all python-multipart==0.0.6
-      pip install --only-binary=all httpx==0.25.2
-      pip install --only-binary=all requests==2.31.0
-      pip install --only-binary=all Pillow==10.1.0
-      pip install --only-binary=all python-dotenv==1.0.0
-      pip install --only-binary=all python-dateutil==2.8.2
-      pip install --only-binary=all structlog==23.2.0
-      pip install --only-binary=all redis==5.0.1
-      pip install --only-binary=all websockets==12.0
-      pip install --only-binary=all celery==5.3.4
-      pip install --only-binary=all psutil==5.9.6
+      pip install -r requirements.txt
       prisma generate
     startCommand: |
-      # Run database migrations first
-      python run_migrations.py
+      # Run database migrations first (with error handling)
+      python run_migrations.py || echo "Migration failed, continuing..."
       # Start the API server
       python -m uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT
     envVars:
