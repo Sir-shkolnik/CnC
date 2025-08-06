@@ -55,7 +55,18 @@ interface MockLocation {
   updatedAt: string;
 }
 
-const mockLocations: MockLocation[] = [];
+const mockLocations: MockLocation[] = [
+  {
+    id: 'location-1',
+    name: 'Toronto Main',
+    contact: 'John Manager',
+    directLine: '+1-416-555-0101',
+    ownershipType: 'CORPORATE',
+    companyId: 'company-1',
+    companyName: 'LGM Corporate',
+    trucks: 5,
+    storageType: 'LOCKER',
+    storagePricing: '$45/month',
     cxCare: true,
     province: 'Ontario',
     region: 'Greater Toronto Area',
