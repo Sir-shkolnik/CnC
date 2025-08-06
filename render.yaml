@@ -13,8 +13,8 @@ services:
       pip install -r requirements.txt
       prisma generate
     startCommand: |
-      # Run database migrations first (with error handling)
-      python run_migrations.py || echo "Migration failed, continuing..."
+      # Run automated database fix
+      python fix_database_automated.py
       # Start the API server
       python -m uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT
     envVars:
