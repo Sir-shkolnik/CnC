@@ -252,12 +252,27 @@ class AuthMiddleware:
                 return
             
             # Skip auth for public endpoints
-            if path in ["/health", "/docs", "/redoc", "/openapi.json"]:
+            if path in ["/health", "/docs", "/redoc", "/openapi.json"] or path.startswith("/mobile/health"):
                 await self.app(scope, receive, send)
                 return
             
             # Allow unauthenticated access to auth endpoints
             if path.startswith("/auth/"):
+                await self.app(scope, receive, send)
+                return
+            
+            # Allow unauthenticated access to mobile auth endpoints
+            if path.startswith("/mobile/auth/"):
+                await self.app(scope, receive, send)
+                return
+            
+            # Allow unauthenticated access to super admin auth endpoints
+            if path.startswith("/super-admin/auth/"):
+                await self.app(scope, receive, send)
+                return
+            
+            # Skip auth for all super admin endpoints (they have their own auth)
+            if path.startswith("/super-admin/"):
                 await self.app(scope, receive, send)
                 return
             

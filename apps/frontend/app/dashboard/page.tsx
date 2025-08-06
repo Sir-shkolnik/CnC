@@ -23,7 +23,8 @@ import {
   Trash2,
   BarChart3,
   DollarSign,
-  Target
+  Target,
+  Smartphone
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { useJourneyStore } from '@/stores/journeyStore'
@@ -61,8 +62,8 @@ export default function DashboardPage() {
     total: journeys.length,
     active: journeys.filter(j => j.status === 'MORNING_PREP' || j.status === 'EN_ROUTE' || j.status === 'ONSITE').length,
     completed: journeys.filter(j => j.status === 'COMPLETED').length,
-    onTime: journeys.filter(j => j.status === 'COMPLETED').length, // Simplified for demo
-    revenue: journeys.filter(j => j.status === 'COMPLETED').length * 250 // Mock calculation
+    onTime: journeys.filter(j => j.status === 'COMPLETED').length, // TODO: Calculate from actual data
+    revenue: 0 // TODO: Calculate from actual revenue data
   }
 
   const getStatusColor = (status: string) => {
@@ -120,114 +121,121 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Page Header - Improved Layout */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+    <div className="space-y-4">
+      {/* Page Header - Compact Layout */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-3 lg:space-y-0">
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-text-primary mb-1">Dashboard</h1>
+          <h1 className="text-xl font-bold text-text-primary mb-1">Dashboard</h1>
           <p className="text-text-secondary text-sm">
             Welcome back, {user?.name || 'User'}! Here's your operations overview.
           </p>
         </div>
         <div className="flex items-center space-x-2 flex-shrink-0">
-          <Button variant="secondary" size="sm" className="h-9">
-            <BarChart3 className="w-4 h-4 mr-2" />
+          <Button variant="secondary" size="sm" className="h-8">
+            <BarChart3 className="w-4 h-4 mr-1" />
             Reports
           </Button>
-          <Button onClick={handleCreateJourney} size="sm" className="h-9">
-            <Plus className="w-4 h-4 mr-2" />
+          <Button onClick={handleCreateJourney} size="sm" className="h-8">
+            <Plus className="w-4 h-4 mr-1" />
             New Journey
           </Button>
         </div>
       </div>
 
-      {/* Statistics Cards - Improved Layout */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Statistics Cards - Compact Layout */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Card className="hover:shadow-lg transition-shadow">
-          <CardContent className="p-4 text-center">
-            <div className="flex items-center justify-center space-x-2 mb-2">
-              <Truck className="w-5 h-5 text-primary" />
-              <p className="text-xl font-bold text-text-primary">{stats.total}</p>
+          <CardContent className="p-3 text-center">
+            <div className="flex items-center justify-center space-x-2 mb-1">
+              <Truck className="w-4 h-4 text-primary" />
+              <p className="text-lg font-bold text-text-primary">{stats.total}</p>
             </div>
             <p className="text-xs text-text-secondary">Total Journeys</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-lg transition-shadow">
-          <CardContent className="p-4 text-center">
-            <div className="flex items-center justify-center space-x-2 mb-2">
-              <TrendingUp className="w-5 h-5 text-warning" />
-              <p className="text-xl font-bold text-text-primary">{stats.active}</p>
+          <CardContent className="p-3 text-center">
+            <div className="flex items-center justify-center space-x-2 mb-1">
+              <TrendingUp className="w-4 h-4 text-warning" />
+              <p className="text-lg font-bold text-text-primary">{stats.active}</p>
             </div>
             <p className="text-xs text-text-secondary">Active</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-lg transition-shadow">
-          <CardContent className="p-4 text-center">
-            <div className="flex items-center justify-center space-x-2 mb-2">
-              <CheckCircle className="w-5 h-5 text-success" />
-              <p className="text-xl font-bold text-text-primary">{stats.completed}</p>
+          <CardContent className="p-3 text-center">
+            <div className="flex items-center justify-center space-x-2 mb-1">
+              <CheckCircle className="w-4 h-4 text-success" />
+              <p className="text-lg font-bold text-text-primary">{stats.completed}</p>
             </div>
             <p className="text-xs text-text-secondary">Completed</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-lg transition-shadow">
-          <CardContent className="p-4 text-center">
-            <div className="flex items-center justify-center space-x-2 mb-2">
-              <DollarSign className="w-5 h-5 text-info" />
-              <p className="text-xl font-bold text-text-primary">${stats.revenue.toLocaleString()}</p>
+          <CardContent className="p-3 text-center">
+            <div className="flex items-center justify-center space-x-2 mb-1">
+              <DollarSign className="w-4 h-4 text-info" />
+              <p className="text-lg font-bold text-text-primary">${stats.revenue.toLocaleString()}</p>
             </div>
             <p className="text-xs text-text-secondary">Revenue</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Quick Actions - New Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Quick Actions - Compact Section */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push('/journeys')}>
-          <CardContent className="p-4 text-center">
-            <Truck className="w-8 h-8 text-primary mx-auto mb-2" />
-            <h3 className="font-semibold text-text-primary mb-1">View All Journeys</h3>
+          <CardContent className="p-3 text-center">
+            <Truck className="w-6 h-6 text-primary mx-auto mb-1" />
+            <h3 className="font-semibold text-text-primary mb-1 text-sm">View All Journeys</h3>
             <p className="text-xs text-text-secondary">Manage and track all operations</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push('/crew')}>
-          <CardContent className="p-4 text-center">
-            <Users className="w-8 h-8 text-secondary mx-auto mb-2" />
-            <h3 className="font-semibold text-text-primary mb-1">Crew Management</h3>
+          <CardContent className="p-3 text-center">
+            <Users className="w-6 h-6 text-secondary mx-auto mb-1" />
+            <h3 className="font-semibold text-text-primary mb-1 text-sm">Crew Management</h3>
             <p className="text-xs text-text-secondary">Assign and manage teams</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push('/calendar')}>
-          <CardContent className="p-4 text-center">
-            <Calendar className="w-8 h-8 text-success mx-auto mb-2" />
-            <h3 className="font-semibold text-text-primary mb-1">Calendar View</h3>
+          <CardContent className="p-3 text-center">
+            <Calendar className="w-6 h-6 text-success mx-auto mb-1" />
+            <h3 className="font-semibold text-text-primary mb-1 text-sm">Calendar View</h3>
             <p className="text-xs text-text-secondary">Schedule and planning</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push('/audit')}>
-          <CardContent className="p-4 text-center">
-            <Target className="w-8 h-8 text-warning mx-auto mb-2" />
-            <h3 className="font-semibold text-text-primary mb-1">Audit & Reports</h3>
+          <CardContent className="p-3 text-center">
+            <Target className="w-6 h-6 text-warning mx-auto mb-1" />
+            <h3 className="font-semibold text-text-primary mb-1 text-sm">Audit & Reports</h3>
             <p className="text-xs text-text-secondary">Compliance and analytics</p>
+          </CardContent>
+        </Card>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push('/mobile')}>
+          <CardContent className="p-3 text-center">
+            <Smartphone className="w-6 h-6 text-info mx-auto mb-1" />
+            <h3 className="font-semibold text-text-primary mb-1 text-sm">Field Operations</h3>
+            <p className="text-xs text-text-secondary">Mobile app for drivers & movers</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Filters and Search - Improved Layout */}
+      {/* Filters and Search - Compact Layout */}
       <Card className="hover:shadow-lg transition-shadow">
-        <CardContent className="p-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <CardContent className="p-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-secondary w-4 h-4" />
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-text-secondary w-4 h-4" />
               <Input
                 placeholder="Search journeys..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-8 h-8 text-sm"
               />
             </div>
             <select
-              className="px-3 py-2 bg-surface border border-gray-600 rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+              className="px-2 py-1 bg-surface border border-gray-600 rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm h-8"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -241,33 +249,33 @@ export default function DashboardPage() {
             <Button 
               variant="secondary" 
               size="sm"
-              className="h-10"
+              className="h-8"
               onClick={() => {
                 setSearchTerm('')
                 setStatusFilter('all')
               }}
             >
-              <Filter className="w-4 h-4 mr-2" />
+              <Filter className="w-4 h-4 mr-1" />
               Clear Filters
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Recent Journeys - Improved Layout */}
+      {/* Recent Journeys - Compact Layout */}
       <Card className="hover:shadow-lg transition-shadow">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center">
-            <Truck className="w-5 h-5 mr-2 text-primary" />
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex items-center">
+            <Truck className="w-4 h-4 mr-2 text-primary" />
             Recent Journeys ({filteredJourneys.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {Array.from({ length: 5 }).map((_, index) => (
                 <div key={index} className="animate-pulse">
-                  <div className="h-16 bg-gray-700 rounded"></div>
+                  <div className="h-12 bg-gray-700 rounded"></div>
                 </div>
               ))}
             </div>
@@ -276,62 +284,62 @@ export default function DashboardPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-700">
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Journey</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Status</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Date</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Crew</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Location</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Actions</th>
+                    <th className="text-left py-2 px-3 text-xs font-medium text-text-secondary">Journey</th>
+                    <th className="text-left py-2 px-3 text-xs font-medium text-text-secondary">Status</th>
+                    <th className="text-left py-2 px-3 text-xs font-medium text-text-secondary">Date</th>
+                    <th className="text-left py-2 px-3 text-xs font-medium text-text-secondary">Crew</th>
+                    <th className="text-left py-2 px-3 text-xs font-medium text-text-secondary">Location</th>
+                    <th className="text-left py-2 px-3 text-xs font-medium text-text-secondary">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredJourneys.slice(0, 10).map((journey) => (
+                  {filteredJourneys.slice(0, 8).map((journey) => (
                     <tr key={journey.id} className="border-b border-gray-700 hover:bg-surface/50 transition-colors">
-                      <td className="py-3 px-4">
+                      <td className="py-2 px-3">
                         <div>
-                          <p className="font-medium text-text-primary">{journey.truckNumber || 'Unassigned'}</p>
-                          <p className="text-sm text-text-secondary">ID: {journey.id}</p>
+                          <p className="font-medium text-text-primary text-sm">{journey.truckNumber || 'Unassigned'}</p>
+                          <p className="text-xs text-text-secondary">ID: {journey.id}</p>
                         </div>
                       </td>
-                      <td className="py-3 px-4">
-                        <Badge variant={getStatusColor(journey.status)}>
+                      <td className="py-2 px-3">
+                        <Badge variant={getStatusColor(journey.status)} className="text-xs">
                           {getStatusText(journey.status)}
                         </Badge>
                       </td>
-                      <td className="py-3 px-4 text-text-primary">
+                      <td className="py-2 px-3 text-text-primary text-sm">
                         {formatDate(journey.date)}
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-2 px-3">
                         <div className="flex items-center space-x-1">
-                          <Users className="w-4 h-4 text-text-secondary" />
-                          <span className="text-sm text-text-secondary">2 crew</span>
+                          <Users className="w-3 h-3 text-text-secondary" />
+                          <span className="text-xs text-text-secondary">2 crew</span>
                         </div>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-2 px-3">
                         <div className="flex items-center space-x-1">
-                          <MapPin className="w-4 h-4 text-text-secondary" />
-                          <span className="text-sm text-text-secondary">Location {journey.id}</span>
+                          <MapPin className="w-3 h-3 text-text-secondary" />
+                          <span className="text-xs text-text-secondary">Location {journey.id}</span>
                         </div>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-2 px-3">
                         <div className="flex items-center space-x-1">
                           <Button 
                             variant="ghost" 
                             size="sm"
-                            className="h-8 w-8 p-0"
+                            className="h-6 w-6 p-0"
                             onClick={() => handleJourneyAction(journey.id, 'view')}
                             title="View Journey"
                           >
-                            <Eye className="w-4 h-4" />
+                            <Eye className="w-3 h-3" />
                           </Button>
                           <Button 
                             variant="ghost" 
                             size="sm"
-                            className="h-8 w-8 p-0"
+                            className="h-6 w-6 p-0"
                             onClick={() => handleJourneyAction(journey.id, 'edit')}
                             title="Edit Journey"
                           >
-                            <Edit className="w-4 h-4" />
+                            <Edit className="w-3 h-3" />
                           </Button>
                         </div>
                       </td>
@@ -341,17 +349,17 @@ export default function DashboardPage() {
               </table>
             </div>
           ) : (
-            <div className="text-center py-12">
-              <Truck className="w-16 h-16 text-text-secondary mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-text-primary mb-2">No journeys found</h3>
-              <p className="text-text-secondary mb-6 text-sm max-w-md mx-auto">
+            <div className="text-center py-8">
+              <Truck className="w-12 h-12 text-text-secondary mx-auto mb-3" />
+              <h3 className="text-lg font-semibold text-text-primary mb-2">No journeys found</h3>
+              <p className="text-text-secondary mb-4 text-sm max-w-md mx-auto">
                 {searchTerm || statusFilter !== 'all'
                   ? 'Try adjusting your filters to find what you\'re looking for.'
                   : 'Get started by creating your first journey.'
                 }
               </p>
               <Button onClick={handleCreateJourney} size="sm">
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-4 h-4 mr-1" />
                 Create Journey
               </Button>
             </div>

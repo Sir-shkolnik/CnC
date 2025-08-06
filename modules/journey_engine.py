@@ -87,7 +87,7 @@ class JourneyEngine:
     """Core business logic for journey management"""
     
     def __init__(self):
-        self.journeys = {}  # In-memory storage for demo (replace with database)
+        self.journeys = {}  # TODO: Replace with database storage
     
     def create_journey(self, journey_data: Dict[str, Any], user_id: str, user_role: UserRole) -> Tuple[bool, Dict[str, Any], str]:
         """Create a new journey with validation"""

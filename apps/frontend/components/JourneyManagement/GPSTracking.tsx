@@ -85,73 +85,9 @@ export default function GPSTracking({
 
   const loadLocationHistory = async () => {
     try {
-      // In a real app, this would fetch from the API
-      const mockHistory: GPSLocation[] = [
-        {
-          id: 'loc_001',
-          journeyId,
-          userId: currentUserId,
-          timestamp: new Date(Date.now() - 3600000).toISOString(),
-          latitude: 43.6532,
-          longitude: -79.3832,
-          accuracy: 5,
-          speed: 0,
-          heading: 0,
-          altitude: 76,
-          address: '123 Main St, Toronto, ON'
-        },
-        {
-          id: 'loc_002',
-          journeyId,
-          userId: currentUserId,
-          timestamp: new Date(Date.now() - 3000000).toISOString(),
-          latitude: 43.6540,
-          longitude: -79.3840,
-          accuracy: 5,
-          speed: 25,
-          heading: 45,
-          altitude: 76,
-          address: '456 Queen St, Toronto, ON'
-        },
-        {
-          id: 'loc_003',
-          journeyId,
-          userId: currentUserId,
-          timestamp: new Date(Date.now() - 2400000).toISOString(),
-          latitude: 43.6550,
-          longitude: -79.3850,
-          accuracy: 5,
-          speed: 30,
-          heading: 90,
-          altitude: 77,
-          address: '789 King St, Toronto, ON'
-        },
-        {
-          id: 'loc_004',
-          journeyId,
-          userId: currentUserId,
-          timestamp: new Date(Date.now() - 1800000).toISOString(),
-          latitude: 43.6560,
-          longitude: -79.3860,
-          accuracy: 5,
-          speed: 35,
-          heading: 135,
-          altitude: 78,
-          address: '321 Front St, Toronto, ON'
-        }
-      ]
-      
-      setLocationHistory(mockHistory)
-      setRoutePoints(mockHistory.map(loc => ({
-        latitude: loc.latitude,
-        longitude: loc.longitude,
-        timestamp: loc.timestamp,
-        speed: loc.speed
-      })))
-      
-      if (mockHistory.length > 0) {
-        setCurrentLocation(mockHistory[mockHistory.length - 1])
-      }
+      // TODO: Replace with API call
+      setLocationHistory([])
+      setRoutePoints([])
     } catch (error) {
       console.error('Failed to load location history:', error)
       toast.error('Failed to load location history')

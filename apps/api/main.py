@@ -20,7 +20,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'modules'))
 
 # Import routes
 from apps.api.routes import auth, journey, calendar, dispatch, feedback, crew, storage, media, audit
-from apps.api.routes import users, super_admin
+from apps.api.routes import users, super_admin, mobile, locations, journey_steps, admin
 
 # Import middleware
 from apps.api.middleware.auth import AuthMiddleware
@@ -210,6 +210,18 @@ app.include_router(audit.router, prefix="/audit", tags=["Compliance & Consistenc
 # Super Admin routes
 app.include_router(super_admin.router, prefix="/super-admin", tags=["Super Admin"])
 
+# Admin routes
+app.include_router(admin.router, tags=["Admin"])
+
+# Mobile routes
+app.include_router(mobile.router, prefix="/mobile", tags=["Mobile App"])
+
+# Locations routes
+app.include_router(locations.router, tags=["Locations"])
+
+# Journey Steps routes
+app.include_router(journey_steps.router, tags=["Journey Steps"])
+
 # ===== WEBSOCKET ENDPOINTS =====
 
 @app.websocket("/ws/journey/{journey_id}")
@@ -235,10 +247,10 @@ async def websocket_journey_endpoint(websocket: WebSocket, journey_id: str):
             await websocket_server.connect(
                 websocket,
                 connection_id,
-                "user_123",  # Would get from JWT token
-                "DISPATCHER",  # Would get from JWT token
-                "clm_lgm_corp_001",  # Would get from JWT token
-                "loc_lgm_toronto_001"  # Would get from JWT token
+                "user_placeholder",  # TODO: Get from JWT token
+                "DISPATCHER",  # TODO: Get from JWT token
+                "placeholder_client",  # TODO: Get from JWT token
+                "placeholder_location"  # TODO: Get from JWT token
             )
             
             # Subscribe to journey updates
@@ -297,9 +309,9 @@ async def websocket_user_endpoint(websocket: WebSocket, user_id: str):
                 websocket,
                 connection_id,
                 user_id,
-                "DISPATCHER",  # Would get from JWT token
-                "clm_lgm_corp_001",  # Would get from JWT token
-                "loc_lgm_toronto_001"  # Would get from JWT token
+                "DISPATCHER",  # TODO: Get from JWT token
+                "placeholder_client",  # TODO: Get from JWT token
+                "placeholder_location"  # TODO: Get from JWT token
             )
             
             # Handle incoming messages

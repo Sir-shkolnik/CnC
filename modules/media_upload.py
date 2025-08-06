@@ -52,8 +52,8 @@ class MediaHandler:
     """Handle media upload, processing, and management"""
     
     def __init__(self):
-        self.media = {}  # In-memory storage for demo (replace with database/cloud storage)
-        self.upload_dir = "uploads"  # Local upload directory (replace with cloud storage)
+        self.media = {}  # TODO: Replace with database/cloud storage
+        self.upload_dir = "uploads"  # TODO: Replace with cloud storage
         
         # Create upload directory if it doesn't exist
         os.makedirs(self.upload_dir, exist_ok=True)

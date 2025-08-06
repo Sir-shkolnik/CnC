@@ -72,6 +72,11 @@ export const MainNavigation: React.FC<MainNavigationProps> = ({ children }) => {
     return <>{children}</>;
   }
 
+  // Don't render navigation for super admin pages (they have their own layout)
+  if (pathname.startsWith('/super-admin')) {
+    return <>{children}</>;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile Menu */}

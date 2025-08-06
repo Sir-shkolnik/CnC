@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client-py"
 }
 
 datasource db {
@@ -34,6 +34,16 @@ model User {
   mediaUploads     Media[]
   auditEntries     AuditEntry[]
 
+  // Mobile relations
+  mobileSessions        MobileSession[]
+  mobileJourneyUpdates  MobileJourneyUpdate[]
+  mobileMediaItems      MobileMediaItem[]
+  mobileNotifications   MobileNotification[]
+
+  // Journey step relations
+  approvedSteps         JourneyStep[] @relation("StepApprover")
+  createdActivities     StepActivity[] @relation("ActivityCreator")
+
   @@index([clientId, locationId])
   @@index([email])
   @@index([role])
@@ -52,6 +62,10 @@ model Client {
   locations     Location[]
   users         User[]
   truckJourneys TruckJourney[]
+  moveSources   MoveSource[]
+  auditEntries  AuditEntry[]
+
+  @@index([name])
 }
 
 model Location {
@@ -67,7 +81,8 @@ model Location {
   client        Client         @relation(fields: [clientId], references: [id])
   users         User[]
   truckJourneys TruckJourney[]
-  AuditEntry    AuditEntry[]
+  auditEntries  AuditEntry[]
+  mobileSessions MobileSession[]
 
   @@index([clientId])
 }
@@ -87,33 +102,88 @@ model TruckJourney {
   updatedAt    DateTime     @updatedAt
 
   // Relations
-  location     Location       @relation(fields: [locationId], references: [id])
-  client       Client         @relation(fields: [clientId], references: [id])
-  createdBy    User           @relation("JourneyCreator", fields: [createdById], references: [id])
-  createdById  String
-  assignedCrew AssignedCrew[]
-  entries      JourneyEntry[]
-  media        Media[]
-  auditEntries AuditEntry[]
+  location        Location        @relation(fields: [locationId], references: [id])
+  client          Client          @relation(fields: [clientId], references: [id])
+  createdBy       User            @relation("JourneyCreator", fields: [createdById], references: [id])
+  createdById     String
+  assignedCrew    AssignedCrew[]
+  entries         JourneyEntry[]
+  mediaUploads    Media[]
+  mobileUpdates   MobileJourneyUpdate[]
+  mobileMedia     MobileMediaItem[]
+  journeySteps    JourneyStep[]
 
   @@index([clientId, locationId])
-  @@index([date])
   @@index([status])
-  @@index([createdById])
+  @@index([date])
+}
+
+model JourneyStep {
+  id          String        @id @default(cuid())
+  journeyId   String
+  stepNumber  Int           // 1-4
+  stepName    String        // "Ready to Go", "Points A", "New Location", "Back to Dispatcher"
+  status      StepStatus    @default(PENDING)
+  startedAt   DateTime?
+  completedAt DateTime?
+  approvedBy  String?
+  approvedAt  DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  journey   TruckJourney    @relation(fields: [journeyId], references: [id])
+  approver  User?           @relation("StepApprover", fields: [approvedBy], references: [id])
+  activities StepActivity[]
+
+  @@index([journeyId])
+  @@index([stepNumber])
+  @@index([status])
+}
+
+model StepActivity {
+  id           String        @id @default(cuid())
+  stepId       String
+  activityType ActivityType  @default(CHECKLIST)
+  data         Json?         // Flexible data structure for different activity types
+  createdBy    String
+  createdAt    DateTime      @default(now())
+
+  // Relations
+  step    JourneyStep @relation(fields: [stepId], references: [id])
+  creator User       @relation("ActivityCreator", fields: [createdBy], references: [id])
+
+  @@index([stepId])
+  @@index([createdBy])
+  @@index([activityType])
+}
+
+model RolePermission {
+  id        String @id @default(cuid())
+  role      UserRole
+  stepNumber Int
+  canEdit   Boolean @default(false)
+  canApprove Boolean @default(false)
+  canView   Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([role])
+  @@index([stepNumber])
 }
 
 model AssignedCrew {
-  id         String   @id @default(cuid())
-  journeyId  String
-  userId     String
-  role       UserRole
-  assignedAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  journeyId String
+  userId    String
+  role      UserRole
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   journey TruckJourney @relation(fields: [journeyId], references: [id])
   user    User         @relation(fields: [userId], references: [id])
 
-  @@unique([journeyId, userId])
   @@index([journeyId])
   @@index([userId])
 }
@@ -122,8 +192,8 @@ model JourneyEntry {
   id        String    @id @default(cuid())
   journeyId String
   createdBy String
-  type      EntryType
-  data      Json
+  type      EntryType @default(NOTE)
+  data      Json?
   tag       TagType?
   timestamp DateTime  @default(now())
 
@@ -133,79 +203,204 @@ model JourneyEntry {
 
   @@index([journeyId])
   @@index([createdBy])
-  @@index([type])
   @@index([timestamp])
 }
 
 model Media {
-  id         String    @id @default(cuid())
-  url        String
-  type       MediaType
-  linkedTo   String // JourneyEntry ID or TruckJourney ID
+  id        String    @id @default(cuid())
+  journeyId String
   uploadedBy String
-  createdAt  DateTime  @default(now())
+  type      MediaType @default(PHOTO)
+  url       String
+  filename  String?
+  size      Int?
+  metadata  Json?
+  createdAt DateTime  @default(now())
 
   // Relations
-  user    User          @relation(fields: [uploadedBy], references: [id])
-  journey TruckJourney? @relation(fields: [linkedTo], references: [id])
+  journey    TruckJourney @relation(fields: [journeyId], references: [id])
+  user       User         @relation(fields: [uploadedBy], references: [id])
 
+  @@index([journeyId])
   @@index([uploadedBy])
   @@index([type])
-  @@index([linkedTo])
 }
 
 model AuditEntry {
   id         String   @id @default(cuid())
-  action     String // CREATE, UPDATE, DELETE, VIEW
-  entity     String // Model name
-  entityId   String
-  userId     String
-  locationId String
   clientId   String
+  locationId String
+  userId     String
+  action     String
+  entity     String
+  entityId   String
+  diff       Json?
   timestamp  DateTime @default(now())
-  diff       Json? // Before/after state for updates
 
   // Relations
-  user     User          @relation(fields: [userId], references: [id])
-  location Location      @relation(fields: [locationId], references: [id])
-  journey  TruckJourney? @relation(fields: [entityId], references: [id])
+  client   Client   @relation(fields: [clientId], references: [id])
+  location Location @relation(fields: [locationId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
 
-  @@index([clientId, locationId])
-  @@index([entity, entityId])
+  @@index([clientId])
+  @@index([locationId])
   @@index([userId])
   @@index([timestamp])
 }
 
-// ===== CRM INTEGRATION STUB =====
-
 model MoveSource {
-  id         String   @id @default(cuid())
-  externalId String   @unique
-  name       String
-  address    String?
-  phone      String?
-  email      String?
-  price      Float?
-  bookedBy   String?
-  status     String   @default("ACTIVE")
-  source     String // CRM source (e.g., "HubSpot", "ClickUp")
-  clientId   String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          String   @id @default(cuid())
+  clientId    String
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  client Client @relation(fields: [clientId], references: [id])
 
   @@index([clientId])
-  @@index([externalId])
-  @@index([status])
+}
+
+// ===== SUPER ADMIN MODELS =====
+
+model SuperAdminUser {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  role      String   @default("SUPER_ADMIN")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  sessions   SuperAdminSession[]
+  accessLogs CompanyAccessLog[]
+
+  @@index([username])
+  @@index([email])
+}
+
+model SuperAdminSession {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  // Relations
+  user SuperAdminUser @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([token])
+}
+
+model CompanyAccessLog {
+  id        String   @id @default(cuid())
+  adminId   String
+  clientId  String
+  action    String
+  details   Json?
+  timestamp DateTime @default(now())
+
+  // Relations
+  admin SuperAdminUser @relation(fields: [adminId], references: [id])
+
+  @@index([adminId])
+  @@index([clientId])
+  @@index([timestamp])
+}
+
+// ===== MOBILE APP MODELS =====
+
+model MobileSession {
+  id        String   @id @default(cuid())
+  userId    String
+  deviceId  String
+  locationId String
+  lastActive DateTime @default(now())
+  offlineData Json?
+  syncStatus String @default("online") // online, offline, syncing
+  createdAt DateTime @default(now())
+
+  // Relations
+  user     User     @relation(fields: [userId], references: [id])
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@unique([userId, deviceId], name: "MobileSession_userId_deviceId_key")
+  @@index([userId])
+  @@index([locationId])
+  @@index([syncStatus])
+}
+
+model MobileJourneyUpdate {
+  id        String   @id @default(cuid())
+  journeyId String
+  userId    String
+  updateType String  // status, location, note, checklist, media
+  data      Json
+  timestamp DateTime @default(now())
+  syncStatus String @default("pending") // pending, synced, failed
+
+  // Relations
+  user    User         @relation(fields: [userId], references: [id])
+  journey TruckJourney @relation(fields: [journeyId], references: [id])
+
+  @@index([journeyId])
+  @@index([userId])
+  @@index([timestamp])
+  @@index([syncStatus])
+}
+
+model MobileMediaItem {
+  id        String    @id @default(cuid())
+  journeyId String
+  userId    String
+  type      String    // photo, video, signature
+  filePath  String
+  fileSize  Int?
+  metadata  Json?
+  uploadStatus String @default("pending") // pending, uploading, completed, failed
+  createdAt DateTime  @default(now())
+
+  // Relations
+  journey TruckJourney @relation(fields: [journeyId], references: [id])
+  user    User         @relation(fields: [userId], references: [id])
+
+  @@index([journeyId])
+  @@index([userId])
+  @@index([type])
+  @@index([uploadStatus])
+}
+
+model MobileNotification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String
+  data      Json?
+  timestamp DateTime @default(now())
+  read      Boolean  @default(false)
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([read])
+  @@index([timestamp])
 }
 
 // ===== ENUMS =====
 
 enum UserRole {
   ADMIN
-  DISPATCHER
+  MANAGER
   DRIVER
   MOVER
-  MANAGER
+  DISPATCHER
   AUDITOR
 }
 
@@ -224,11 +419,11 @@ enum JourneyStage {
 }
 
 enum EntryType {
-  PHOTO
   NOTE
   GPS
+  PHOTO
   SIGNATURE
-  CONFIRMATION
+  STATUS_UPDATE
 }
 
 enum MediaType {
@@ -238,9 +433,26 @@ enum MediaType {
 }
 
 enum TagType {
-  DAMAGE
   COMPLETED
+  DAMAGE
   FEEDBACK
-  ERROR
   ISSUE
+  DELAY
+}
+
+enum StepStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  APPROVED
+  REJECTED
+}
+
+enum ActivityType {
+  CHECKLIST
+  PHOTO
+  VIDEO
+  APPROVAL
+  NOTE
+  SIGNATURE
 }

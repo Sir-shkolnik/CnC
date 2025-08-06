@@ -7,38 +7,8 @@ import { Badge } from '@/components/atoms/Badge';
 import { Building2, Plus, MapPin, Users, Calendar } from 'lucide-react';
 
 export default function ClientsPage() {
-  const mockClients = [
-    {
-      id: '1',
-      name: 'LGM Corporate',
-      type: 'CORPORATE',
-      isFranchise: false,
-      locations: 9,
-      users: 45,
-      activeJourneys: 12,
-      status: 'ACTIVE'
-    },
-    {
-      id: '2',
-      name: 'LGM Hamilton Franchise',
-      type: 'FRANCHISE',
-      isFranchise: true,
-      locations: 1,
-      users: 8,
-      activeJourneys: 3,
-      status: 'ACTIVE'
-    },
-    {
-      id: '3',
-      name: 'Moving Solutions Inc',
-      type: 'CORPORATE',
-      isFranchise: false,
-      locations: 3,
-      users: 15,
-      activeJourneys: 5,
-      status: 'ACTIVE'
-    }
-  ];
+  // TODO: Replace with API data
+  const mockClients: any[] = [];
 
   const getTypeBadge = (type: string, isFranchise: boolean) => {
     if (isFranchise) {
@@ -85,7 +55,7 @@ export default function ClientsPage() {
               </div>
               <div>
                 <p className="text-sm text-text-secondary">Total Clients</p>
-                <p className="text-2xl font-bold text-text-primary">12</p>
+                <p className="text-2xl font-bold text-text-primary">0</p>
               </div>
             </div>
           </CardContent>
@@ -99,7 +69,7 @@ export default function ClientsPage() {
               </div>
               <div>
                 <p className="text-sm text-text-secondary">Total Locations</p>
-                <p className="text-2xl font-bold text-text-primary">24</p>
+                <p className="text-2xl font-bold text-text-primary">0</p>
               </div>
             </div>
           </CardContent>

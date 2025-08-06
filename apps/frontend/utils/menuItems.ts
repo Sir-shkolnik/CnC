@@ -83,6 +83,18 @@ const adminMenuItems: MenuItem[] = [
     ]
   },
   {
+    id: 'mobile',
+    label: 'Field Operations',
+    icon: 'Smartphone',
+    href: '/mobile',
+    badge: null,
+    children: [
+      { id: 'mobile-app', label: 'Mobile App', href: '/mobile' },
+      { id: 'mobile-journeys', label: 'Active Journeys', href: '/mobile/journeys' },
+      { id: 'mobile-tracking', label: 'Live Tracking', href: '/mobile/tracking' }
+    ]
+  },
+  {
     id: 'settings',
     label: 'System Settings',
     icon: 'Settings',
@@ -152,6 +164,18 @@ const dispatcherMenuItems: MenuItem[] = [
     ]
   },
   {
+    id: 'mobile',
+    label: 'Field Operations',
+    icon: 'Smartphone',
+    href: '/mobile',
+    badge: 'active-field-ops',
+    children: [
+      { id: 'mobile-app', label: 'Mobile App', href: '/mobile' },
+      { id: 'mobile-journeys', label: 'Active Journeys', href: '/mobile/journeys' },
+      { id: 'mobile-tracking', label: 'Live Tracking', href: '/mobile/tracking' }
+    ]
+  },
+  {
     id: 'audit',
     label: 'Audit Logs',
     icon: 'FileText',
@@ -218,6 +242,18 @@ const driverMenuItems: MenuItem[] = [
     ]
   },
   {
+    id: 'mobile',
+    label: 'Field Operations',
+    icon: 'Smartphone',
+    href: '/mobile',
+    badge: 'active-field-ops',
+    children: [
+      { id: 'mobile-app', label: 'Mobile App', href: '/mobile' },
+      { id: 'mobile-journeys', label: 'Active Journeys', href: '/mobile/journeys' },
+      { id: 'mobile-tracking', label: 'Live Tracking', href: '/mobile/tracking' }
+    ]
+  },
+  {
     id: 'crew-chat',
     label: 'Crew Chat',
     icon: 'MessageCircle',
@@ -272,6 +308,18 @@ const moverMenuItems: MenuItem[] = [
       { id: 'upload-photos', label: 'Upload Photos', href: '/media/upload' },
       { id: 'upload-videos', label: 'Upload Videos', href: '/media/videos' },
       { id: 'media-gallery', label: 'Gallery', href: '/media/gallery' }
+    ]
+  },
+  {
+    id: 'mobile',
+    label: 'Field Operations',
+    icon: 'Smartphone',
+    href: '/mobile',
+    badge: 'active-field-ops',
+    children: [
+      { id: 'mobile-app', label: 'Mobile App', href: '/mobile' },
+      { id: 'mobile-journeys', label: 'Active Journeys', href: '/mobile/journeys' },
+      { id: 'mobile-tracking', label: 'Live Tracking', href: '/mobile/tracking' }
     ]
   },
   {
@@ -351,6 +399,18 @@ const managerMenuItems: MenuItem[] = [
       { id: 'operational-reports', label: 'Operational', href: '/reports/operational' },
       { id: 'financial-reports', label: 'Financial', href: '/reports/financial' },
       { id: 'performance-reports', label: 'Performance', href: '/reports/performance' }
+    ]
+  },
+  {
+    id: 'mobile',
+    label: 'Field Operations',
+    icon: 'Smartphone',
+    href: '/mobile',
+    badge: 'active-field-ops',
+    children: [
+      { id: 'mobile-app', label: 'Mobile App', href: '/mobile' },
+      { id: 'mobile-journeys', label: 'Active Journeys', href: '/mobile/journeys' },
+      { id: 'mobile-tracking', label: 'Live Tracking', href: '/mobile/tracking' }
     ]
   },
   {

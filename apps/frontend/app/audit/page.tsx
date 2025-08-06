@@ -7,60 +7,8 @@ import { Badge } from '@/components/atoms/Badge';
 import { Shield, FileText, CheckCircle, AlertTriangle, Download, Filter } from 'lucide-react';
 
 export default function AuditPage() {
-  const mockAuditLogs = [
-    {
-      id: '1',
-      action: 'CREATE',
-      entity: 'TruckJourney',
-      entityId: 'journey_001',
-      userId: 'user_001',
-      userName: 'Mike Chen',
-      userRole: 'DISPATCHER',
-      location: 'Toronto',
-      timestamp: '2024-01-15T10:30:00Z',
-      details: 'Created new journey TRK-2024-001',
-      status: 'SUCCESS'
-    },
-    {
-      id: '2',
-      action: 'UPDATE',
-      entity: 'TruckJourney',
-      entityId: 'journey_001',
-      userId: 'user_002',
-      userName: 'David Rodriguez',
-      userRole: 'DRIVER',
-      location: 'Toronto',
-      timestamp: '2024-01-15T11:15:00Z',
-      details: 'Updated journey status to EN_ROUTE',
-      status: 'SUCCESS'
-    },
-    {
-      id: '3',
-      action: 'UPLOAD',
-      entity: 'Media',
-      entityId: 'media_001',
-      userId: 'user_003',
-      userName: 'Lisa Thompson',
-      userRole: 'MOVER',
-      location: 'Mississauga',
-      timestamp: '2024-01-15T12:00:00Z',
-      details: 'Uploaded 3 photos for journey TRK-2024-001',
-      status: 'SUCCESS'
-    },
-    {
-      id: '4',
-      action: 'DELETE',
-      entity: 'TruckJourney',
-      entityId: 'journey_002',
-      userId: 'user_001',
-      userName: 'Mike Chen',
-      userRole: 'DISPATCHER',
-      location: 'Toronto',
-      timestamp: '2024-01-15T09:45:00Z',
-      details: 'Deleted cancelled journey TRK-2024-002',
-      status: 'SUCCESS'
-    }
-  ];
+  // TODO: Replace with API data
+  const mockAuditLogs: any[] = [];
 
   const getActionBadge = (action: string) => {
     const variants = {

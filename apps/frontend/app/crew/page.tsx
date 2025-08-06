@@ -7,56 +7,8 @@ import { Badge } from '@/components/atoms/Badge';
 import { UserCheck, Plus, Clock, Star, MapPin, Calendar } from 'lucide-react';
 
 export default function CrewPage() {
-  const mockCrew = [
-    {
-      id: '1',
-      name: 'David Rodriguez',
-      role: 'DRIVER',
-      status: 'AVAILABLE',
-      location: 'Toronto',
-      rating: 4.8,
-      completedJourneys: 156,
-      currentJourney: null,
-      skills: ['Heavy Lifting', 'GPS Navigation', 'Customer Service'],
-      availability: 'Full-time'
-    },
-    {
-      id: '2',
-      name: 'Lisa Thompson',
-      role: 'MOVER',
-      status: 'ON_JOURNEY',
-      location: 'Mississauga',
-      rating: 4.6,
-      completedJourneys: 89,
-      currentJourney: 'TRK-2024-001',
-      skills: ['Furniture Moving', 'Packing', 'Assembly'],
-      availability: 'Part-time'
-    },
-    {
-      id: '3',
-      name: 'Alex Johnson',
-      role: 'DRIVER',
-      status: 'OFF_DUTY',
-      location: 'Vancouver',
-      rating: 4.9,
-      completedJourneys: 203,
-      currentJourney: null,
-      skills: ['Commercial Moving', 'Equipment Operation', 'Safety'],
-      availability: 'Full-time'
-    },
-    {
-      id: '4',
-      name: 'Maria Garcia',
-      role: 'MOVER',
-      status: 'AVAILABLE',
-      location: 'Calgary',
-      rating: 4.7,
-      completedJourneys: 67,
-      currentJourney: null,
-      skills: ['Residential Moving', 'Packing', 'Customer Service'],
-      availability: 'Full-time'
-    }
-  ];
+  // TODO: Replace with API data
+  const mockCrew: any[] = [];
 
   const getStatusBadge = (status: string) => {
     const variants = {

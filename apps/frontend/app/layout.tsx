@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { MainNavigation } from '@/components/navigation/MainNavigation';
@@ -10,13 +10,25 @@ export const metadata: Metadata = {
   title: 'C&C CRM - Trust the Journey',
   description: 'Mobile-first operations management for moving & logistics',
   manifest: '/manifest.json',
-  themeColor: '#00C2FF',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
     title: 'C&C CRM'
+  },
+  other: {
+    'mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-status-bar-style': 'default',
+    'apple-mobile-web-app-title': 'C&C CRM'
   }
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: '#00C2FF'
 };
 
 export default function RootLayout({

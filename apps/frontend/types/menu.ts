@@ -1,3 +1,5 @@
+import { UserRole, UserStatus, Permission } from './enums';
+
 export interface MenuItem {
   id: string;
   label: string;
@@ -33,30 +35,6 @@ export interface MenuActions {
   closeAllMenus: () => void;
 }
 
-export type UserRole = 'ADMIN' | 'DISPATCHER' | 'DRIVER' | 'MOVER' | 'MANAGER' | 'AUDITOR';
-
-export type Permission = 
-  | 'journey.create'
-  | 'journey.edit'
-  | 'journey.delete'
-  | 'journey.view'
-  | 'user.create'
-  | 'user.edit'
-  | 'user.delete'
-  | 'user.view'
-  | 'client.create'
-  | 'client.edit'
-  | 'client.delete'
-  | 'client.view'
-  | 'crew.assign'
-  | 'crew.view'
-  | 'audit.view'
-  | 'audit.create'
-  | 'feedback.view'
-  | 'feedback.create'
-  | 'settings.edit'
-  | 'settings.view';
-
 export interface User {
   id: string;
   name: string;
@@ -64,7 +42,7 @@ export interface User {
   role: UserRole;
   clientId: string;
   locationId: string;
-  status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
+  status: UserStatus;
   permissions?: Permission[];
 }
 

@@ -99,50 +99,8 @@ export default function JourneyForm({
 
   const loadAvailableCrew = async () => {
     try {
-      // In a real app, this would fetch from the API
-      const mockCrew: CrewMember[] = [
-        {
-          id: 'crew_001',
-          name: 'Mike Wilson',
-          email: 'mike.wilson@lgm.com',
-          role: 'DRIVER',
-          status: 'AVAILABLE',
-          location: { id: 'loc_001', name: 'LGM Toronto' }
-        },
-        {
-          id: 'crew_002',
-          name: 'David Rodriguez',
-          email: 'david.rodriguez@lgm.com',
-          role: 'MOVER',
-          status: 'AVAILABLE',
-          location: { id: 'loc_001', name: 'LGM Toronto' }
-        },
-        {
-          id: 'crew_003',
-          name: 'Sarah Johnson',
-          email: 'sarah.johnson@lgm.com',
-          role: 'DRIVER',
-          status: 'AVAILABLE',
-          location: { id: 'loc_002', name: 'LGM Hamilton' }
-        },
-        {
-          id: 'crew_004',
-          name: 'Emma Davis',
-          email: 'emma.davis@lgm.com',
-          role: 'MOVER',
-          status: 'ON_LEAVE',
-          location: { id: 'loc_001', name: 'LGM Toronto' }
-        },
-        {
-          id: 'crew_005',
-          name: 'Tom Wilson',
-          email: 'tom.wilson@lgm.com',
-          role: 'DRIVER',
-          status: 'AVAILABLE',
-          location: { id: 'loc_003', name: 'LGM Mississauga' }
-        }
-      ]
-      setAvailableCrew(mockCrew)
+      // TODO: Replace with API call
+      setAvailableCrew([])
     } catch (error) {
       console.error('Failed to load crew:', error)
       toast.error('Failed to load available crew')
@@ -151,34 +109,8 @@ export default function JourneyForm({
 
   const loadLocations = async () => {
     try {
-      // In a real app, this would fetch from the API
-      const mockLocations: Location[] = [
-        {
-          id: 'loc_001',
-          name: 'Downtown Office Building',
-          address: '123 Main St, Toronto, ON M5V 2H1',
-          client: { id: 'client_001', name: 'LGM Corporate' }
-        },
-        {
-          id: 'loc_002',
-          name: 'Industrial Warehouse',
-          address: '456 Industrial Ave, Toronto, ON M5V 3A8',
-          client: { id: 'client_001', name: 'LGM Corporate' }
-        },
-        {
-          id: 'loc_003',
-          name: 'Suburban Home',
-          address: '789 Suburban Rd, Toronto, ON M5V 4B2',
-          client: { id: 'client_001', name: 'LGM Corporate' }
-        },
-        {
-          id: 'loc_004',
-          name: 'Tech Startup Office',
-          address: '321 Innovation St, Toronto, ON M5V 5C3',
-          client: { id: 'client_001', name: 'LGM Corporate' }
-        }
-      ]
-      setLocations(mockLocations)
+      // TODO: Replace with API call
+      setLocations([])
     } catch (error) {
       console.error('Failed to load locations:', error)
       toast.error('Failed to load locations')

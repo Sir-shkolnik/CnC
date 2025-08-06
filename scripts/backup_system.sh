@@ -57,9 +57,13 @@ backup_code() {
     git archive --format=tar.gz --output="${BACKUP_DIR}/code/source_code.tar.gz" HEAD
     
     # Backup specific directories
-    tar -czf "${BACKUP_DIR}/code/apps.tar.gz" apps/
-    tar -czf "${BACKUP_DIR}/code/prisma.tar.gz" prisma/
-    tar -czf "${BACKUP_DIR}/code/project_docs.tar.gz" Project_docs/
+    tar -czf "${BACKUP_DIR}/code/apps.tar.gz" apps/ 2>/dev/null || warning "Apps directory not found"
+    tar -czf "${BACKUP_DIR}/code/prisma.tar.gz" prisma/ 2>/dev/null || warning "Prisma directory not found"
+    if [ -d "Project_docs" ]; then
+        tar -czf "${BACKUP_DIR}/code/project_docs.tar.gz" Project_docs/
+    else
+        warning "Project_docs directory not found"
+    fi
     
     # Copy to latest
     cp "${BACKUP_DIR}/code/source_code.tar.gz" "${LATEST_DIR}/code.tar.gz"

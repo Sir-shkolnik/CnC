@@ -83,81 +83,8 @@ export default function RealTimeChat({
 
   const loadChatHistory = async () => {
     try {
-      // In a real app, this would fetch from the API
-      const mockMessages: ChatMessage[] = [
-        {
-          id: 'msg_001',
-          journeyId,
-          userId: 'user_001',
-          userName: 'Sarah Johnson',
-          userRole: 'DISPATCHER',
-          content: 'Good morning team! Journey #123 is ready to start. Please confirm when you arrive at the pickup location.',
-          type: 'text',
-          timestamp: new Date(Date.now() - 3600000).toISOString(),
-          status: 'read'
-        },
-        {
-          id: 'msg_002',
-          journeyId,
-          userId: 'user_002',
-          userName: 'Mike Wilson',
-          userRole: 'DRIVER',
-          content: 'Morning Sarah! We just arrived at the pickup location. Starting the vehicle inspection now.',
-          type: 'text',
-          timestamp: new Date(Date.now() - 3000000).toISOString(),
-          status: 'read'
-        },
-        {
-          id: 'msg_003',
-          journeyId,
-          userId: 'user_002',
-          userName: 'Mike Wilson',
-          userRole: 'DRIVER',
-          content: 'vehicle_inspection.jpg',
-          type: 'image',
-          timestamp: new Date(Date.now() - 2400000).toISOString(),
-          status: 'read',
-          metadata: {
-            fileUrl: '/api/media/vehicle_inspection.jpg',
-            fileName: 'vehicle_inspection.jpg',
-            fileSize: 2048576
-          }
-        },
-        {
-          id: 'msg_004',
-          journeyId,
-          userId: 'user_003',
-          userName: 'David Rodriguez',
-          userRole: 'MOVER',
-          content: 'Vehicle looks good! Equipment checklist completed. Ready to load.',
-          type: 'text',
-          timestamp: new Date(Date.now() - 1800000).toISOString(),
-          status: 'read'
-        },
-        {
-          id: 'msg_005',
-          journeyId,
-          userId: 'user_001',
-          userName: 'Sarah Johnson',
-          userRole: 'DISPATCHER',
-          content: 'Perfect! Please update the journey status to "En Route" when you start moving.',
-          type: 'text',
-          timestamp: new Date(Date.now() - 1200000).toISOString(),
-          status: 'read'
-        },
-        {
-          id: 'msg_006',
-          journeyId,
-          userId: 'user_002',
-          userName: 'Mike Wilson',
-          userRole: 'DRIVER',
-          content: 'Will do! We\'re about 15 minutes away from the destination.',
-          type: 'text',
-          timestamp: new Date(Date.now() - 600000).toISOString(),
-          status: 'delivered'
-        }
-      ]
-      setMessages(mockMessages)
+      // TODO: Replace with API call
+      setMessages([])
     } catch (error) {
       console.error('Failed to load chat history:', error)
       toast.error('Failed to load chat history')

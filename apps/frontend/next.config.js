@@ -4,6 +4,10 @@ const nextConfig = {
         optimizePackageImports: ['@heroicons/react', 'lucide-react']
     },
 
+    // Suppress React DevTools warning in development
+    reactStrictMode: false,
+    swcMinify: true,
+
     // PWA Configuration
     async headers() {
         return [{

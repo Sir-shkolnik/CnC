@@ -1,86 +1,257 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/atoms/Button'
-import { Input } from '@/components/atoms/Input'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/atoms/Card'
-import { Badge } from '@/components/atoms/Badge'
-import { Eye, EyeOff, Mail, Lock, Truck, Users, Shield, Activity, ArrowRight } from 'lucide-react'
-import { useAuthStore } from '@/stores/authStore'
-import toast from 'react-hot-toast'
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/atoms/Button';
+import { Input } from '@/components/atoms/Input';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/atoms/Card';
+import { Badge } from '@/components/atoms/Badge';
+import { 
+  Truck, 
+  Building2,
+  User,
+  Lock,
+  Eye,
+  EyeOff,
+  CheckCircle,
+  Loader2,
+  ArrowRight,
+  Search,
+  Users,
+  MapPin,
+  Smartphone
+} from 'lucide-react';
+import { useAuthStore } from '@/stores/authStore';
+import { useSuperAdminStore } from '@/stores/superAdminStore';
+import toast from 'react-hot-toast';
 
-export default function LoginPage() {
-  const router = useRouter()
-  const { login, isLoading, error, clearError, isAuthenticated } = useAuthStore()
+interface Company {
+  id: string;
+  name: string;
+  industry: string;
+  isFranchise: boolean;
+  createdAt: string;
+}
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  locationId: string;
+  status: string;
+}
+
+export default function UnifiedLoginPage() {
+  const router = useRouter();
+  const { login: authLogin, isLoading: authLoading } = useAuthStore();
+  const { login: superAdminLogin, isLoading: superAdminLoading } = useSuperAdminStore();
   
-  const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
+  const [step, setStep] = useState<'company' | 'login'>('company');
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: ''
-  })
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
 
-  // Redirect if already authenticated
+  const isLoading = authLoading || superAdminLoading;
+
+  // Load companies on component mount
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/dashboard')
+    loadCompanies();
+  }, []);
+
+  const loadCompanies = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/companies`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setCompanies(data.data);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load companies:', error);
+      toast.error('Failed to load companies');
+    } finally {
+      setIsLoadingCompanies(false);
     }
-  }, [isAuthenticated, router])
+  };
 
-  // Clear error when component mounts
-  useEffect(() => {
-    clearError()
-  }, [clearError])
+  const loadCompanyUsers = async (companyId: string) => {
+    setIsLoadingUsers(true);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/companies/${companyId}/users`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setUsers(data.data);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load users:', error);
+      toast.error('Failed to load users');
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
+  const handleCompanySelect = async (company: Company) => {
+    setSelectedCompany(company);
+    await loadCompanyUsers(company.id);
+    setStep('login');
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const detectUserType = (email: string): 'web' | 'mobile' | 'super' => {
+    // Super admin detection
+    if (email === 'udi.shkolnik@lgm.com') return 'super';
+    
+    // Mobile users (drivers, movers)
+    const mobileRoles = ['driver', 'mover'];
+    const emailLower = email.toLowerCase();
+    if (mobileRoles.some(role => emailLower.includes(role))) return 'mobile';
+    
+    // Default to web users (dispatchers, managers, admins, auditors)
+    return 'web';
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     
     if (!formData.email || !formData.password) {
-      toast.error('Please fill in all fields')
-      return
+      toast.error('Please fill in all fields');
+      return;
     }
 
     try {
-      await login({
-        email: formData.email,
-        password: formData.password
-      })
+      const userType = detectUserType(formData.email);
       
-      toast.success('Login successful!')
-      router.push('/dashboard')
+      if (userType === 'super') {
+        await superAdminLogin(formData.email, formData.password);
+        router.push('/super-admin/dashboard');
+      } else {
+        await authLogin(formData.email, formData.password, selectedCompany?.id);
+        router.push('/dashboard');
+      }
+      
+      toast.success('Login successful!');
     } catch (error) {
-      // Error is handled by the store
-      console.error('Login failed:', error)
+      toast.error(error instanceof Error ? error.message : 'Login failed');
     }
-  }
+  };
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
-  }
+  const filteredUsers = users.filter(user => 
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.role.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const demoCredentials = [
-    { email: 'sarah.johnson@lgm.com', password: 'password123', role: 'Admin' },
-    { email: 'mike.chen@lgm.com', password: 'password123', role: 'Dispatcher' },
-    { email: 'david.rodriguez@lgm.com', password: 'password123', role: 'Driver' },
-    { email: 'frank.williams@lgmhamilton.com', password: 'password123', role: 'Franchise Owner' }
-  ]
+  const getRoleBadgeVariant = (role: string) => {
+    switch (role.toUpperCase()) {
+      case 'SUPER_ADMIN': return 'primary';
+      case 'ADMIN': return 'primary';
+      case 'MANAGER': return 'success';
+      case 'DISPATCHER': return 'warning';
+      case 'DRIVER': return 'info';
+      case 'MOVER': return 'secondary';
+      case 'AUDITOR': return 'info';
+      default: return 'secondary';
+    }
+  };
 
-  const fillDemoCredentials = (credentials: typeof demoCredentials[0]) => {
-    setFormData({
-      email: credentials.email,
-      password: credentials.password
-    })
-    toast.success(`Filled ${credentials.role} credentials`)
+  const getRoleIcon = (role: string) => {
+    switch (role.toUpperCase()) {
+      case 'DRIVER': return '🚛';
+      case 'MOVER': return '📦';
+      case 'DISPATCHER': return '📞';
+      case 'MANAGER': return '👔';
+      case 'ADMIN': return '⚙️';
+      case 'AUDITOR': return '🔍';
+      default: return '👤';
+    }
+  };
+
+  if (step === 'company') {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="w-full max-w-2xl">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center space-x-3 mb-6">
+              <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
+                <Truck className="w-6 h-6 text-background" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gradient">C&C CRM</h1>
+                <p className="text-sm text-text-secondary">Trust the Journey</p>
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-text-primary mb-2">Select Your Company</h2>
+            <p className="text-text-secondary">Choose your company to continue</p>
+          </div>
+
+          {/* Company Selection */}
+          <Card className="bg-surface border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-text-primary text-lg text-center">
+                Available Companies
+              </CardTitle>
+            </CardHeader>
+            
+            <CardContent>
+              {isLoadingCompanies ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                  <span className="ml-2 text-text-secondary">Loading companies...</span>
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {companies.map((company) => (
+                    <button
+                      key={company.id}
+                      onClick={() => handleCompanySelect(company)}
+                      className="p-4 text-left bg-surface/50 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors hover:shadow-lg"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+                          <Building2 className="w-5 h-5 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-text-primary">{company.name}</h3>
+                          <p className="text-sm text-text-secondary">{company.industry}</p>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <Badge variant={company.isFranchise ? 'warning' : 'success'} className="text-xs">
+                              {company.isFranchise ? 'Franchise' : 'Corporate'}
+                            </Badge>
+                          </div>
+                        </div>
+                        <ArrowRight className="w-5 h-5 text-text-secondary" />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Header - Improved Layout */}
+      <div className="w-full max-w-2xl">
+        {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-3 mb-6">
             <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
@@ -92,149 +263,201 @@ export default function LoginPage() {
             </div>
           </div>
           <h2 className="text-2xl font-bold text-text-primary mb-2">Welcome Back</h2>
-          <p className="text-text-secondary">Sign in to your account to continue</p>
+          <p className="text-text-secondary">Sign in to your account</p>
+          
+          {/* Mobile Access Button */}
+          <div className="mt-4">
+            <Button 
+              variant="secondary" 
+              size="sm"
+              onClick={() => router.push('/mobile')}
+              className="flex items-center gap-2"
+            >
+              <Smartphone className="w-4 h-4" />
+              Field Operations Mobile App
+            </Button>
+          </div>
+          
+          {/* Selected Company */}
+          {selectedCompany && (
+            <div className="mt-4 p-3 bg-surface/50 rounded-lg border border-gray-700">
+              <div className="flex items-center space-x-2">
+                <Building2 className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium text-text-primary">{selectedCompany.name}</span>
+                <Badge variant={selectedCompany.isFranchise ? 'warning' : 'success'} className="text-xs">
+                  {selectedCompany.isFranchise ? 'Franchise' : 'Corporate'}
+                </Badge>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Login Form - Improved Layout */}
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg font-semibold text-center">Sign In</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-text-primary">Email</label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-secondary w-4 h-4" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Login Form */}
+          <Card className="bg-surface border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-text-primary text-lg text-center">
+                Sign In
+              </CardTitle>
+            </CardHeader>
+            
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Email Input */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-text-primary flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    Email
+                  </label>
                   <Input
                     type="email"
                     placeholder="Enter your email"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="pl-10"
+                    className="bg-surface border-gray-600 text-text-primary"
                     required
                   />
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-text-primary">Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-secondary w-4 h-4" />
-                  <Input
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter your password"
-                    value={formData.password}
-                    onChange={(e) => handleInputChange('password', e.target.value)}
-                    className="pl-10 pr-10"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-secondary hover:text-text-primary"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
+                {/* Password Input */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-text-primary flex items-center gap-2">
+                    <Lock className="w-4 h-4" />
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter your password"
+                      value={formData.password}
+                      onChange={(e) => handleInputChange('password', e.target.value)}
+                      className="bg-surface border-gray-600 text-text-primary pr-10"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-secondary hover:text-text-primary"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex items-center justify-between">
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 text-primary bg-surface border-gray-600 rounded focus:ring-primary focus:ring-2"
-                  />
-                  <span className="text-sm text-text-secondary">Remember me</span>
-                </label>
-                <button
-                  type="button"
-                  className="text-sm text-primary hover:text-primary/80 transition-colors"
+                {/* Submit Button */}
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-12 text-base font-medium"
                 >
-                  Forgot password?
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Signing In...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4" />
+                      Sign In
+                      <ArrowRight className="w-4 h-4" />
+                    </div>
+                  )}
+                </Button>
+              </form>
+
+              {/* Back to Company Selection */}
+              <div className="mt-4 text-center">
+                <button
+                  onClick={() => setStep('company')}
+                  className="text-sm text-text-secondary hover:text-primary transition-colors"
+                >
+                  ← Back to Company Selection
                 </button>
               </div>
+            </CardContent>
+          </Card>
 
-              {error && (
-                <div className="p-3 bg-error/10 border border-error/20 rounded-lg">
-                  <p className="text-sm text-error">{error}</p>
+          {/* Company Users */}
+          <Card className="bg-surface border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-text-primary text-lg text-center">
+                Company Users
+              </CardTitle>
+            </CardHeader>
+            
+            <CardContent>
+              {/* Search */}
+              <div className="mb-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-secondary w-4 h-4" />
+                  <Input
+                    type="text"
+                    placeholder="Search users..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 bg-surface border-gray-600 text-text-primary"
+                  />
+                </div>
+              </div>
+
+              {/* Users List */}
+              {isLoadingUsers ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                  <span className="ml-2 text-text-secondary">Loading users...</span>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {filteredUsers.map((user) => (
+                    <div
+                      key={user.id}
+                      className="p-3 bg-surface/30 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="text-2xl">{getRoleIcon(user.role)}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2">
+                            <h4 className="text-sm font-medium text-text-primary truncate">
+                              {user.name}
+                            </h4>
+                            <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
+                              {user.role}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-text-secondary truncate">{user.email}</p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, email: user.email }));
+                            toast.success(`Filled ${user.name}'s email`);
+                          }}
+                          className="text-xs text-primary hover:text-primary/80 transition-colors"
+                        >
+                          Use
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
 
-              <Button
-                type="submit"
-                className="w-full h-11"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 border-2 border-background border-t-transparent rounded-full animate-spin" />
-                    <span>Signing in...</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center space-x-2">
-                    <span>Sign In</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </div>
-                )}
-              </Button>
-            </form>
-
-            {/* Demo Credentials - Improved Layout */}
-            <div className="pt-4 border-t border-gray-700">
-              <h3 className="text-sm font-medium text-text-primary mb-3">Demo Accounts</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {demoCredentials.map((credentials, index) => (
-                  <button
-                    key={index}
-                    onClick={() => fillDemoCredentials(credentials)}
-                    className="p-2 text-left bg-surface/50 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-primary rounded-full" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-text-primary truncate">{credentials.role}</p>
-                        <p className="text-xs text-text-secondary truncate">{credentials.email}</p>
-                      </div>
-                    </div>
-                  </button>
-                ))}
+              {/* User Count */}
+              <div className="mt-4 text-center">
+                <p className="text-xs text-text-secondary">
+                  {filteredUsers.length} of {users.length} users
+                </p>
               </div>
-            </div>
+            </CardContent>
+          </Card>
+        </div>
 
-            {/* Sign Up Link */}
-            <div className="text-center pt-4">
-              <p className="text-sm text-text-secondary">
-                Don't have an account?{' '}
-                <button
-                  onClick={() => router.push('/auth/register')}
-                  className="text-primary hover:text-primary/80 transition-colors font-medium"
-                >
-                  Sign up
-                </button>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Features Preview - New Section */}
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="text-center p-3 bg-surface/30 rounded-lg">
-            <Users className="w-6 h-6 text-primary mx-auto mb-2" />
-            <p className="text-xs text-text-secondary">Crew Management</p>
-          </div>
-          <div className="text-center p-3 bg-surface/30 rounded-lg">
-            <Shield className="w-6 h-6 text-secondary mx-auto mb-2" />
-            <p className="text-xs text-text-secondary">Audit & Compliance</p>
-          </div>
-          <div className="text-center p-3 bg-surface/30 rounded-lg">
-            <Activity className="w-6 h-6 text-success mx-auto mb-2" />
-            <p className="text-xs text-text-secondary">Real-time Tracking</p>
-          </div>
+        {/* Footer */}
+        <div className="text-center mt-6">
+          <p className="text-xs text-text-secondary">
+            C&C CRM - Database-Driven Login System v2.6.0
+          </p>
         </div>
       </div>
     </div>
-  )
+  );
 } 

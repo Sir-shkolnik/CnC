@@ -4,6 +4,11 @@ from pydantic import BaseModel
 from datetime import datetime
 import sys
 import os
+import psycopg2
+from psycopg2.extras import RealDictCursor
+
+# Import authentication
+from .auth import verify_token
 
 # Add modules to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'modules'))
@@ -110,70 +115,78 @@ class GPSUpdate(BaseModel):
 
 # ===== HELPER FUNCTIONS =====
 
-def get_current_user() -> Dict[str, Any]:
-    """Get current user from request context (placeholder)"""
-    # In production, this would get user from JWT token
-    return {
-        "id": "user_123",
-        "role": "DISPATCHER",
-        "clientId": "clm_lgm_corp_001",
-        "locationId": "loc_lgm_toronto_001"
-    }
+def get_db_connection():
+    """Get database connection"""
+    import os
+    return psycopg2.connect(
+        host=os.getenv("DB_HOST", "postgres"),
+        port=os.getenv("DB_PORT", "5432"),
+        database=os.getenv("DB_NAME", "c_and_c_crm"),
+        user=os.getenv("DB_USER", "c_and_c_user"),
+        password=os.getenv("DB_PASSWORD", "c_and_c_password")
+    )
+
+def get_current_user(current_user: Dict[str, Any] = Depends(verify_token)) -> Dict[str, Any]:
+    """Get current user from JWT token"""
+    return current_user
 
 # ===== JOURNEY CRUD ENDPOINTS =====
 
 @router.get("/active")
-async def get_active_journeys() -> Dict[str, Any]:
+async def get_active_journeys(current_user: Dict[str, Any] = Depends(verify_token)) -> Dict[str, Any]:
     """Get all active journeys for the current location"""
     
-    # Check if business logic modules are available
-    if journey_engine is None:
-        # Return demo data if modules not available
+    try:
+        # Check if business logic modules are available
+        if journey_engine is None:
+            # Return empty list when no business logic available
+            return {
+                "success": True,
+                "data": [],
+                "message": "No active journeys found"
+            }
+        
+        # Handle super admin vs regular user
+        if current_user.get("user_type") == "super_admin":
+            # Super admin can see all journeys
+            success, journeys, message = journey_engine.get_all_journeys(
+                current_user["id"],
+                UserRole(current_user["role"])
+            )
+        else:
+            # Regular users can only see journeys from their location
+            if not current_user.get("locationId"):
+                return {
+                    "success": False,
+                    "error": "Missing tenant information",
+                    "message": "User must be associated with a client and location"
+                }
+            
+            success, journeys, message = journey_engine.get_journeys_by_location(
+                current_user.get("locationId"),
+                current_user["id"],
+                UserRole(current_user["role"])
+            )
+        
+        if not success:
+            return {
+                "success": False,
+                "error": "Failed to retrieve journeys",
+                "message": message
+            }
+        
         return {
             "success": True,
-            "data": [
-                {
-                    "id": "journey_001",
-                    "locationId": "loc_lgm_toronto_001",
-                    "clientId": "clm_lgm_corp_001",
-                    "date": "2024-01-15T08:00:00Z",
-                    "status": "EN_ROUTE",
-                    "truckNumber": "T-001",
-                    "moveSourceId": "move_001",
-                    "startTime": "2024-01-15T08:00:00Z",
-                    "endTime": None,
-                    "notes": "Moving furniture from downtown office",
-                    "createdAt": "2024-01-15T07:30:00Z",
-                    "updatedAt": "2024-01-15T08:00:00Z",
-                    "assignedCrew": [],
-                    "entries": [],
-                    "media": []
-                }
-            ],
-            "message": "Active journeys retrieved successfully (demo mode)"
-        }
-    
-    current_user = get_current_user()
-    
-    # Get journeys for user's location
-    success, journeys, message = journey_engine.get_journeys_by_location(
-        current_user["locationId"],
-        current_user["id"],
-        UserRole(current_user["role"])
-    )
-    
-    if not success:
-        return {
-            "success": False,
-            "error": "Failed to retrieve journeys",
+            "data": journeys,
             "message": message
         }
-    
-    return {
-        "success": True,
-        "data": journeys,
-        "message": message
-    }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": "Database error",
+            "message": str(e)
+        }
 
 @router.get("/{journey_id}")
 async def get_journey(journey_id: str) -> Dict[str, Any]:

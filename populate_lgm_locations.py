@@ -4,16 +4,22 @@ LGM Locations Data Population Script
 Populates the CRM system with real LGM location data
 """
 
-import requests
+import psycopg2
 import json
 from datetime import datetime
+import os
 
-# Configuration
-BASE_URL = "http://localhost:8000"
-ADMIN_CREDENTIALS = {
-    "email": "sarah.johnson@lgm.com",
-    "password": "password123"
+# Database configuration
+DB_CONFIG = {
+    "host": os.getenv("DB_HOST", "postgres"),
+    "port": os.getenv("DB_PORT", "5432"),
+    "database": os.getenv("DB_NAME", "c_and_c_crm"),
+    "user": os.getenv("DB_USER", "c_and_c_user"),
+    "password": os.getenv("DB_PASSWORD", "c_and_c_password")
 }
+
+# LGM Client ID (from existing data)
+LGM_CLIENT_ID = "clm_f55e13de_a5c4_4990_ad02_34bb07187daa"
 
 # Real LGM Location Data
 LGM_LOCATIONS = {
@@ -453,7 +459,7 @@ LGM_LOCATIONS = {
             "contact": "SIMRANJIT",
             "direct_line": "647-512-2697, 647-460-0923",
             "ownership_type": "FRANCHISE",
-            "trucks": 0,  # R+ indicates rental
+            "trucks": 0,
             "shared_with": ["ST CATHERINES", "WINDSOR"],
             "storage_type": "NO",
             "storage_pricing": "",
@@ -523,7 +529,7 @@ LGM_LOCATIONS = {
             "contact": "SIMRANJIT",
             "direct_line": "647-512-2697",
             "ownership_type": "FRANCHISE",
-            "trucks": 0,  # R+ indicates rental
+            "trucks": 0,
             "shared_with": ["BURLINGTON", "WINDSOR"],
             "storage_type": "NO",
             "storage_pricing": "",
@@ -551,7 +557,7 @@ LGM_LOCATIONS = {
             "contact": "SIMRANJIT",
             "direct_line": "647-512-2697",
             "ownership_type": "FRANCHISE",
-            "trucks": 0,  # R+ indicates rental
+            "trucks": 0,
             "shared_with": ["BURLINGTON", "ST CATHERINES"],
             "storage_type": "NO",
             "storage_pricing": "",
@@ -650,29 +656,41 @@ LGM_LOCATIONS = {
     ]
 }
 
-def get_auth_token():
-    """Get authentication token"""
-    response = requests.post(
-        f"{BASE_URL}/auth/login",
-        json=ADMIN_CREDENTIALS,
-        headers={"Content-Type": "application/json"}
-    )
-    
-    if response.status_code == 200:
-        return response.json()["data"]["access_token"]
-    else:
-        raise Exception(f"Authentication failed: {response.status_code}")
+def get_db_connection():
+    """Get database connection"""
+    return psycopg2.connect(**DB_CONFIG)
 
-def create_location(token, location_data):
-    """Create a new location"""
-    # This would be implemented when the locations API is created
-    # For now, we'll just print the location data
-    print(f"  📍 {location_data['name']} ({location_data['ownership_type']})")
-    print(f"     Contact: {location_data['contact']}")
-    print(f"     Trucks: {location_data['trucks']}")
-    print(f"     Storage: {location_data['storage_type']}")
-    print(f"     CX Care: {'✅' if location_data['cx_care'] else '❌'}")
-    return True
+def create_location(conn, location_data):
+    """Create a new location in the database"""
+    cursor = conn.cursor()
+    
+    try:
+        # Insert location
+        cursor.execute("""
+            INSERT INTO "Location" (
+                id, "clientId", name, timezone, address, "createdAt", "updatedAt"
+            ) VALUES (%s, %s, %s, %s, %s, NOW(), NOW())
+        """, (
+            location_data['id'],
+            LGM_CLIENT_ID,
+            location_data['name'],
+            'America/Toronto',  # Default timezone
+            f"{location_data['name']}, {location_data['province']}, {location_data['region']}"
+        ))
+        
+        print(f"  ✅ {location_data['name']} ({location_data['ownership_type']})")
+        print(f"     Contact: {location_data['contact']}")
+        print(f"     Trucks: {location_data['trucks']}")
+        print(f"     Storage: {location_data['storage_type']}")
+        print(f"     CX Care: {'✅' if location_data['cx_care'] else '❌'}")
+        
+        return True
+        
+    except Exception as e:
+        print(f"  ❌ Error creating {location_data['name']}: {e}")
+        return False
+    finally:
+        cursor.close()
 
 def main():
     """Main function to populate LGM locations"""
@@ -681,10 +699,10 @@ def main():
     print("=" * 80)
     
     try:
-        # Get authentication token
-        print("🔐 Authenticating...")
-        token = get_auth_token()
-        print("✅ Authentication successful")
+        # Connect to database
+        print("🔌 Connecting to database...")
+        conn = get_db_connection()
+        print("✅ Database connection successful")
         
         total_locations = 0
         created_locations = 0
@@ -696,9 +714,13 @@ def main():
             
             for location_data in locations:
                 total_locations += 1
-                success = create_location(token, location_data)
+                success = create_location(conn, location_data)
                 if success:
                     created_locations += 1
+        
+        # Commit all changes
+        conn.commit()
+        conn.close()
         
         print("\n" + "=" * 80)
         print("📊 LOCATION SUMMARY")
@@ -729,19 +751,12 @@ def main():
         
         print(f"\n🎯 CX Care Locations: {cx_care_count}/{total_locations}")
         
-        print(f"\n✅ Successfully processed {created_locations} locations")
-        print("📋 Location data ready for CRM integration")
-        
-        print("\n🔧 NEXT STEPS:")
-        print("1. Create locations API endpoint in backend")
-        print("2. Integrate location data with journey management")
-        print("3. Add location-based filtering to user management")
-        print("4. Implement storage pricing in customer quotes")
-        print("5. Add location contact integration for dispatch")
+        print(f"\n✅ Successfully created {created_locations} locations")
+        print("📋 Real LGM location data now in database")
         
     except Exception as e:
         print(f"❌ Error: {e}")
-        print("Make sure the API server is running on localhost:8000")
+        print("Make sure the database is running and accessible")
 
 if __name__ == "__main__":
     main() 

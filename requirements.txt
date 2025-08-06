@@ -70,4 +70,8 @@ gunicorn==21.2.0
 # redis==5.0.1
 
 # Optional: Background Tasks
-# celery==5.3.4 
+# celery==5.3.4
+psycopg2-binary>=2.9.0
+
+# System Monitoring
+psutil==5.9.6

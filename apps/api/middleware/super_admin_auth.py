@@ -177,7 +177,7 @@ class SuperAdminAuth:
             with self.get_db_connection() as conn:
                 with conn.cursor(cursor_factory=RealDictCursor) as cur:
                     # Verify company exists
-                    cur.execute("SELECT id, name, type FROM clients WHERE id = %s", (company_id,))
+                    cur.execute("SELECT id, name, type FROM \"Client\" WHERE id = %s", (company_id,))
                     company = cur.fetchone()
                     if not company:
                         raise HTTPException(status_code=404, detail="Company not found")
@@ -283,7 +283,7 @@ class SuperAdminAuth:
                 with conn.cursor(cursor_factory=RealDictCursor) as cur:
                     cur.execute("""
                         SELECT id, name, type, contact_email, contact_phone, address, status, created_at
-                        FROM clients 
+                        FROM "Client" 
                         ORDER BY name
                     """)
                     
@@ -306,13 +306,13 @@ class SuperAdminAuth:
             raise HTTPException(status_code=500, detail=f"Failed to get companies: {str(e)}")
 
 # Global instance
-super_admin_auth = SuperAdminAuth("postgresql://c_and_c_user:c_and_c_password@localhost:5432/c_and_c_crm")
+super_admin_auth = SuperAdminAuth("postgresql://c_and_c_user:c_and_c_password@postgres:5432/c_and_c_crm")
 
 # Dependency functions
 async def get_current_super_admin(super_admin: Dict[str, Any] = Depends(super_admin_auth.get_current_super_admin)):
     return super_admin
 
-async def require_super_admin_permission(permission: str):
+def require_super_admin_permission(permission: str):
     """Dependency to require specific permission"""
     async def permission_checker(super_admin: Dict[str, Any] = Depends(get_current_super_admin)):
         await super_admin_auth.require_permission(super_admin, permission)

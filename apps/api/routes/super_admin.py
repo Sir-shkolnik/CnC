@@ -9,6 +9,8 @@ from pydantic import BaseModel
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime, timedelta
+import json
+import uuid
 
 from ..middleware.super_admin_auth import (
     super_admin_auth, 
@@ -28,19 +30,15 @@ class CompanySwitchRequest(BaseModel):
 
 class CreateCompanyRequest(BaseModel):
     name: str
-    type: str  # 'CORPORATE' or 'FRANCHISE'
-    contact_email: str
-    contact_phone: str
-    address: str
+    industry: str
+    isFranchise: bool = False
     settings: Optional[Dict[str, Any]] = None
 
 class UpdateCompanyRequest(BaseModel):
     name: Optional[str] = None
-    contact_email: Optional[str] = None
-    contact_phone: Optional[str] = None
-    address: Optional[str] = None
+    industry: Optional[str] = None
+    isFranchise: Optional[bool] = None
     settings: Optional[Dict[str, Any]] = None
-    status: Optional[str] = None
 
 class CreateUserRequest(BaseModel):
     company_id: str
@@ -148,8 +146,8 @@ async def get_companies(
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 # Build query with filters
                 query = """
-                    SELECT id, name, type, contact_email, contact_phone, address, status, created_at
-                    FROM clients 
+                    SELECT id, name, industry, "isFranchise", settings, "createdAt", "updatedAt"
+                    FROM "Client" 
                     WHERE 1=1
                 """
                 params = []
@@ -159,17 +157,17 @@ async def get_companies(
                     params.extend([f"%{search}%", f"%{search}%"])
                 
                 if type and type != 'ALL':
-                    query += " AND type = %s"
+                    query += " AND industry = %s"
                     params.append(type)
                 
-                if status and status != 'ALL':
-                    query += " AND status = %s"
-                    params.append(status)
+                # Note: Client table doesn't have a status column, so we'll skip status filtering for now
+                # if status and status != 'ALL':
+                #     query += " AND status = %s"
+                #     params.append(status)
                 
                 # Get total count
-                count_query = query.replace("SELECT id, name, type, contact_email, contact_phone, address, status, created_at", "SELECT COUNT(*)")
-                cur.execute(count_query, params)
-                total = cur.fetchone()['count']
+                cur.execute("SELECT COUNT(*) as total_companies FROM \"Client\"")
+                total = cur.fetchone()['total_companies']
                 
                 # Get paginated results
                 query += " ORDER BY name LIMIT %s OFFSET %s"
@@ -186,12 +184,11 @@ async def get_companies(
                             {
                                 "id": str(company['id']),
                                 "name": company['name'],
-                                "type": company['type'],
-                                "contact_email": company['contact_email'],
-                                "contact_phone": company['contact_phone'],
-                                "address": company['address'],
-                                "status": company['status'],
-                                "created_at": company['created_at'].isoformat() if company['created_at'] else None
+                                "type": company['industry'] or 'UNKNOWN',
+                                "is_franchise": company['isFranchise'],
+                                "settings": company['settings'],
+                                "created_at": company['createdAt'].isoformat() if company['createdAt'] else None,
+                                "updated_at": company['updatedAt'].isoformat() if company['updatedAt'] else None
                             }
                             for company in companies
                         ],
@@ -218,7 +215,7 @@ async def get_company(
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("""
                     SELECT id, name, type, contact_email, contact_phone, address, status, created_at, updated_at
-                    FROM clients 
+                    FROM "Client" 
                     WHERE id = %s
                 """, (company_id,))
                 
@@ -258,17 +255,22 @@ async def create_company(
     try:
         with super_admin_auth.get_db_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                # Generate a unique ID for the company
+                company_id = f"clm_{str(uuid.uuid4()).replace('-', '_')}"
+                
+                # Convert settings to JSON string if it's a dict
+                settings_json = json.dumps(request.settings) if request.settings else None
+                
                 cur.execute("""
-                    INSERT INTO clients (name, type, contact_email, contact_phone, address, settings)
-                    VALUES (%s, %s, %s, %s, %s, %s)
-                    RETURNING id, name, type, contact_email, contact_phone, address, status, created_at
+                    INSERT INTO "Client" (id, name, industry, "isFranchise", settings, "updatedAt")
+                    VALUES (%s, %s, %s, %s, %s, NOW())
+                    RETURNING id, name, industry, "isFranchise", settings, "createdAt", "updatedAt"
                 """, (
+                    company_id,
                     request.name,
-                    request.type,
-                    request.contact_email,
-                    request.contact_phone,
-                    request.address,
-                    request.settings or {}
+                    request.industry,
+                    request.isFranchise,
+                    settings_json
                 ))
                 
                 company = cur.fetchone()
@@ -289,12 +291,11 @@ async def create_company(
                         "company": {
                             "id": str(company['id']),
                             "name": company['name'],
-                            "type": company['type'],
-                            "contact_email": company['contact_email'],
-                            "contact_phone": company['contact_phone'],
-                            "address": company['address'],
-                            "status": company['status'],
-                            "created_at": company['created_at'].isoformat() if company['created_at'] else None
+                            "industry": company['industry'],
+                            "isFranchise": company['isFranchise'],
+                            "settings": company['settings'],
+                            "created_at": company['createdAt'].isoformat() if company['createdAt'] else None,
+                            "updated_at": company['updatedAt'].isoformat() if company['updatedAt'] else None
                         }
                     }
                 }
@@ -582,7 +583,7 @@ async def get_analytics_overview(
         with super_admin_auth.get_db_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 # Get basic counts
-                cur.execute("SELECT COUNT(*) as total_companies FROM clients")
+                cur.execute("SELECT COUNT(*) as total_companies FROM \"Client\"")
                 total_companies = cur.fetchone()['total_companies']
                 
                 cur.execute("SELECT COUNT(*) as total_users FROM users")

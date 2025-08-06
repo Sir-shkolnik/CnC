@@ -92,27 +92,8 @@ services:
       - /app/apps/frontend/.next
     depends_on:
       - api
+    working_dir: /app/apps/frontend
     command: npm run dev
-    networks:
-      - c-and-c-network
-
-  # ===== PRISMA STUDIO (Database GUI) =====
-  prisma-studio:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: backend-builder
-    container_name: c-and-c-crm-prisma-studio
-    environment:
-      - DATABASE_URL=postgresql://c_and_c_user:c_and_c_password@postgres:5432/c_and_c_crm
-    ports:
-      - "5555:5555"
-    volumes:
-      - ./prisma:/app/prisma
-    depends_on:
-      postgres:
-        condition: service_healthy
-    command: npx prisma studio --hostname 0.0.0.0 --port 5555
     networks:
       - c-and-c-network
 
