@@ -2,12 +2,15 @@
 
 ## 📋 **Deployment Overview**
 
-This guide will help you deploy the C&C CRM system to Render.com with separate services for frontend, backend, and database.
+This guide will help you deploy the C&C CRM system to Render.com with separate services for frontend, backend, mobile portal, storage system, and database.
 
 ### **System Architecture**
 - **Frontend**: Next.js 14 with TypeScript and Tailwind CSS
 - **Backend**: FastAPI (Python) with PostgreSQL
 - **Database**: PostgreSQL with Prisma ORM
+- **Cache**: Redis for real-time data and session management
+- **Mobile Portal**: Mobile-first field operations interface
+- **Storage System**: Interactive storage management with drag-and-drop
 - **Authentication**: JWT-based with role-based access
 - **Real Data**: 43 LGM locations with complete operational data
 
@@ -61,7 +64,12 @@ If blueprint deployment doesn't work, deploy services manually:
 4. **User**: `c_and_c_user`
 5. **Plan**: Free (for development) or Standard ($7/month for production)
 
-#### **B. Create Backend API Service**
+#### **B. Create Redis Cache**
+1. **New + → Redis**
+2. **Name**: `c-and-c-crm-redis`
+3. **Plan**: Free (for development) or Standard ($7/month for production)
+
+#### **C. Create Backend API Service**
 1. **New + → Web Service**
 2. **Connect GitHub repository**
 3. **Name**: `c-and-c-crm-api`
@@ -77,10 +85,44 @@ If blueprint deployment doesn't work, deploy services manually:
    uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT
    ```
 
-#### **C. Create Frontend Service**
+#### **D. Create Frontend Service**
 1. **New + → Web Service**
 2. **Connect GitHub repository**
 3. **Name**: `c-and-c-crm-frontend`
+4. **Environment**: Node
+5. **Build Command**: 
+   ```bash
+   cd apps/frontend
+   npm install
+   npm run build
+   ```
+6. **Start Command**: 
+   ```bash
+   cd apps/frontend
+   npm start
+   ```
+
+#### **E. Create Mobile Portal Service**
+1. **New + → Web Service**
+2. **Connect GitHub repository**
+3. **Name**: `c-and-c-crm-mobile`
+4. **Environment**: Node
+5. **Build Command**: 
+   ```bash
+   cd apps/frontend
+   npm install
+   npm run build
+   ```
+6. **Start Command**: 
+   ```bash
+   cd apps/frontend
+   npm start
+   ```
+
+#### **F. Create Storage System Service**
+1. **New + → Web Service**
+2. **Connect GitHub repository**
+3. **Name**: `c-and-c-crm-storage`
 4. **Environment**: Node
 5. **Build Command**: 
    ```bash
@@ -108,7 +150,7 @@ ENVIRONMENT=production
 DEBUG=false
 API_HOST=0.0.0.0
 CORS_ORIGINS=https://c-and-c-crm-frontend.onrender.com
-REDIS_URL=redis://localhost:6379
+REDIS_URL=redis://c-and-c-crm-redis.onrender.com:6379
 UPLOAD_DIR=./uploads
 MAX_FILE_SIZE=10485760
 LOG_LEVEL=INFO
@@ -125,6 +167,24 @@ NEXT_PUBLIC_API_URL=https://c-and-c-crm-api.onrender.com
 NEXT_PUBLIC_APP_URL=https://c-and-c-crm-frontend.onrender.com
 NEXT_PUBLIC_ENVIRONMENT=production
 NODE_ENV=production
+```
+
+### **Mobile Portal Environment Variables**
+```bash
+NEXT_PUBLIC_API_URL=https://c-and-c-crm-api.onrender.com
+NEXT_PUBLIC_APP_URL=https://c-and-c-crm-mobile.onrender.com
+NEXT_PUBLIC_ENVIRONMENT=production
+NODE_ENV=production
+NEXT_PUBLIC_MOBILE_MODE=true
+```
+
+### **Storage System Environment Variables**
+```bash
+NEXT_PUBLIC_API_URL=https://c-and-c-crm-api.onrender.com
+NEXT_PUBLIC_APP_URL=https://c-and-c-crm-storage.onrender.com
+NEXT_PUBLIC_ENVIRONMENT=production
+NODE_ENV=production
+NEXT_PUBLIC_STORAGE_MODE=true
 ```
 
 ---
@@ -166,6 +226,11 @@ After deployment, run database migrations:
 - **Password**: `1234`
 - **Role**: `ADMIN`
 
+### **Mobile Field Operations Access**
+- **Email**: `david.rodriguez@lgm.com`
+- **Password**: `password123`
+- **Role**: `DRIVER`
+
 ---
 
 ## 🌐 **Access URLs**
@@ -173,6 +238,8 @@ After deployment, run database migrations:
 ### **Production URLs**
 - **Frontend**: `https://c-and-c-crm-frontend.onrender.com`
 - **Backend API**: `https://c-and-c-crm-api.onrender.com`
+- **Mobile Portal**: `https://c-and-c-crm-mobile.onrender.com`
+- **Storage System**: `https://c-and-c-crm-storage.onrender.com`
 - **API Documentation**: `https://c-and-c-crm-api.onrender.com/docs`
 - **Health Check**: `https://c-and-c-crm-api.onrender.com/health`
 
@@ -181,11 +248,55 @@ After deployment, run database migrations:
 - **Login**: `https://c-and-c-crm-frontend.onrender.com/auth/login`
 - **Dashboard**: `https://c-and-c-crm-frontend.onrender.com/dashboard`
 - **Journeys**: `https://c-and-c-crm-frontend.onrender.com/journeys`
-- **Mobile Portal**: `https://c-and-c-crm-frontend.onrender.com/mobile`
+- **Mobile Portal**: `https://c-and-c-crm-mobile.onrender.com/mobile`
+- **Storage System**: `https://c-and-c-crm-storage.onrender.com/storage`
 
 ### **Super Admin Portal**
 - **Super Admin Login**: `https://c-and-c-crm-frontend.onrender.com/super-admin/auth/login`
 - **Super Admin Dashboard**: `https://c-and-c-crm-frontend.onrender.com/super-admin/dashboard`
+
+---
+
+## 📱 **Mobile Field Operations Portal**
+
+### **Features**
+- **Mobile-First Design** - Optimized for phone screens with thumb-friendly interface
+- **"One Page, One Job" Philosophy** - Single-page journey management
+- **Offline Capability** - Full functionality without internet connection
+- **Real-time Sync** - Background data synchronization when online
+- **GPS Integration** - Automatic location tracking and updates
+- **Quick Actions** - One-tap operations for efficiency
+- **Progress Tracking** - Visual progress indicators and step completion
+- **Role-Based Access** - Different permissions for drivers, movers, managers
+- **Media Capture** - Photo/video/signature capture with metadata
+- **Push Notifications** - Real-time alerts and updates
+- **Session Management** - Device registration and session tracking
+- **Real Database Integration** - Uses actual C&C CRM database with real user data
+
+### **Mobile Portal URLs**
+- **Mobile Login**: `https://c-and-c-crm-mobile.onrender.com/mobile`
+- **Mobile API**: `https://c-and-c-crm-api.onrender.com/mobile`
+- **Real User Credentials**: david.rodriguez@lgm.com / password123
+
+---
+
+## 🗄️ **Storage System Portal**
+
+### **Features**
+- **Interactive Drag-and-Drop Map** - Visual storage unit management
+- **Real-time Inventory** - Live tracking of storage unit availability
+- **Dynamic Configuration** - Resize, reposition, and reconfigure storage layouts
+- **Mobile Control** - Touch-friendly interface for field operations
+- **Analytics Dashboard** - Storage utilization and revenue analytics
+- **Customer Portal** - Self-service storage booking
+- **Automated Billing** - Usage-based billing and payment processing
+- **Multi-Location Support** - Manage 43 LGM locations with storage facilities
+
+### **Storage System URLs**
+- **Storage Management**: `https://c-and-c-crm-storage.onrender.com/storage`
+- **Customer Booking**: `https://c-and-c-crm-storage.onrender.com/storage/booking`
+- **Unit Management**: `https://c-and-c-crm-storage.onrender.com/storage/units`
+- **Billing Management**: `https://c-and-c-crm-storage.onrender.com/storage/billing`
 
 ---
 
@@ -194,6 +305,8 @@ After deployment, run database migrations:
 ### **Health Check Endpoints**
 - **API Health**: `https://c-and-c-crm-api.onrender.com/health`
 - **Frontend Health**: `https://c-and-c-crm-frontend.onrender.com`
+- **Mobile Health**: `https://c-and-c-crm-mobile.onrender.com/mobile`
+- **Storage Health**: `https://c-and-c-crm-storage.onrender.com/storage`
 
 ### **Monitoring Setup**
 1. **Enable Render monitoring**
@@ -228,14 +341,20 @@ After deployment, run database migrations:
 #### **Development/Testing (Free Tier)**
 - **Frontend Service**: $0/month (Free tier)
 - **Backend Service**: $0/month (Free tier)
+- **Mobile Portal**: $0/month (Free tier)
+- **Storage System**: $0/month (Free tier)
 - **PostgreSQL Database**: $0/month (Free tier)
+- **Redis Cache**: $0/month (Free tier)
 - **Total**: $0/month
 
 #### **Production (Paid Plans)**
 - **Frontend Service**: $7/month (Starter plan)
 - **Backend Service**: $7/month (Starter plan)
+- **Mobile Portal**: $7/month (Starter plan)
+- **Storage System**: $7/month (Starter plan)
 - **PostgreSQL Database**: $7/month (Standard plan)
-- **Total**: $21/month
+- **Redis Cache**: $7/month (Standard plan)
+- **Total**: $42/month
 
 ### **Plan Comparison**
 - **Free Tier**: $0/month (limited to 750 hours/month, cold starts)
@@ -276,6 +395,13 @@ After deployment, run database migrations:
 # Ensure proper CORS configuration
 ```
 
+#### **5. Redis Connection Issues**
+```bash
+# Verify REDIS_URL environment variable
+# Check Redis service is running
+# Ensure Redis credentials are correct
+```
+
 ### **Debug Commands**
 ```bash
 # Check backend logs
@@ -283,6 +409,12 @@ curl https://c-and-c-crm-api.onrender.com/health
 
 # Check frontend status
 curl https://c-and-c-crm-frontend.onrender.com
+
+# Check mobile portal
+curl https://c-and-c-crm-mobile.onrender.com/mobile
+
+# Check storage system
+curl https://c-and-c-crm-storage.onrender.com/storage
 
 # Test database connection
 curl https://c-and-c-crm-api.onrender.com/super-admin/companies
@@ -303,6 +435,18 @@ curl https://c-and-c-crm-api.onrender.com/super-admin/companies
 - ✅ **Database Indexing**: Optimized database queries
 - ✅ **Connection Pooling**: Efficient database connections
 - ✅ **Caching**: Redis integration for caching
+
+### **Mobile Optimizations**
+- ✅ **Offline Capability**: Service Worker and IndexedDB
+- ✅ **GPS Integration**: Real-time location tracking
+- ✅ **Media Capture**: Photo/video/signature upload
+- ✅ **Push Notifications**: Real-time alerts
+
+### **Storage System Optimizations**
+- ✅ **Drag-and-Drop**: Smooth interactions with Framer Motion
+- ✅ **Real-time Updates**: WebSocket integration
+- ✅ **Analytics**: Live performance tracking
+- ✅ **Mobile Responsive**: Touch-friendly interface
 
 ---
 
@@ -329,6 +473,8 @@ curl https://c-and-c-crm-api.onrender.com/super-admin/companies
 - [ ] **Health checks passing**
 - [ ] **Authentication working**
 - [ ] **Frontend loading correctly**
+- [ ] **Mobile portal accessible**
+- [ ] **Storage system functional**
 - [ ] **API endpoints responding**
 - [ ] **SSL certificates active**
 - [ ] **Monitoring configured**
@@ -347,11 +493,15 @@ curl https://c-and-c-crm-api.onrender.com/super-admin/companies
 5. **Validate user permissions and roles**
 6. **Test offline capabilities**
 7. **Verify real-time features**
+8. **Test storage system functionality**
+9. **Verify Redis cache integration**
 
 ### **Launch Announcement**
 - **System**: C&C CRM v2.6.0
 - **Status**: Production Ready
 - **Access**: https://c-and-c-crm-frontend.onrender.com
+- **Mobile**: https://c-and-c-crm-mobile.onrender.com
+- **Storage**: https://c-and-c-crm-storage.onrender.com
 - **Support**: Available for LGM operations team
 
 ---

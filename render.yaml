@@ -32,7 +32,7 @@ services:
       - key: CORS_ORIGINS
         value: https://c-and-c-crm-frontend.onrender.com
       - key: REDIS_URL
-        value: redis://localhost:6379
+        value: redis://c-and-c-crm-redis.onrender.com:6379
       - key: UPLOAD_DIR
         value: ./uploads
       - key: MAX_FILE_SIZE
@@ -76,9 +76,65 @@ services:
     healthCheckPath: /
     autoDeploy: true
 
+  # ===== MOBILE FIELD OPERATIONS PORTAL =====
+  - type: web
+    name: c-and-c-crm-mobile
+    env: node
+    plan: starter
+    buildCommand: |
+      cd apps/frontend
+      npm install
+      npm run build
+    startCommand: |
+      cd apps/frontend
+      npm start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://c-and-c-crm-api.onrender.com
+      - key: NEXT_PUBLIC_APP_URL
+        value: https://c-and-c-crm-mobile.onrender.com
+      - key: NEXT_PUBLIC_ENVIRONMENT
+        value: production
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_MOBILE_MODE
+        value: true
+    healthCheckPath: /mobile
+    autoDeploy: true
+
+  # ===== STORAGE SYSTEM PORTAL =====
+  - type: web
+    name: c-and-c-crm-storage
+    env: node
+    plan: starter
+    buildCommand: |
+      cd apps/frontend
+      npm install
+      npm run build
+    startCommand: |
+      cd apps/frontend
+      npm start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://c-and-c-crm-api.onrender.com
+      - key: NEXT_PUBLIC_APP_URL
+        value: https://c-and-c-crm-storage.onrender.com
+      - key: NEXT_PUBLIC_ENVIRONMENT
+        value: production
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_STORAGE_MODE
+        value: true
+    healthCheckPath: /storage
+    autoDeploy: true
+
 databases:
   # ===== POSTGRESQL DATABASE =====
   - name: c-and-c-crm-db
     databaseName: c_and_c_crm
     user: c_and_c_user
+    plan: free
+
+  # ===== REDIS CACHE =====
+  - name: c-and-c-crm-redis
     plan: free 
