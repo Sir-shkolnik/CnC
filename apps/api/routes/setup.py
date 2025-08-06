@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from fastapi.security import HTTPBearer
 import psycopg2
 import os
 from urllib.parse import urlparse
 
 router = APIRouter()
+security = HTTPBearer(auto_error=False)
 
 def get_db_connection():
     """Get database connection from DATABASE_URL"""
@@ -17,7 +19,9 @@ def get_db_connection():
         raise HTTPException(status_code=500, detail=f"Database connection failed: {str(e)}")
 
 @router.post("/setup/database")
-async def setup_database():
+async def setup_database(token: str = Depends(security)):
+    # Skip authentication for setup endpoint
+    pass
     """Create database tables and initial data"""
     try:
         conn = get_db_connection()
