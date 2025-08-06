@@ -78,11 +78,58 @@ startCommand: |
 curl -I https://c-and-c-crm-api.onrender.com/health
 ```
 
+### **Issue 3: Package Compilation Errors**
+
+**Error Message:**
+```
+error: failed-wheel-build-for-install
+ERROR: Failed building wheel for asyncpg
+error: command '/usr/bin/gcc' failed with exit code 1
+```
+
+**Root Cause:** C extension compilation failures due to Python version incompatibility
+
+**Solution Applied:**
+```yaml
+# In render.yaml - API Service
+env: python
+pythonVersion: "3.11"  # Specify Python version
+
+buildCommand: |
+  python -m pip install --upgrade pip
+  pip install --only-binary=all fastapi==0.104.1
+  pip install --only-binary=all uvicorn[standard]==0.24.0
+  pip install --only-binary=all pydantic==2.5.0
+  pip install --only-binary=all pydantic-settings==2.1.0
+  pip install --only-binary=all prisma==0.12.0
+  pip install --only-binary=all psycopg2-binary
+  pip install --only-binary=all python-jose[cryptography]==3.3.0
+  pip install --only-binary=all PyJWT==2.8.0
+  pip install --only-binary=all passlib[bcrypt]==1.7.4
+  pip install --only-binary=all python-multipart==0.0.6
+  pip install --only-binary=all httpx==0.25.2
+  pip install --only-binary=all requests==2.31.0
+  pip install --only-binary=all Pillow==10.1.0
+  pip install --only-binary=all python-dotenv==1.0.0
+  pip install --only-binary=all python-dateutil==2.8.2
+  pip install --only-binary=all structlog==23.2.0
+  pip install --only-binary=all redis==5.0.1
+  pip install --only-binary=all websockets==12.0
+  pip install --only-binary=all celery==5.3.4
+  pip install --only-binary=all psutil==5.9.6
+  prisma generate
+```
+
+**Key Changes:**
+1. **Specify Python version:** `pythonVersion: "3.11"`
+2. **Use pre-compiled wheels:** `--only-binary=all` flag
+3. **Remove problematic packages:** asyncpg, python-magic
+
 ---
 
 ## 🔍 **Common Deployment Issues**
 
-### **Issue 3: Frontend Build Failures**
+### **Issue 4: Frontend Build Failures**
 
 **Error Types:**
 - TypeScript compilation errors
@@ -102,7 +149,7 @@ startCommand: |
   next start -p $PORT  # Instead of npm start
 ```
 
-### **Issue 4: Database Connection Problems**
+### **Issue 5: Database Connection Problems**
 
 **Error Types:**
 - Connection timeout
@@ -123,7 +170,7 @@ curl https://c-and-c-crm-api.onrender.com/health/database
 docker logs trujourney-postgres
 ```
 
-### **Issue 5: CORS Errors**
+### **Issue 6: CORS Errors**
 
 **Error Types:**
 - Cross-origin request blocked
