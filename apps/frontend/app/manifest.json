@@ -1,0 +1,32 @@
+{
+    "name": "C&C CRM - Trust the Journey",
+    "short_name": "C&C CRM",
+    "description": "Mobile-first operations management for moving & logistics",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#121212",
+    "theme_color": "#00C2FF",
+    "orientation": "portrait-primary",
+    "scope": "/",
+    "lang": "en",
+    "icons": [{
+        "src": "/icons/icon.svg",
+        "sizes": "any",
+        "type": "image/svg+xml",
+        "purpose": "maskable any"
+    }],
+    "categories": ["business", "productivity", "utilities"],
+    "screenshots": [{
+            "src": "/screenshots/dashboard-mobile.png",
+            "sizes": "390x844",
+            "type": "image/png",
+            "form_factor": "narrow"
+        },
+        {
+            "src": "/screenshots/dashboard-desktop.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide"
+        }
+    ]
+}
