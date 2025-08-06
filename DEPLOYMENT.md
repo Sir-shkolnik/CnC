@@ -59,7 +59,7 @@ If blueprint deployment doesn't work, deploy services manually:
 2. **Name**: `c-and-c-crm-db`
 3. **Database**: `c_and_c_crm`
 4. **User**: `c_and_c_user`
-5. **Plan**: Starter ($7/month)
+5. **Plan**: Free (for development) or Standard ($7/month for production)
 
 #### **B. Create Backend API Service**
 1. **New + → Web Service**
@@ -224,15 +224,23 @@ After deployment, run database migrations:
 ## 💰 **Cost Analysis**
 
 ### **Render.com Pricing (Monthly)**
+
+#### **Development/Testing (Free Tier)**
+- **Frontend Service**: $0/month (Free tier)
+- **Backend Service**: $0/month (Free tier)
+- **PostgreSQL Database**: $0/month (Free tier)
+- **Total**: $0/month
+
+#### **Production (Paid Plans)**
 - **Frontend Service**: $7/month (Starter plan)
 - **Backend Service**: $7/month (Starter plan)
-- **PostgreSQL Database**: $7/month (Starter plan)
+- **PostgreSQL Database**: $7/month (Standard plan)
 - **Total**: $21/month
 
-### **Free Tier Alternative**
-- **Free Tier**: $0/month (limited to 750 hours/month)
-- **Suitable for**: Development and testing
-- **Limitations**: Cold starts, limited resources
+### **Plan Comparison**
+- **Free Tier**: $0/month (limited to 750 hours/month, cold starts)
+- **Starter Plans**: $7/month each (512MB RAM, 0.1 CPU)
+- **Standard Plans**: $25/month each (1GB RAM, 0.5 CPU)
 
 ---
 
