@@ -30,7 +30,7 @@ services:
       - key: API_HOST
         value: 0.0.0.0
       - key: CORS_ORIGINS
-        value: https://c-and-c-crm.onrender.com
+        value: https://c-and-c-crm-frontend.onrender.com
       - key: REDIS_URL
         value: redis://localhost:6379
       - key: UPLOAD_DIR
@@ -81,4 +81,4 @@ databases:
   - name: c-and-c-crm-db
     databaseName: c_and_c_crm
     user: c_and_c_user
-    plan: starter 
+    plan: free 
