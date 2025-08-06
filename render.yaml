@@ -9,13 +9,31 @@ services:
     plan: starter
     buildCommand: |
       python -m pip install --upgrade pip
-      pip install -r requirements.txt
+      pip install fastapi==0.104.1
       pip install uvicorn[standard]==0.24.0
-      pip install prisma
+      pip install pydantic==2.5.0
+      pip install pydantic-settings==2.1.0
+      pip install prisma==0.12.0
+      pip install asyncpg==0.29.0
+      pip install psycopg2-binary
+      pip install python-jose[cryptography]==3.3.0
+      pip install PyJWT==2.8.0
+      pip install passlib[bcrypt]==1.7.4
+      pip install python-multipart==0.0.6
+      pip install httpx==0.25.2
+      pip install requests==2.31.0
+      pip install python-magic==0.4.27
+      pip install Pillow==10.1.0
+      pip install python-dotenv==1.0.0
+      pip install python-dateutil==2.8.2
+      pip install structlog==23.2.0
+      pip install redis==5.0.1
+      pip install websockets==12.0
+      pip install celery==5.3.4
+      pip install psutil==5.9.6
       prisma generate
     startCommand: |
-      source .venv/bin/activate
-      uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT
+      python -m uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DATABASE_URL
         fromDatabase:
