@@ -1,59 +1,17 @@
 # 02_Data_Structure_Guide.md
 
-## 📊 Core Entities (Database Models)
+## 🎯 **C&C CRM DATA STRUCTURE GUIDE**
 
-### ✅ **IMPLEMENTATION STATUS**
-- **Database:** PostgreSQL running on Docker (localhost:5432)
-- **Database Name:** `c_and_c_crm`
-- **Connection URL:** `postgresql://c_and_c_user:c_and_c_password@localhost:5432/c_and_c_crm`
-- **Prisma Schema:** Complete with all models and relations
-- **Database Schema:** ✅ Created manually and working
-- **Real LGM Data:** ✅ Complete with 43 locations, 1 client, real contact information
-- **Super Admin System:** ✅ Complete with super admin users, sessions, and access logs
-- **Clean Container Rebuild:** ✅ All services running in fresh Docker environment
-- **Comprehensive Pipeline Testing:** ✅ Complete with 13 tests covering data flow and user journeys
-- **Mobile Field Operations:** ✅ Complete with mobile-specific database schema
-- **Database Schema Optimization:** ✅ Enhanced schema with performance improvements and new features
-- **Storage System:** ✅ Complete with StorageUnit, StorageBooking, BillingPlan models
-- **TypeScript Build:** ✅ All TypeScript errors resolved, successful production build
-
-### ✅ **RESOLVED**
-- Database schema created manually using SQL
-- All tables and enums successfully created
-- API server connected and working
-- Real LGM data loaded and accessible
-- All services running in Docker
-- Super admin system fully implemented
-- Clean container rebuild completed
-- Complete LGM location data with contact info, storage details, and pricing
-- Comprehensive pipeline testing framework implemented
-- Mobile field operations database schema complete and working
-- Database schema optimized with enhanced models and performance improvements
-
-### 🧪 **PIPELINE TESTING RESULTS**
-- **Data Flow Pipeline Tests**: 7 tests (2 passed, 5 failed due to schema alignment)
-- **User Journey Workflow Tests**: 6 tests (0 passed due to schema alignment)
-- **Mobile Field Operations Tests**: 8 tests (8 passed, 100% success rate)
-- **Overall Success Rate**: 66.7% (10/15 tests passed)
-- **Performance**: 100% excellent (sub-millisecond queries)
-- **Data Consistency**: 100% perfect (referential integrity maintained)
-
-### 🗄️ **ENHANCED DATABASE SCHEMA FEATURES**
-- **Storage System Models**: Complete storage management with units, bookings, and billing
-- **Enhanced User Model**: Phone, avatar, preferences, API key, 2FA support
-- **Enhanced Client Model**: Contact info, website, timezone, currency, features
-- **Enhanced Location Model**: Address details, business hours, services, capacity
-- **Enhanced TruckJourney Model**: Duration tracking, priority, tags, cost tracking
-- **Performance Optimizations**: Comprehensive indexing and database views
-- **Database Functions**: Business logic functions for analytics and calculations
-- **Migration Script**: Complete schema upgrade path with data preservation
+**Last Updated:** January 2025  
+**Version:** 3.0.0  
+**Status:** 🚀 **COMPLETE - Database Schema with Comprehensive CRM Implementation Plan**
 
 ---
 
 ## 📊 **COMPREHENSIVE CRM ANALYSIS**
 
 ### **🎯 CURRENT SYSTEM ASSESSMENT**
-The C&C CRM is currently an **excellent Operations Management System (OMS)** with **32% CRM completeness**. While strong in operations, it needs expansion to become a full operational CRM for smart moving and logistics companies.
+The C&C CRM database schema is currently optimized for **Operations Management** with **32% CRM completeness**. While excellent for operations, it needs expansion to become a full operational CRM for smart moving and logistics companies.
 
 #### **✅ STRENGTHS (Operations Management: 85%)**
 - **Journey Management:** Complete workflow with real-time tracking
@@ -71,896 +29,760 @@ The C&C CRM is currently an **excellent Operations Management System (OMS)** wit
 
 ---
 
-## 🗃️ Core Database Models
+## 🚀 **COMPLETE CRM SCHEMA IMPLEMENTATION PLAN**
 
-### 1. `User` ✅ **IMPLEMENTED & ENHANCED**
-- `id` (String, @id, @default(cuid()))
-- `name` (String)
-- `email` (String, @unique)
-- `role` (ENUM: `ADMIN`, `DISPATCHER`, `DRIVER`, `MOVER`, `MANAGER`, `AUDITOR`)
-- `locationId` (String)
-- `clientId` (String)
-- `status` (ENUM: `ACTIVE`, `INACTIVE`, `SUSPENDED`)
-- **Enhanced Fields:**
-  - `phone` (String?) - Contact phone number
-  - `avatar` (String?) - Profile picture URL
-  - `lastLogin` (DateTime?) - Last login timestamp
-  - `preferences` (Json?) - User preferences and settings
-  - `apiKey` (String?) @unique - For API access
-  - `twoFactorEnabled` (Boolean) @default(false) - 2FA support
-  - `createdBy` (String?) - Who created this user
-  - `updatedBy` (String?) - Who last updated this user
+### **📋 PHASE 1: CUSTOMER & SALES MANAGEMENT (Critical - 4-6 weeks)**
 
-### 2. `Client` ✅ **IMPLEMENTED & ENHANCED**
-- `id` (String, @id, @default(cuid()))
-- `name` (String)
-- `industry` (String?)
-- `isFranchise` (Boolean, @default(false))
-- `settings` (Json?)
-- **Enhanced Fields:**
-  - `contactEmail` (String?) - Primary contact email
-  - `contactPhone` (String?) - Primary contact phone
-  - `website` (String?) - Company website
-  - `logo` (String?) - Company logo URL
-  - `timezone` (String) @default("America/Toronto")
-  - `currency` (String) @default("CAD")
-  - `language` (String) @default("en")
-  - `features` (Json?) - Feature flags and capabilities
-  - `limits` (Json?) - Usage limits and quotas
-  - `status` (ClientStatus) @default(ACTIVE)
+#### **1. Customer Management Models**
+- **Customer Model:** Complete customer profiles with contact management
+- **Lead Model:** Lead tracking and pipeline management
+- **SalesActivity Model:** Sales activity tracking and follow-ups
+- **Enhanced User Relations:** Customer assignment and sales rep management
 
-### 3. `Location` ✅ **IMPLEMENTED WITH COMPLETE LGM DATA & ENHANCED**
-- `id` (String, @id, @default(cuid()))
-- `clientId` (String)
-- `name` (String)
-- `timezone` (String, @default("America/Toronto"))
-- `address` (String?)
-- **Enhanced Fields:**
-  - `city` (String?) - City name
-  - `province` (String?) - Province/state
-  - `postalCode` (String?) - Postal code
-  - `country` (String) @default("Canada") - Country
-  - `contactName` (String?) - Contact person name
-  - `contactPhone` (String?) - Contact phone number
-  - `contactEmail` (String?) - Contact email
-  - `businessHours` (Json?) - Operating hours
-  - `services` (Json?) - Services offered
-  - `storageType` (StorageType) @default(NO_STORAGE) - Type of storage available
-  - `storageCapacity` (Int?) - Number of storage units
-  - `isActive` (Boolean) @default(true) - Location status
-  - `isCorporate` (Boolean) @default(false) - Corporate vs franchise
-  - `maxTrucks` (Int?) - Maximum number of trucks
+#### **2. Sales Pipeline Models**
+- **Quote Model:** Multi-service quoting with approval workflows
+- **QuoteItem Model:** Detailed quote line items with categories
+- **Sales Pipeline Integration:** Quote-to-journey conversion
+- **Sales Analytics:** Pipeline performance and conversion tracking
 
-### 4. `StorageUnit` ✅ **NEW - STORAGE SYSTEM**
-- `id` (String, @id, @default(cuid()))
-- `locationId` (String)
-- `clientId` (String)
-- `unitNumber` (String) - Unique unit identifier
-- `unitType` (StorageUnitType) - SMALL, MEDIUM, LARGE, XLARGE, CUSTOM
-- `size` (Int) - Size in square feet
-- `status` (StorageUnitStatus) @default(AVAILABLE) - AVAILABLE, OCCUPIED, RESERVED, MAINTENANCE, OUT_OF_SERVICE
-- `monthlyRate` (Decimal) @db.Decimal(10,2) - Monthly rental rate
-- `currency` (String) @default("CAD") - Currency for pricing
-- `features` (String[]) - Array of features (climate-controlled, security, etc.)
-- `notes` (String?) - Additional notes
+### **📋 PHASE 2: FINANCIAL OPERATIONS (Critical - 3-4 weeks)**
 
-### 5. `StorageBooking` ✅ **NEW - STORAGE SYSTEM**
-- `id` (String, @id, @default(cuid()))
-- `storageUnitId` (String)
-- `journeyId` (String)
-- `clientId` (String)
-- `startDate` (DateTime) - Booking start date
-- `endDate` (DateTime) - Booking end date
-- `status` (BookingStatus) @default(ACTIVE) - PENDING, ACTIVE, COMPLETED, CANCELLED, OVERDUE
-- `totalCost` (Decimal) @db.Decimal(10,2) - Total booking cost
-- `currency` (String) @default("CAD") - Currency for pricing
+#### **1. Invoicing System**
+- **Invoice Model:** Automated invoice generation with tax support
+- **InvoiceItem Model:** Detailed invoice line items
+- **Payment Model:** Multiple payment methods and gateway integration
+- **FinancialTransaction Model:** Complete financial tracking
 
-### 6. `BillingPlan` ✅ **NEW - STORAGE SYSTEM**
-- `id` (String, @id, @default(cuid()))
-- `clientId` (String)
-- `name` (String) - Plan name
-- `description` (String?) - Plan description
-- `planType` (BillingPlanType) - BASIC, STANDARD, PREMIUM, ENTERPRISE, CUSTOM
-- `monthlyRate` (Decimal) @db.Decimal(10,2) - Monthly plan rate
-- `currency` (String) @default("CAD") - Currency for pricing
-- `features` (Json?) - Feature flags
-- `limits` (Json?) - Usage limits
-- `status` (BillingPlanStatus) @default(ACTIVE) - ACTIVE, INACTIVE, SUSPENDED, EXPIRED
-- `id` (String, @id, @default(cuid()))
-- `clientId` (String)
-- `name` (String)
-- `timezone` (String, @default("America/Toronto"))
-- `address` (String?)
-- `contact` (String) - **NEW: Real LGM contact person**
-- `direct_line` (String) - **NEW: Direct phone number**
-- `ownership_type` (String) - **NEW: CORPORATE or FRANCHISE**
-- `trucks` (String) - **NEW: Number of trucks available**
-- `trucks_shared_with` (String) - **NEW: Other locations sharing trucks**
-- `storage` (String) - **NEW: Storage type (LOCKER, POD, NO)**
-- `storage_pricing` (String) - **NEW: Detailed pricing information**
-- `cx_care` (Boolean) - **NEW: Customer care availability**
-- **Enhanced Fields:**
-  - `city` (String?) - City name
-  - `province` (String?) - Province/state
-  - `postalCode` (String?) - Postal code
-  - `country` (String?) - Country
-  - `contactName` (String?) - Primary contact person
-  - `contactPhone` (String?) - Contact phone number
-  - `contactEmail` (String?) - Contact email
-  - `businessHours` (Json?) - Operating hours
-  - `services` (String[]) - Available services
-  - `storageType` (StorageType?) - Type of storage available
-  - `storageCapacity` (Int?) - Storage capacity
-  - `isActive` (Boolean) @default(true)
-  - `isCorporate` (Boolean) @default(false)
-  - `maxTrucks` (Int?) - Maximum trucks available
+#### **2. Financial Management**
+- **Multi-Currency Support:** CAD, USD, EUR support
+- **Tax Management:** Automated tax calculations (GST/HST)
+- **Payment Processing:** Stripe, PayPal, Square integration
+- **Financial Reporting:** Revenue and payment analytics
 
-### 4. `TruckJourney` ✅ **IMPLEMENTED & ENHANCED**
-- `id` (String, @id, @default(cuid()))
-- `locationId` (String)
-- `clientId` (String)
-- `date` (DateTime)
-- `status` (ENUM: `MORNING_PREP`, `EN_ROUTE`, `ONSITE`, `COMPLETED`, `AUDITED`)
-- `truckNumber` (String?)
-- `moveSourceId` (String?)
-- `startTime` (DateTime?)
-- `endTime` (DateTime?)
-- `notes` (String?)
-- **Enhanced Fields:**
-  - `estimatedDuration` (Int?) - Estimated duration in minutes
-  - `actualDuration` (Int?) - Actual duration in minutes
-  - `priority` (JourneyPriority) @default(NORMAL)
-  - `tags` (String[]) - Journey tags
-  - `estimatedCost` (Decimal?) @db.Decimal(10,2)
-  - `actualCost` (Decimal?) @db.Decimal(10,2)
-  - `billingStatus` (BillingStatus) @default(PENDING)
-  - `startLocation` (String?) - Starting location
-  - `endLocation` (String?) - Ending location
-  - `routeData` (Json?) - Route information
+### **📋 PHASE 3: EQUIPMENT & INVENTORY MANAGEMENT (Important - 3-4 weeks)**
 
-### 5. `JourneyEntry` ✅ **IMPLEMENTED**
-- `id` (String, @id, @default(cuid()))
-- `journeyId` (String)
-- `createdBy` (String)
-- `type` (ENUM: `PHOTO`, `NOTE`, `GPS`, `SIGNATURE`, `CONFIRMATION`)
-- `data` (Json)
-- `tag` (ENUM: `DAMAGE`, `COMPLETED`, `FEEDBACK`, `ERROR`, `ISSUE`)
-- `timestamp` (DateTime, @default(now()))
+#### **1. Equipment Management**
+- **Equipment Model:** Fleet tracking and maintenance scheduling
+- **EquipmentMaintenance Model:** Maintenance records and scheduling
+- **EquipmentAssignment Model:** Resource allocation and tracking
+- **Equipment Analytics:** Cost analysis and utilization tracking
 
-### 6. `Media` ✅ **IMPLEMENTED**
-- `id` (String, @id, @default(cuid()))
-- `url` (String)
-- `type` (ENUM: `PHOTO`, `VIDEO`, `SIGNATURE`)
-- `linkedTo` (String) // JourneyEntry ID or TruckJourney ID
-- `uploadedBy` (String)
+#### **2. Inventory Management**
+- **Inventory Model:** Stock tracking with reorder points
+- **InventoryTransaction Model:** Purchase, sale, and adjustment tracking
+- **Supplier Management:** Vendor information and performance tracking
+- **Inventory Analytics:** Stock level monitoring and cost optimization
 
-### 7. `AuditEntry` ✅ **IMPLEMENTED & ENHANCED**
-- `id` (String, @id, @default(cuid()))
-- `action` (String) // CREATE, UPDATE, DELETE, VIEW
-- `entity` (String) // Model name
-- `entityId` (String)
-- `userId` (String)
-- `locationId` (String)
-- `clientId` (String)
-- `timestamp` (DateTime, @default(now()))
-- `diff` (Json?) // Before/after state for updates
-- **Enhanced Fields:**
-  - `severity` (AuditSeverity) @default(INFO)
-  - `ipAddress` (String?) - IP address of the action
-  - `userAgent` (String?) - User agent string
-  - `sessionId` (String?) - Session identifier
+### **📋 PHASE 4: SCHEDULING & CALENDAR SYSTEM (Important - 3-4 weeks)**
 
-### 8. `AssignedCrew` ✅ **IMPLEMENTED**
-- `id` (String, @id, @default(cuid()))
-- `journeyId` (String)
-- `userId` (String)
-- `role` (UserRole)
-- `assignedAt` (DateTime, @default(now()))
+#### **1. Scheduling System**
+- **Schedule Model:** Advanced scheduling with resource allocation
+- **Availability Model:** User availability and time-off management
+- **Calendar Integration:** Google Calendar, Outlook integration
+- **Conflict Resolution:** Automatic conflict detection and resolution
 
-### 9. `SuperAdminUser` ✅ **IMPLEMENTED**
-- `id` (String, @id, @default(cuid()))
-- `username` (String, @unique)
-- `email` (String, @unique)
-- `role` (String, @default("SUPER_ADMIN"))
-- `status` (ENUM: `ACTIVE`, `INACTIVE`, `SUSPENDED`)
-- `createdAt` (DateTime, @default(now()))
-- `updatedAt` (DateTime, @updatedAt)
+#### **2. Resource Optimization**
+- **AI-Powered Scheduling:** Intelligent job assignment
+- **Resource Allocation:** Equipment and crew optimization
+- **Schedule Analytics:** Efficiency and utilization reporting
+- **Mobile Scheduling:** Field crew scheduling capabilities
 
-### 10. `SuperAdminSession` ✅ **IMPLEMENTED**
-- `id` (String, @id, @default(cuid()))
-- `userId` (String)
-- `token` (String, @unique)
-- `expiresAt` (DateTime)
-- `createdAt` (DateTime, @default(now()))
+### **📋 PHASE 5: REPORTING & ANALYTICS (Important - 4-5 weeks)**
 
-### 11. `SuperAdminAccessLog` ✅ **IMPLEMENTED**
-- `id` (String, @id, @default(cuid()))
-- `userId` (String)
-- `action` (String)
-- `entity` (String?)
-- `entityId` (String?)
-- `timestamp` (DateTime, @default(now()))
-- `ipAddress` (String?)
-- `userAgent` (String?)
+#### **1. Reporting System**
+- **Report Model:** Custom report builder with scheduling
+- **Dashboard Model:** Personalized dashboards with widgets
+- **Export Capabilities:** PDF, Excel, CSV, JSON formats
+- **Scheduled Reports:** Automated report generation and delivery
+
+#### **2. Business Intelligence**
+- **KPI Dashboards:** Operational and financial metrics
+- **Advanced Analytics:** Predictive analytics and trend analysis
+- **Performance Benchmarking:** Industry comparisons
+- **Real-time Analytics:** Live data dashboards
+
+### **📋 PHASE 6: COMMUNICATION & NOTIFICATIONS (Important - 3-4 weeks)**
+
+#### **1. Communication System**
+- **Communication Model:** Multi-channel communication tracking
+- **Template Model:** Standardized communication templates
+- **Delivery Tracking:** Email, SMS, push notification tracking
+- **Customer Engagement:** Communication effectiveness analytics
+
+#### **2. Notification System**
+- **Real-time Notifications:** Instant alerts and updates
+- **Template Management:** Customizable notification templates
+- **Delivery Optimization:** Smart delivery timing
+- **Engagement Analytics:** Notification effectiveness tracking
+
+### **📋 PHASE 7: INTEGRATION & API MANAGEMENT (Important - 4-5 weeks)**
+
+#### **1. Integration System**
+- **Integration Model:** Third-party system integration
+- **IntegrationSyncLog Model:** Sync tracking and error handling
+- **Webhook Model:** Real-time data synchronization
+- **API Management:** Rate limiting and health monitoring
+
+#### **2. Automation Workflows**
+- **Business Process Automation:** Automated task execution
+- **Trigger-based Actions:** Event-driven automation
+- **Workflow Optimization:** Process efficiency improvements
+- **Integration Analytics:** System performance monitoring
 
 ---
 
-## 🗄️ **NEW DATABASE MODELS (CRM ENHANCEMENT)**
+## 🔐 **ENHANCED RBAC & SECURITY**
 
-### 12. `StorageUnit` ✅ **NEW MODEL**
-- `id` (String, @id, @default(cuid()))
-- `locationId` (String)
-- `clientId` (String)
-- `unitNumber` (String)
-- `unitType` (StorageUnitType)
-- `size` (Int)
-- `status` (StorageUnitStatus) @default(AVAILABLE)
-- `monthlyRate` (Decimal) @db.Decimal(10,2)
-- `currency` (String) @default("CAD")
-- `features` (String[])
-- `notes` (String?)
-- `createdAt` (DateTime) @default(now())
-- `updatedAt` (DateTime) @updatedAt
-- `createdBy` (String?)
-- `updatedBy` (String?)
+### **1. Enhanced Role Permissions**
+- **RolePermission Model:** Granular permissions per role and resource
+- **UserPermission Model:** Individual user permission overrides
+- **PermissionScope:** OWN, LOCATION, CLIENT, ALL access levels
+- **Conditional Access:** Advanced access control with conditions
 
-### 13. `StorageBooking` ✅ **NEW MODEL**
-- `id` (String, @id, @default(cuid()))
-- `storageUnitId` (String)
-- `journeyId` (String?)
-- `clientId` (String)
-- `startDate` (DateTime)
-- `endDate` (DateTime?)
-- `status` (BookingStatus) @default(ACTIVE)
-- `monthlyRate` (Decimal) @db.Decimal(10,2)
-- `notes` (String?)
-- `createdAt` (DateTime) @default(now())
-- `updatedAt` (DateTime) @updatedAt
+### **2. Data Encryption & Security**
+- **EncryptedData Model:** AES-256-GCM encryption for sensitive data
+- **Key Management:** Rotating encryption keys
+- **Compliance:** GDPR, PIPEDA, SOC 2 compliance
+- **Audit Trail:** Complete security event logging
 
-### 14. `BillingPlan` ✅ **NEW MODEL**
-- `id` (String, @id, @default(cuid()))
-- `clientId` (String)
-- `name` (String)
-- `type` (BillingPlanType)
-- `status` (BillingPlanStatus) @default(ACTIVE)
-- `monthlyRate` (Decimal) @db.Decimal(10,2)
-- `currency` (String) @default("CAD")
-- `features` (String[])
-- `limits` (Json?)
-- `notes` (String?)
-- `createdAt` (DateTime) @default(now())
-- `updatedAt` (DateTime) @updatedAt
+### **3. API Security**
+- **JWT Authentication:** Secure token-based authentication
+- **Role-Based Authorization:** Endpoint access control
+- **Rate Limiting:** API usage throttling
+- **Input Validation:** Comprehensive data validation
 
 ---
 
-## 📱 **MOBILE FIELD OPERATIONS DATABASE MODELS**
+## 📊 **NEW DATABASE MODELS SUMMARY**
 
-### 15. `MobileSession` ✅ **IMPLEMENTED**
-- `id` (String, @id, @default(cuid()))
-- `userId` (String)
-- `deviceId` (String)
-- `locationId` (String)
-- `lastActive` (DateTime, @default(now()))
-- `offlineData` (Json?)
-- `syncStatus` (String, @default("online")) // online, offline, syncing
-- `createdAt` (DateTime, @default(now()))
-- **Relations:**
-  - `user` (User, @relation(fields: [userId], references: [id]))
-  - `location` (Location, @relation(fields: [locationId], references: [id]))
-- **Indexes:**
-  - `@@unique([userId, deviceId])`
-  - `@@index([userId])`
-  - `@@index([locationId])`
-  - `@@index([syncStatus])`
+### **Customer & Sales (8 Models)**
+1. **Customer** - Customer profiles and contact management
+2. **Lead** - Lead tracking and pipeline management
+3. **SalesActivity** - Sales activity tracking
+4. **Quote** - Multi-service quoting system
+5. **QuoteItem** - Quote line items and pricing
+6. **RolePermission** - Enhanced role-based permissions
+7. **UserPermission** - Individual user permissions
+8. **EncryptedData** - Data encryption for sensitive information
 
-### 16. `MobileJourneyUpdate` ✅ **IMPLEMENTED**
-- `id` (String, @id, @default(cuid()))
-- `journeyId` (String)
-- `userId` (String)
-- `updateType` (String) // status, location, note, checklist, media
-- `data` (Json)
-- `timestamp` (DateTime, @default(now()))
-- `syncStatus` (String, @default("pending")) // pending, synced, failed
-- **Relations:**
-  - `user` (User, @relation(fields: [userId], references: [id]))
-  - `journey` (TruckJourney, @relation(fields: [journeyId], references: [id]))
-- **Indexes:**
-  - `@@index([journeyId])`
-  - `@@index([userId])`
-  - `@@index([timestamp])`
-  - `@@index([syncStatus])`
+### **Financial Operations (5 Models)**
+9. **Invoice** - Automated invoice generation
+10. **InvoiceItem** - Invoice line items
+11. **Payment** - Payment processing and tracking
+12. **FinancialTransaction** - Complete financial tracking
+13. **Enhanced User Relations** - Financial operation permissions
 
-### 17. `MobileMediaItem` ✅ **IMPLEMENTED**
-- `id` (String, @id, @default(cuid()))
-- `journeyId` (String)
-- `userId` (String)
-- `type` (String) // photo, video, signature
-- `filePath` (String)
-- `fileSize` (Int?)
-- `metadata` (Json?)
-- `uploadStatus` (String, @default("pending")) // pending, uploading, completed, failed
-- `createdAt` (DateTime, @default(now()))
-- **Relations:**
-  - `journey` (TruckJourney, @relation(fields: [journeyId], references: [id]))
-  - `user` (User, @relation(fields: [userId], references: [id]))
-- **Indexes:**
-  - `@@index([journeyId])`
-  - `@@index([userId])`
-  - `@@index([type])`
-  - `@@index([uploadStatus])`
+### **Equipment & Inventory (6 Models)**
+14. **Equipment** - Fleet and equipment management
+15. **EquipmentMaintenance** - Maintenance scheduling and records
+16. **EquipmentAssignment** - Resource allocation
+17. **Inventory** - Stock tracking and management
+18. **InventoryTransaction** - Inventory movement tracking
+19. **Enhanced Location Relations** - Equipment and inventory location management
 
-### 18. `MobileNotification` ✅ **IMPLEMENTED**
-- `id` (String, @id, @default(cuid()))
-- `userId` (String)
-- `title` (String)
-- `message` (String)
-- `type` (String)
-- `data` (Json?)
-- `timestamp` (DateTime, @default(now()))
-- `read` (Boolean, @default(false))
-- **Relations:**
-  - `user` (User, @relation(fields: [userId], references: [id]))
-- **Indexes:**
-  - `@@index([userId])`
-  - `@@index([read])`
-  - `@@index([timestamp])`
+### **Scheduling & Calendar (2 Models)**
+20. **Schedule** - Advanced scheduling system
+21. **Availability** - User availability management
+
+### **Reporting & Analytics (2 Models)**
+22. **Report** - Custom report builder
+23. **Dashboard** - Personalized dashboards
+
+### **Communication & Notifications (2 Models)**
+24. **Communication** - Multi-channel communication tracking
+25. **Template** - Communication templates
+
+### **Integration & API (4 Models)**
+26. **Integration** - Third-party system integration
+27. **IntegrationSyncLog** - Sync tracking and error handling
+28. **Webhook** - Real-time data synchronization
+29. **WebhookDelivery** - Webhook delivery tracking
 
 ---
 
-## 🚀 **CRM ENHANCEMENT ROADMAP - DATABASE MODELS**
+## 🔄 **UPDATED RELATIONSHIPS**
 
-### **Phase 1: Customer & Sales Management (Critical - 4-6 weeks)**
+### **Enhanced User Model Relations**
+- **Customer Assignment:** Sales rep to customer relationships
+- **Quote Management:** Quote creation and approval workflows
+- **Financial Operations:** Invoice and payment management
+- **Equipment Management:** Equipment assignment and maintenance
+- **Inventory Management:** Inventory creation and transaction tracking
+- **Scheduling:** Schedule creation and user assignment
+- **Reporting:** Report generation and dashboard management
+- **Communication:** Communication creation and template management
+- **Integration:** Integration creation and webhook management
+- **Permissions:** Role and user permission management
 
-#### **Customer Model (New)**
-```sql
-model Customer {
+### **Enhanced Client Model Relations**
+- **Customer Management:** Client-specific customer data
+- **Sales Pipeline:** Client-specific quotes and leads
+- **Financial Operations:** Client-specific invoices and payments
+- **Equipment Management:** Client-specific equipment and inventory
+- **Scheduling:** Client-specific scheduling and availability
+- **Reporting:** Client-specific reports and dashboards
+- **Communication:** Client-specific communications and templates
+- **Integration:** Client-specific integrations and webhooks
+- **Security:** Client-specific encrypted data
+
+---
+
+## 📊 **NEW ENUMS (50+ New Enums)**
+
+### **Customer & Sales Enums**
+- **LeadStatus:** NEW, CONTACTED, QUALIFIED, PROPOSAL_SENT, NEGOTIATION, WON, LOST, ARCHIVED
+- **LeadPriority:** LOW, MEDIUM, HIGH, URGENT
+- **QuoteStatus:** DRAFT, SENT, VIEWED, ACCEPTED, REJECTED, EXPIRED, CONVERTED
+- **QuoteItemCategory:** MOVING_SERVICES, STORAGE_SERVICES, PACKING_SERVICES, SPECIALTY_SERVICES, EQUIPMENT_RENTAL, INSURANCE, OTHER
+- **SalesActivityType:** PHONE_CALL, EMAIL, MEETING, PROPOSAL_SENT, FOLLOW_UP, DEMO, SITE_VISIT, OTHER
+
+### **Financial Enums**
+- **InvoiceStatus:** DRAFT, SENT, VIEWED, PARTIAL_PAID, PAID, OVERDUE, CANCELLED, REFUNDED
+- **PaymentMethod:** CASH, CHECK, BANK_TRANSFER, CREDIT_CARD, DEBIT_CARD, PAYPAL, STRIPE, SQUARE, OTHER
+- **PaymentStatus:** PENDING, PROCESSING, COMPLETED, FAILED, CANCELLED, REFUNDED
+- **TransactionType:** INCOME, EXPENSE, TRANSFER, ADJUSTMENT
+
+### **Equipment & Inventory Enums**
+- **EquipmentType:** TRUCK, TRAILER, FORKLIFT, DOLLY, STRAPS, BLANKETS, TOOLS, OTHER
+- **EquipmentStatus:** ACTIVE, MAINTENANCE, REPAIR, RETIRED, SOLD
+- **MaintenanceType:** PREVENTIVE, CORRECTIVE, EMERGENCY, INSPECTION
+- **AssignmentStatus:** ACTIVE, COMPLETED, CANCELLED
+- **InventoryTransactionType:** PURCHASE, SALE, ADJUSTMENT, TRANSFER, DAMAGE, EXPIRY
+
+### **Scheduling Enums**
+- **ScheduleStatus:** SCHEDULED, IN_PROGRESS, COMPLETED, CANCELLED, RESCHEDULED
+- **ScheduleType:** JOURNEY, MAINTENANCE, TRAINING, MEETING, OTHER
+- **SchedulePriority:** LOW, NORMAL, HIGH, URGENT
+- **AvailabilityType:** PERSONAL, SICK, VACATION, TRAINING, MAINTENANCE, OTHER
+
+### **Reporting Enums**
+- **ReportType:** FINANCIAL, OPERATIONAL, CUSTOMER, SALES, INVENTORY, EQUIPMENT, CUSTOM
+- **ReportStatus:** PENDING, GENERATING, COMPLETED, FAILED
+- **ReportFormat:** PDF, EXCEL, CSV, JSON
+
+### **Communication Enums**
+- **CommunicationType:** EMAIL, SMS, PUSH_NOTIFICATION, IN_APP, LETTER, PHONE_CALL
+- **CommunicationStatus:** DRAFT, SENT, DELIVERED, READ, FAILED
+- **TemplateType:** EMAIL, SMS, LETTER, INVOICE, QUOTE, REPORT
+
+### **Integration Enums**
+- **IntegrationType:** ACCOUNTING, CRM, EMAIL, SMS, PAYMENT, SHIPPING, CUSTOM
+- **IntegrationStatus:** ACTIVE, INACTIVE, ERROR, SYNCING
+- **SyncType:** FULL, INCREMENTAL, MANUAL
+- **SyncStatus:** PENDING, IN_PROGRESS, COMPLETED, FAILED
+- **DeliveryStatus:** PENDING, SENT, DELIVERED, FAILED, RETRY
+
+### **Permission Enums**
+- **PermissionScope:** OWN, LOCATION, CLIENT, ALL
+
+---
+
+## 🗄️ **CORE DATABASE ENTITIES**
+
+### **🏢 Multi-Tenant Architecture**
+
+#### **Client Model**
+```prisma
+model Client {
+  id          String   @id @default(cuid())
+  name        String
+  industry    String?
+  isFranchise Boolean  @default(false)
+  
+  // Enhanced fields
+  contactEmail String?
+  contactPhone String?
+  website     String?
+  logo        String?
+  timezone    String   @default("America/Toronto")
+  currency    String   @default("CAD")
+  language    String   @default("en")
+  
+  // Business settings
+  settings    Json?    // Enhanced settings object
+  features    Json?    // Feature flags and capabilities
+  limits      Json?    // Usage limits and quotas
+  
+  // Status and audit
+  status      ClientStatus @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?
+  updatedBy   String?
+
+  // Relations
+  locations     Location[]
+  users         User[]
+  customers     Customer[]     // NEW: CRM Customer management
+  leads         Lead[]         // NEW: CRM Lead tracking
+  quotes        Quote[]        // NEW: CRM Sales pipeline
+  invoices      Invoice[]      // NEW: CRM Financial operations
+  payments      Payment[]      // NEW: CRM Payment tracking
+  financialTransactions FinancialTransaction[] // NEW: CRM Financial tracking
+  equipment     Equipment[]    // NEW: CRM Equipment management
+  inventory     Inventory[]    // NEW: CRM Inventory management
+  schedules     Schedule[]     // NEW: CRM Scheduling system
+  reports       Report[]       // NEW: CRM Reporting system
+  dashboards    Dashboard[]    // NEW: CRM Business intelligence
+  communications Communication[] // NEW: CRM Communication system
+  templates     Template[]     // NEW: CRM Template management
+  integrations  Integration[]  // NEW: CRM Integration system
+  webhooks      Webhook[]      // NEW: CRM Webhook system
+  encryptedData EncryptedData[] // NEW: CRM Data encryption
+}
+```
+
+#### **Location Model**
+```prisma
+model Location {
   id          String   @id @default(cuid())
   clientId    String
-  firstName   String
-  lastName    String
-  email       String
-  phone       String
-  address     Json     -- Full address structure
-  leadSource  String?  -- How they found us
-  leadStatus  LeadStatus
-  assignedTo  String?  -- Sales rep
-  estimatedValue Decimal?
-  notes       String?
-  tags        String[]
+  name        String
+  address     Json     // Full address structure
+  phone       String?
+  email       String?
+  
+  // Enhanced fields
+  managerName String?
+  managerPhone String?
+  managerEmail String?
+  businessHours Json?  // Operating hours
+  services    String[] // Available services
+  capacity    Json?    // Storage and operational capacity
+  coordinates Json?    // GPS coordinates
+  
+  // Status and audit
+  status      LocationStatus @default(ACTIVE)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+  createdBy   String?
+  updatedBy   String?
+
+  // Relations
   client      Client   @relation(fields: [clientId], references: [id], onDelete: Restrict)
-  leads       Lead[]
-  quotes      Quote[]
-  invoices    Invoice[]
-  
-  @@index([clientId, leadStatus])
-  @@index([email, clientId])
-  @@unique([email, clientId])
+  users       User[]
+  journeys    TruckJourney[]
+  storageUnits StorageUnit[]
+  equipment   Equipment[]    // NEW: CRM Equipment management
+  inventory   Inventory[]    // NEW: CRM Inventory management
+  schedules   Schedule[]     // NEW: CRM Scheduling system
+  quotes      Quote[]        // NEW: CRM Sales pipeline
 }
 ```
 
-#### **Lead Model (New)**
-```sql
-model Lead {
-  id          String   @id @default(cuid())
-  customerId  String
-  source      String   -- Website, referral, cold call
-  status      LeadStatus
-  priority    LeadPriority
-  estimatedMoveDate DateTime?
-  estimatedValue Decimal?
-  notes       String?
-  followUpDate DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+#### **User Model**
+```prisma
+model User {
+  id         String     @id @default(cuid())
+  name       String
+  email      String     @unique
+  role       UserRole
+  locationId String
+  clientId   String
+  status     UserStatus @default(ACTIVE)
   
-  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  // Enhanced fields
+  phone      String?
+  avatar     String?
+  lastLogin  DateTime?
+  preferences Json?     // User preferences and settings
+  apiKey     String?    @unique // For API access
+  twoFactorEnabled Boolean @default(false)
   
-  @@index([customerId, status])
-  @@index([followUpDate])
+  // Audit fields
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  createdBy  String?    // Who created this user
+  updatedBy  String?    // Who last updated this user
+
+  // Relations
+  location Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  client   Client   @relation(fields: [clientId], references: [id], onDelete: Restrict)
+
+  // Journey relations
+  assignedJourneys AssignedCrew[]
+  createdJourneys  TruckJourney[] @relation("JourneyCreator")
+  journeyEntries   JourneyEntry[]
+  mediaUploads     Media[]
+  auditEntries     AuditEntry[]
+
+  // Mobile relations
+  mobileSessions        MobileSession[]
+  mobileJourneyUpdates  MobileJourneyUpdate[]
+  mobileMediaItems      MobileMediaItem[]
+  mobileNotifications   MobileNotification[]
+
+  // Journey step relations
+  approvedSteps         JourneyStep[] @relation("StepApprover")
+  createdActivities     StepActivity[] @relation("ActivityCreator")
+
+  // NEW: CRM Relations
+  customerAssignments Customer[] @relation("CustomerAssignment")
+  quoteCreators       Quote[] @relation("QuoteCreator")
+  quoteApprovers      Quote[] @relation("QuoteApprover")
+  invoiceCreators     Invoice[] @relation("InvoiceCreator")
+  transactionCreators FinancialTransaction[] @relation("TransactionCreator")
+  equipmentAssignments Equipment[] @relation("EquipmentAssignment")
+  equipmentUsers      EquipmentAssignment[] @relation("EquipmentUser")
+  maintenanceTechnicians EquipmentMaintenance[] @relation("MaintenanceTechnician")
+  inventoryCreators   Inventory[] @relation("InventoryCreator")
+  inventoryTransactionCreators InventoryTransaction[] @relation("InventoryTransactionCreator")
+  scheduleUsers       Schedule[] @relation("ScheduleUser")
+  scheduleCreators    Schedule[] @relation("ScheduleCreator")
+  reportGenerators    Report[] @relation("ReportGenerator")
+  communicationCreators Communication[] @relation("CommunicationCreator")
+  templateCreators    Template[] @relation("TemplateCreator")
+  integrationCreators Integration[] @relation("IntegrationCreator")
+  webhookCreators     Webhook[] @relation("WebhookCreator")
+  permissionCreators  RolePermission[] @relation("PermissionCreator")
+  permissionGranters  UserPermission[] @relation("PermissionGranter")
+  availabilityRecords Availability[]
 }
 ```
 
-#### **Quote Model (New)**
-```sql
-model Quote {
+### **🚛 Core Operations Management**
+
+#### **TruckJourney Model**
+```prisma
+model TruckJourney {
   id          String   @id @default(cuid())
-  customerId  String
   clientId    String
   locationId  String
   createdBy   String
-  status      QuoteStatus
-  totalAmount Decimal
-  currency    String   @default("CAD")
-  validUntil  DateTime
-  items       Json     -- Line items
-  terms       String?
-  notes       String?
+  title       String
+  description String?
+  
+  // Journey details
+  startLocation Json
+  endLocation   Json
+  startDate     DateTime
+  endDate       DateTime?
+  duration      Int?     // Duration in minutes
+  priority      JourneyPriority @default(NORMAL)
+  tags          String[]
+  
+  // Cost tracking
+  estimatedCost Decimal? @db.Decimal(10,2)
+  actualCost    Decimal? @db.Decimal(10,2)
+  profitMargin  Decimal? @db.Decimal(5,2)
+  
+  // Status and audit
+  status      JourneyStage @default(MORNING_PREP)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
-  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+
+  // Relations
   client      Client   @relation(fields: [clientId], references: [id], onDelete: Restrict)
   location    Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
-  quoteItems  QuoteItem[]
-  invoices    Invoice[]
+  createdUser User     @relation("JourneyCreator", fields: [createdBy], references: [id], onDelete: Restrict)
   
-  @@index([customerId, status])
-  @@index([validUntil])
-}
-```
-
-### **Phase 2: Financial Operations (Critical - 3-4 weeks)**
-
-#### **Invoice Model (New)**
-```sql
-model Invoice {
-  id          String   @id @default(cuid())
-  journeyId   String?
-  customerId  String
-  clientId    String
-  quoteId     String?
-  invoiceNumber String @unique
-  status      InvoiceStatus
-  subtotal    Decimal
-  taxAmount   Decimal
-  totalAmount Decimal
-  dueDate     DateTime
-  paidDate    DateTime?
-  paymentMethod String?
-  notes       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  // Journey relations
+  steps       JourneyStep[]
+  crew        AssignedCrew[]
+  entries     JourneyEntry[]
+  media       Media[]
   
-  journey     TruckJourney? @relation(fields: [journeyId], references: [id], onDelete: SetNull)
-  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  client      Client   @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  // NEW: CRM Relations
+  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customerId  String?
   quote       Quote?   @relation(fields: [quoteId], references: [id], onDelete: SetNull)
-  payments    Payment[]
-  
-  @@index([customerId, status])
-  @@index([dueDate])
-  @@index([invoiceNumber])
+  quoteId     String?
+  invoices    Invoice[] // NEW: CRM Financial operations
+  equipmentAssignments EquipmentAssignment[] // NEW: CRM Equipment management
+  schedule    Schedule? // NEW: CRM Scheduling system
 }
 ```
 
-#### **Payment Model (New)**
-```sql
-model Payment {
+#### **JourneyStep Model**
+```prisma
+model JourneyStep {
   id          String   @id @default(cuid())
-  invoiceId   String
-  amount      Decimal
-  paymentMethod String
-  transactionId String?
-  status      PaymentStatus
-  processedAt DateTime @default(now())
+  journeyId   String
+  stepNumber  Int
+  title       String
+  description String?
+  status      StepStatus @default(PENDING)
+  
+  // Step details
+  startTime   DateTime?
+  endTime     DateTime?
+  duration    Int?     // Duration in minutes
   notes       String?
   
-  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  // Approval workflow
+  approvedBy  String?
+  approvedAt  DateTime?
   
-  @@index([invoiceId])
-  @@index([transactionId])
-}
-```
-
-### **Phase 3: Business Intelligence (Important - 4-5 weeks)**
-
-#### **Report Model (New)**
-```sql
-model Report {
-  id          String   @id @default(cuid())
-  clientId    String
-  reportType  ReportType
-  parameters  Json     -- Report filters and parameters
-  generatedBy String
-  status      ReportStatus
-  fileUrl     String?
+  // Audit fields
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
-  client      Client   @relation(fields: [clientId], references: [id], onDelete: Restrict)
-  
-  @@index([clientId, reportType])
-  @@index([status, createdAt])
+
+  // Relations
+  journey     TruckJourney @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  approvedUser User? @relation("StepApprover", fields: [approvedBy], references: [id], onDelete: SetNull)
+  activities  StepActivity[]
 }
 ```
 
-#### **Dashboard Model (New)**
-```sql
-model Dashboard {
+### **📱 Mobile Field Operations**
+
+#### **MobileSession Model**
+```prisma
+model MobileSession {
   id          String   @id @default(cuid())
-  clientId    String
   userId      String
-  name        String
-  layout      Json     -- Dashboard layout configuration
-  widgets     Json     -- Widget configurations
-  isDefault   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  deviceId    String
+  deviceInfo  Json     // Device information
+  appVersion  String
+  osVersion   String
   
-  client      Client   @relation(fields: [clientId], references: [id], onDelete: Restrict)
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@index([clientId, userId])
-  @@unique([userId, isDefault])
-}
-```
-
-### **Phase 4: Operational Excellence (Important - 3-4 weeks)**
-
-#### **Equipment Model (New)**
-```sql
-model Equipment {
-  id          String   @id @default(cuid())
-  clientId    String
-  locationId  String
-  name        String
-  type        EquipmentType
-  serialNumber String?
-  status      EquipmentStatus
-  purchaseDate DateTime?
-  lastMaintenance DateTime?
-  nextMaintenance DateTime?
-  notes       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  client      Client   @relation(fields: [clientId], references: [id], onDelete: Restrict)
-  location    Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
-  
-  @@index([locationId, status])
-  @@index([type, status])
-  @@index([nextMaintenance])
-}
-```
-
-#### **Inventory Model (New)**
-```sql
-model Inventory {
-  id          String   @id @default(cuid())
-  locationId  String
-  itemName    String
-  category    String
-  quantity    Int
-  minQuantity Int      -- Reorder point
-  unitCost    Decimal
-  supplier    String?
-  lastRestocked DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  location    Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
-  
-  @@index([locationId, category])
-  @@index([quantity, minQuantity])
-}
-```
-
-### **Phase 5: Integration & Automation (Important - 4-5 weeks)**
-
-#### **Integration Model (New)**
-```sql
-model Integration {
-  id          String   @id @default(cuid())
-  clientId    String
-  name        String
-  type        IntegrationType
-  config      Json     -- API keys, endpoints, etc.
-  status      IntegrationStatus
-  lastSync    DateTime?
-  errorCount  Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  client      Client   @relation(fields: [clientId], references: [id], onDelete: Restrict)
-  
-  @@index([clientId, type])
-  @@index([status, lastSync])
-}
-```
-
-#### **Webhook Model (New)**
-```sql
-model Webhook {
-  id          String   @id @default(cuid())
-  clientId    String
-  name        String
-  url         String
-  events      String[] -- Events to trigger webhook
+  // Session details
+  startTime   DateTime @default(now())
+  endTime     DateTime?
   isActive    Boolean  @default(true)
-  secret      String?
-  lastTriggered DateTime?
+  
+  // Location tracking
+  lastLocation Json?
+  lastLocationTime DateTime?
+  
+  // Audit fields
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  updates     MobileJourneyUpdate[]
+  mediaItems  MobileMediaItem[]
+  notifications MobileNotification[]
+}
+```
+
+#### **MobileJourneyUpdate Model**
+```prisma
+model MobileJourneyUpdate {
+  id          String   @id @default(cuid())
+  sessionId   String
+  journeyId   String
+  stepId      String?
   
-  client      Client   @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  // Update details
+  type        String   // Status update, location, etc.
+  data        Json     // Update data
+  location    Json?    // GPS coordinates
+  timestamp   DateTime @default(now())
   
-  @@index([clientId, isActive])
-  @@index([lastTriggered])
+  // Sync status
+  synced      Boolean  @default(false)
+  syncError   String?
+  
+  // Audit fields
+  createdAt   DateTime @default(now())
+
+  // Relations
+  session     MobileSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  journey     TruckJourney @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  step        JourneyStep? @relation(fields: [stepId], references: [id], onDelete: SetNull)
+}
+```
+
+### **🗄️ Storage Management**
+
+#### **StorageUnit Model**
+```prisma
+model StorageUnit {
+  id          String   @id @default(cuid())
+  locationId  String
+  unitNumber  String
+  type        StorageUnitType
+  size        String   // Dimensions or capacity
+  status      StorageUnitStatus @default(AVAILABLE)
+  
+  // Pricing
+  basePrice   Decimal @db.Decimal(10,2)
+  currentPrice Decimal @db.Decimal(10,2)
+  currency    String   @default("CAD")
+  
+  // Features
+  features    String[] // Climate control, security, etc.
+  notes       String?
+  
+  // Audit fields
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  location    Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  bookings    StorageBooking[]
+}
+```
+
+#### **StorageBooking Model**
+```prisma
+model StorageBooking {
+  id          String   @id @default(cuid())
+  unitId      String
+  journeyId   String
+  startDate   DateTime
+  endDate     DateTime?
+  status      BookingStatus @default(ACTIVE)
+  
+  // Booking details
+  totalCost   Decimal @db.Decimal(10,2)
+  paidAmount  Decimal @db.Decimal(10,2) @default(0)
+  notes       String?
+  
+  // Audit fields
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  unit        StorageUnit @relation(fields: [unitId], references: [id], onDelete: Restrict)
+  journey     TruckJourney @relation(fields: [journeyId], references: [id], onDelete: Restrict)
+}
+```
+
+### **🔐 Audit & Compliance**
+
+#### **AuditEntry Model**
+```prisma
+model AuditEntry {
+  id          String   @id @default(cuid())
+  userId      String
+  action      String   // CREATE, UPDATE, DELETE, LOGIN, etc.
+  resource    String   // Model name (User, Journey, etc.)
+  resourceId  String?  // Record ID
+  details     Json?    // Action details and changes
+  
+  // Audit metadata
+  severity    AuditSeverity @default(INFO)
+  ipAddress   String?
+  userAgent   String?
+  timestamp   DateTime @default(now())
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Restrict)
 }
 ```
 
 ---
 
-## 📊 **REAL LGM DATA STRUCTURE**
+## 🎯 **IMPLEMENTATION STRATEGY**
 
-### **🏢 LGM Company**
-- **Client ID**: `clm_f55e13de_a5c4_4990_ad02_34bb07187daa`
-- **Name**: "LGM (Let's Get Moving)"
-- **Type**: Moving & Logistics Company
-- **Status**: Active
+### **Phase 1: Foundation (Weeks 1-2)**
+1. **Database Schema Updates**
+   - Add Customer and Lead models
+   - Create necessary indexes and constraints
+   - Update existing models for CRM integration
 
-### **📍 LGM Location Network (43 Locations)**
+2. **API Development**
+   - Customer management endpoints
+   - Lead tracking endpoints
+   - Quote generation endpoints
 
-#### **🏢 Corporate Locations (8)**
-| Location | Contact | Trucks | Storage | CX Care |
-|----------|---------|--------|---------|---------|
-| BURNABY | SHAHBAZ | 5 | POD | ✅ |
-| DOWNTOWN TORONTO | ARSHDEEP | 6 | POD | ✅ |
-| EDMONTON | DANYLO | 4 | LOCKER | ✅ |
-| HAMILTON | HAKAM | 5 | POD | ✅ |
-| MISSISSAUGA | ARSHDEEP | 3 | POD | ✅ |
-| MONTREAL | BHANU | 4 | LOCKER | ✅ |
-| NORTH YORK (TORONTO) | ANKIT / ARSHDEEP | 7 | POD | ✅ |
-| VANCOUVER | RASOUL | 11 | POD | ✅ |
+3. **Frontend Development**
+   - Customer management interface
+   - Lead pipeline interface
+   - Quote creation interface
 
-#### **🏪 Franchise Locations (35)**
-| Location | Contact | Direct Line | Trucks | Storage | CX Care |
-|----------|---------|-------------|--------|---------|---------|
-| ABBOTSFORD | Anees Aps | 780-920-1935 | 1+ | NO | ✅ |
-| AJAX | ANDREW | (647) 904-8166 | 3+ | NO | ✅ |
-| AURORA | PARSA | 506-461-2035 | 2+ | LOCKER | ❌ |
-| BARRIE | PARSA | 506-461-2035 | 2+ | LOCKER | ❌ |
-| BRAMPTON | AERISH / AKSHIT | 416-570-0828 | 3+ | LOCKER | ✅ |
-| BRANTFORD | HARSH | 647-891-4106 | 1+ | LOCKER | ❌ |
-| BURLINGTON | SIMRANJIT | 647-512-2697, 647-460-0923 | R+ | NO | ✅ |
-| CALGARY | JASDEEP | 514-632-0313 | 3+ | LOCKER | ❌ |
-| COQUITLAM | TODD | 604-317-7615 | 1+ | NO | ✅ |
-| FREDERICTON | KAMBIZ | 506-259-8515 | 1+ | NO | ✅ |
-| HALIFAX | MAHMOUD | 506-461-4870 | 2+ | NO | ❌ |
-| KELOWNA | TODD | 604-317-7615 | 1+ | POD | ✅ |
-| KINGSTON | ANIRUDH | 613-893-7008 | 4 | POD | ✅ |
-| LETHBRIDGE | PROMISE | 403-667-0507 | 1+ | LOCKER | ✅ |
-| LONDON | KYLE | 226-219-7039 | 1+ | NO | ✅ |
-| MARKHAM | PARSA | 506-461-2035 | 2+ | LOCKER | ❌ |
-| MILTON | AERISH / AKSHIT | 416-570-0828 | 3+ | LOCKER | ✅ |
-| MONCTON | - | - | 1 | NO | ❌ |
-| OAKVILLE | AERISH / AKSHIT | 416-578-6021 | 3+ | LOCKER | ✅ |
-| OSHAWA | - | - | - | NO | ✅ |
-| OTTAWA | HANZE/JAY | 266-808-4305, 613-276-5806 | 4 | LOCKER | ❌ |
-| PETERBOROUGH | ANDREW | (647) 904-8166 | 2+ | NO | ✅ |
-| REGINA | RALPH / ISABELLA | 306-206-2448 | 1 | NO | ✅ |
-| RICHMOND | RASOUL | 604-368-1061 | 1+ | NO | ✅ |
-| SAINT JOHN | CAMELLIA | 506-688-2168 | 3 RENTALS TILL AUGUST 2ND | NO | ✅ |
-| SASKATOON | RALPH / ISABELLA | 306-206-2448 | 2+ | NO | ✅ |
-| SCARBOROUGH | KELVIN / ASWIN | 647-979-9910, 647-686-8542 | 1+ | NO | ✅ |
-| ST CATHERINES | SIMRANJIT | 647-512-2697 | R+ | NO | ✅ |
-| SURREY | DANIL | 416-817-7767 | 3 | NO | ✅ |
-| VAUGHAN | FAHIM | 647-773-3640 | 3 R+ | NO | ✅ |
-| VICTORIA | SUCCESS | 778-995-3069 | 2 | NO | ✅ |
-| WATERLOO | SADUR | 289-763-9495 | 3+ | POD | ❌ |
-| WINDSOR | SIMRANJIT | 647-512-2697 | R+ | NO | ✅ |
-| WINNIPEG | Wayne | 2043914706 | 5+ | LOCKER | ✅ |
-| WOODSTOCK | N/A | N/A | 1+ | NO | ✅ |
+### **Phase 2: Core Features (Weeks 3-6)**
+1. **Sales Pipeline Implementation**
+   - Lead qualification workflow
+   - Quote-to-journey conversion
+   - Sales activity tracking
 
-### **📦 Storage Types Distribution**
-- **NO Storage**: 20 locations (46.5%)
-- **LOCKER Storage**: 14 locations (32.6%)
-- **POD Storage**: 9 locations (20.9%)
+2. **Financial Operations**
+   - Invoice generation system
+   - Payment processing integration
+   - Financial reporting
 
-### **🎯 Customer Care Coverage**
-- **CX Care Enabled**: 34/43 locations (79.1%)
-- **CX Care Disabled**: 9/43 locations (20.9%)
+3. **Integration Testing**
+   - End-to-end workflow testing
+   - Performance optimization
+   - User acceptance testing
 
-### **🚛 Truck Sharing Network**
-Several locations share trucks with neighboring locations:
-- **AURORA, BARRIE, MARKHAM** - Shared truck network
-- **BRAMPTON, MILTON, OAKVILLE** - Shared truck network  
-- **BURLINGTON, ST CATHERINES, WINDSOR** - Shared truck network
-- **REGINA, SASKATOON** - Shared truck network
+### **Phase 3: Advanced Features (Weeks 7-12)**
+1. **Business Intelligence**
+   - Custom report builder
+   - KPI dashboards
+   - Advanced analytics
+
+2. **Operational Excellence**
+   - Equipment management
+   - Inventory tracking
+   - Advanced scheduling
+
+3. **Production Deployment**
+   - Production environment setup
+   - Data migration
+   - User training
 
 ---
 
-## 🔐 **AUTHENTICATION & SECURITY**
+## 🎯 **SECURITY & COMPLIANCE**
 
-### **Super Admin Access**
-```sql
--- Real Super Admin User
-INSERT INTO "SuperAdminUser" (id, username, email, role, status, "createdAt", "updatedAt")
-VALUES (
-    'sau_udi_shkolnik_001',
-    'udi.shkolnik',
-    'udi.shkolnik@lgm.com',
-    'SUPER_ADMIN',
-    'ACTIVE',
-    NOW(),
-    NOW()
-);
-```
+### **1. Data Encryption**
+- **Sensitive Data:** Customer PII, financial data, API keys
+- **Encryption Algorithm:** AES-256-GCM
+- **Key Management:** Rotating encryption keys
+- **Compliance:** GDPR, PIPEDA, SOC 2
 
-### **JWT Token Structure**
-```json
-{
-  "sub": "user_id",
-  "email": "user@example.com",
-  "role": "SUPER_ADMIN|DISPATCHER|DRIVER|etc",
-  "user_type": "super_admin|regular",
-  "client_id": "client_id", // for regular users
-  "location_id": "location_id", // for regular users
-  "exp": 1234567890
-}
-```
+### **2. Access Control**
+- **Role-Based Access:** Granular permissions per role
+- **Multi-Tenant Isolation:** Complete data separation
+- **Audit Trail:** All actions logged and tracked
+- **Session Management:** Secure session handling
+
+### **3. API Security**
+- **Authentication:** JWT tokens with refresh
+- **Authorization:** Role-based endpoint access
+- **Rate Limiting:** API usage throttling
+- **Input Validation:** Comprehensive data validation
 
 ---
 
-## 📊 **DATA RELATIONSHIPS**
+## 📊 **PERFORMANCE OPTIMIZATION**
 
-### **Multi-Tenant Architecture**
-- **Client** → **Location** (One-to-Many)
-- **Location** → **User** (One-to-Many)
-- **Location** → **TruckJourney** (One-to-Many)
-- **TruckJourney** → **JourneyEntry** (One-to-Many)
-- **JourneyEntry** → **Media** (One-to-Many)
+### **1. Database Indexing**
+- **Composite Indexes:** Multi-column queries
+- **Partial Indexes:** Active records only
+- **GIN Indexes:** Array and JSON fields
+- **Covering Indexes:** Include frequently accessed columns
 
-### **Super Admin System**
-- **SuperAdminUser** → **SuperAdminSession** (One-to-Many)
-- **SuperAdminUser** → **SuperAdminAccessLog** (One-to-Many)
+### **2. Query Optimization**
+- **Connection Pooling:** Efficient database connections
+- **Query Caching:** Redis-based caching
+- **Lazy Loading:** On-demand data loading
+- **Pagination:** Efficient large dataset handling
 
-### **Mobile Field Operations System**
-- **User** → **MobileSession** (One-to-Many)
-- **TruckJourney** → **MobileJourneyUpdate** (One-to-Many)
-- **TruckJourney** → **MobileMediaItem** (One-to-Many)
-- **User** → **MobileNotification** (One-to-Many)
-
-### **Storage Management System**
-- **Location** → **StorageUnit** (One-to-Many)
-- **StorageUnit** → **StorageBooking** (One-to-Many)
-- **TruckJourney** → **StorageBooking** (One-to-Many)
-
-### **Audit Trail**
-- **AuditEntry** tracks all CRUD operations
-- **SuperAdminAccessLog** tracks super admin activities
-- **JourneyEntry** tracks journey progress and events
-- **MobileJourneyUpdate** tracks mobile-specific updates
+### **3. Application Performance**
+- **CDN Integration:** Static asset delivery
+- **Image Optimization:** Compressed media files
+- **Code Splitting:** Lazy-loaded components
+- **Service Workers:** Offline capability
 
 ---
 
-## 🧪 **PIPELINE TESTING FRAMEWORK**
+## 🎉 **CONCLUSION**
 
-### **📋 Test Files Created**
-1. `test_data_flow_pipeline.py` - Data flow validation
-2. `test_user_journey_workflows.py` - User journey workflows
-3. `test_mobile_field_operations.py` - Mobile field operations testing
-4. `FINAL_PIPELINE_TEST_REPORT.md` - Comprehensive pipeline analysis
+This comprehensive CRM schema implementation plan will transform the C&C CRM from an **Operations Management System** into a **Complete Operational CRM** for moving and logistics companies.
 
-### **✅ What's Working Perfectly**
-- **Data Consistency**: 100% referential integrity maintained
-- **Performance**: Sub-millisecond query times (0.000s)
-- **LGM Integration**: 43 locations, 37 users, perfect setup
-- **Multi-tenant Isolation**: Complete client separation
-- **User Authentication**: All 37 users properly authenticated
-- **Connection Pooling**: 100% functional
-- **Memory Management**: 100% efficient
-- **Mobile Field Operations**: 100% complete with real database integration
+### **✅ Benefits:**
+- **Complete Customer Lifecycle Management**
+- **End-to-End Sales Pipeline**
+- **Comprehensive Financial Operations**
+- **Advanced Business Intelligence**
+- **Operational Excellence Tools**
+- **Enterprise-Grade Security**
 
-### **🔧 Schema Alignment Required**
-- **TruckJourney Table**: Column names don't match expectations
-- **AuditEntry Table**: Column names don't match expectations
-- **JourneyStage Enum**: Values don't match expectations
-- **Test Expectations**: Need to align with actual schema
+### **🚀 Next Steps:**
+1. **Implement Phase 1** - Customer & Sales Management
+2. **Add Financial Operations** - Invoicing & Payments
+3. **Build Business Intelligence** - Reporting & Analytics
+4. **Deploy to Production** - Complete CRM Solution
+
+The system will be ready to compete with enterprise CRM solutions while maintaining its mobile-first, operations-focused design.
 
 ---
 
-## 🎯 **CURRENT DATA STATUS**
-
-### **✅ COMPLETED**
-- ✅ **Real LGM Client**: "LGM (Let's Get Moving)" company data
-- ✅ **Real LGM Locations**: 43 locations with complete contact information
-- ✅ **Storage Information**: Detailed storage types and pricing
-- ✅ **Contact Details**: Real contact persons and direct phone numbers
-- ✅ **Truck Information**: Number of trucks and sharing arrangements
-- ✅ **Customer Care**: CX care availability for each location
-- ✅ **Super Admin**: Real super admin user with full access
-- ✅ **Database Schema**: Complete with all required fields
-- ✅ **Comprehensive Testing**: 13 pipeline tests covering all data flows
-- ✅ **Mobile Field Operations**: Complete mobile database schema and implementation
-- ✅ **Database Optimization**: Enhanced schema with performance improvements
-
-### **📋 NEXT STEPS**
-1. **Schema Alignment**: Update test expectations to match actual database schema
-2. **Create Real LGM Users**: Add actual LGM employees to the system
-3. **Location Assignment**: Assign users to specific LGM locations
-4. **Role Configuration**: Set up proper roles and permissions
-5. **Real Journey Data**: Begin actual moving operations
-6. **Storage Integration**: Connect real storage facilities
-7. **Mobile Testing**: Complete mobile field operations testing
-8. **CRM Enhancement**: Begin Phase 1 implementation (Customer & Sales Management)
-
----
-
-## 🔗 **API ENDPOINTS**
-
-### **Authentication**
-- `POST /auth/login` - Unified login for super admin and regular users
-- `POST /auth/logout` - Logout and token invalidation
-- `GET /auth/me` - Get current user information
-
-### **Super Admin**
-- `GET /super-admin/companies` - List all companies
-- `GET /super-admin/users` - List all users across companies
-- `GET /super-admin/locations` - List all locations across companies
-- `GET /super-admin/journeys` - List all journeys across companies
-
-### **Regular Users**
-- `GET /users` - List users for current location
-- `GET /journey/active` - List active journeys for current location
-- `POST /journey/create` - Create new journey
-- `GET /journey/{id}` - Get journey details
-
-### **Mobile Field Operations**
-- `POST /mobile/auth/login` - Mobile authentication
-- `GET /mobile/journey/current` - Get current journey
-- `POST /mobile/journey/update` - Update journey status
-- `POST /mobile/journey/media` - Upload media files
-- `POST /mobile/sync` - Sync offline data
-- `GET /mobile/health` - Health check
-
----
-
-## 🎯 **ROADMAP TO 100% PIPELINE SUCCESS**
-
-### 🚀 **Phase 1: Schema Alignment (1.5 hours)**
-1. **Check Actual Database Schema** - 15 minutes
-2. **Update Test Expectations** - 30 minutes
-3. **Fix Column Name References** - 30 minutes
-4. **Update Enum Value References** - 15 minutes
-
-**Expected Result:** 85% pipeline success rate
-
-### 🔧 **Phase 2: Data Completion (1 hour)**
-1. **Create Users for Empty Locations** - 30 minutes
-2. **Complete Location Data** - 20 minutes
-3. **Fix Authentication Counter** - 10 minutes
-
-**Expected Result:** 95% pipeline success rate
-
-### ⚡ **Phase 3: Workflow Testing (30 minutes)**
-1. **Test All User Journeys** - 20 minutes
-2. **Verify Cross-role Collaboration** - 10 minutes
-
-**Expected Result:** 100% pipeline success rate
-
----
-
-## 🎯 **CRM COMPLETENESS SCORE**
-
-### **Operations Management:** 85% ✅
-- Strong journey management
-- Good mobile support
-- Excellent audit trail
-
-### **Customer Management:** 20% ❌
-- Missing customer data
-- No sales pipeline
-- No lead tracking
-
-### **Financial Management:** 15% ❌
-- No invoicing
-- No payment processing
-- No revenue tracking
-
-### **Business Intelligence:** 10% ❌
-- No reporting system
-- No analytics
-- No KPI tracking
-
-### **Overall CRM Completeness:** 32% ❌
-
-**The system is excellent for operations but needs CRM expansion to be a complete solution for moving and logistics companies.**
-
----
-
-**🎉 The C&C CRM system now has complete real LGM data with 43 locations, detailed contact information, storage details, comprehensive operational data, complete mobile field operations database schema, enhanced database schema with performance improvements, and a complete pipeline testing framework ready for production use and CRM enhancement.**
+**🎉 The C&C CRM will become a complete operational CRM solution for the moving and logistics industry!**
 
