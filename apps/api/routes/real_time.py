@@ -16,10 +16,15 @@ async def get_real_time_dashboard(current_user: Dict[str, Any] = Depends(get_cur
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
+        # Debug: Log the current_user object
+        print(f"DEBUG: current_user = {current_user}")
+        
         user_id = current_user["id"]
         user_role = current_user["role"]
         client_id = current_user.get("client_id") or current_user.get("clientId")
         location_id = current_user.get("location_id") or current_user.get("locationId")
+        
+        print(f"DEBUG: client_id = {client_id}, location_id = {location_id}")
         
         # Validate tenant information
         if not client_id or not location_id:
