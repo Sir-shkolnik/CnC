@@ -232,7 +232,7 @@ export interface ExportDataRequest {
 export interface SuperAdminMenuItem {
   id: string;
   label: string;
-  icon: string;
+  icon?: string;
   href: string;
   badge?: string | null;
   children: SuperAdminMenuItem[];

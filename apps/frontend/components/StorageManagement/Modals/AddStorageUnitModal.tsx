@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStorageStore } from '@/stores/storageStore';
-import { StorageUnit, StorageUnitType, StorageUnitStatus } from '@/types/storage';
+import { StorageUnit, StorageFeature } from '@/types/storage';
+import { StorageUnitType, StorageUnitStatus } from '@/types/enums';
 import { Button } from '@/components/atoms/Button';
 import { Input } from '@/components/atoms/Input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/atoms/Card';
@@ -62,8 +63,10 @@ export const AddStorageUnitModal: React.FC<AddStorageUnitModalProps> = ({
       billingCycle: 'MONTHLY' as const,
       discounts: []
     },
-    features: [] as string[],
-    maintenanceHistory: []
+    features: [] as StorageFeature[],
+    maintenanceHistory: [],
+    createdAt: new Date(),
+    updatedAt: new Date()
   });
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -96,6 +99,19 @@ export const AddStorageUnitModal: React.FC<AddStorageUnitModalProps> = ({
     }));
   };
 
+  const handleGridPositionChange = (field: string, value: number) => {
+    setFormData(prev => ({
+      ...prev,
+      position: {
+        ...prev.position,
+        gridPosition: {
+          ...prev.position.gridPosition,
+          [field]: value
+        }
+      }
+    }));
+  };
+
   const handlePricingChange = (field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
@@ -106,13 +122,26 @@ export const AddStorageUnitModal: React.FC<AddStorageUnitModalProps> = ({
     }));
   };
 
-  const handleFeatureToggle = (feature: string) => {
-    setFormData(prev => ({
-      ...prev,
-      features: prev.features.includes(feature)
-        ? prev.features.filter(f => f !== feature)
-        : [...prev.features, feature]
-    }));
+  const handleFeatureToggle = (featureName: string) => {
+    setFormData(prev => {
+      const existingFeature = prev.features.find(f => f.name === featureName);
+      if (existingFeature) {
+        return {
+          ...prev,
+          features: prev.features.filter(f => f.name !== featureName)
+        };
+      } else {
+        return {
+          ...prev,
+          features: [...prev.features, {
+            id: `feature-${Date.now()}`,
+            name: featureName,
+            description: `${featureName} feature`,
+            enabled: true
+          }]
+        };
+      }
+    });
   };
 
   const handleSubmit = async () => {
@@ -148,8 +177,10 @@ export const AddStorageUnitModal: React.FC<AddStorageUnitModalProps> = ({
             billingCycle: 'MONTHLY',
             discounts: []
           },
-          features: [],
-          maintenanceHistory: []
+          features: [] as StorageFeature[],
+          maintenanceHistory: [],
+          createdAt: new Date(),
+          updatedAt: new Date()
         });
         setCurrentStep(1);
       }
@@ -269,7 +300,7 @@ export const AddStorageUnitModal: React.FC<AddStorageUnitModalProps> = ({
                         <input
                           type="checkbox"
                           className="mr-2"
-                          checked={formData.features.includes(feature)}
+                          checked={formData.features.some(f => f.name === feature)}
                           onChange={() => handleFeatureToggle(feature)}
                         />
                         {feature}
@@ -363,20 +394,14 @@ export const AddStorageUnitModal: React.FC<AddStorageUnitModalProps> = ({
                       type="number"
                       placeholder="0"
                       value={formData.position.gridPosition.row}
-                      onChange={(e) => handlePositionChange('gridPosition', {
-                        ...formData.position.gridPosition,
-                        row: parseInt(e.target.value)
-                      })}
+                      onChange={(e) => handleGridPositionChange('row', parseInt(e.target.value))}
                     />
                     <Input
                       label="Column"
                       type="number"
                       placeholder="0"
                       value={formData.position.gridPosition.column}
-                      onChange={(e) => handlePositionChange('gridPosition', {
-                        ...formData.position.gridPosition,
-                        column: parseInt(e.target.value)
-                      })}
+                      onChange={(e) => handleGridPositionChange('column', parseInt(e.target.value))}
                     />
                   </div>
                 </div>

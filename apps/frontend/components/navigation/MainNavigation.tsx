@@ -12,6 +12,7 @@ import { Button } from '@/components/atoms/Button';
 import { cn } from '@/utils/cn';
 import { getRoleBasedMenuItems } from '@/utils/menuItems';
 import { useMenuItems } from '@/hooks/useMenuItems';
+import { User as MenuUser } from '@/types/menu';
 
 interface MainNavigationProps {
   children: React.ReactNode;
@@ -31,6 +32,18 @@ export const MainNavigation: React.FC<MainNavigationProps> = ({ children }) => {
   const { menuItems } = useMenuItems();
   const [isOnline, setIsOnline] = useState(true);
   const [mounted, setMounted] = useState(false);
+
+  // Map auth user to menu user type
+  const mapUserToMenuUser = (authUser: any): MenuUser => ({
+    id: authUser.id,
+    name: authUser.name,
+    email: authUser.email,
+    role: authUser.role as any,
+    clientId: authUser.company_id,
+    locationId: authUser.location_id,
+    status: 'ACTIVE' as any,
+    permissions: []
+  });
 
   // Handle online/offline state after mount to prevent hydration errors
   useEffect(() => {
@@ -84,7 +97,7 @@ export const MainNavigation: React.FC<MainNavigationProps> = ({ children }) => {
         isOpen={isMobileMenuOpen}
         onClose={toggleMobileMenu}
         menuItems={menuItems}
-        user={user}
+        user={mapUserToMenuUser(user)}
       />
 
       {/* Desktop Menu */}
@@ -92,7 +105,7 @@ export const MainNavigation: React.FC<MainNavigationProps> = ({ children }) => {
         isCollapsed={isDesktopMenuCollapsed}
         onToggle={toggleDesktopMenu}
         menuItems={menuItems}
-        user={user}
+        user={mapUserToMenuUser(user)}
       />
 
       {/* Main Content Area */}
@@ -115,7 +128,7 @@ export const MainNavigation: React.FC<MainNavigationProps> = ({ children }) => {
                 <Menu className="w-4 h-4" />
               </Button>
               
-              <Breadcrumbs pathname={pathname} user={user} />
+              <Breadcrumbs pathname={pathname} user={mapUserToMenuUser(user)} />
             </div>
 
             {/* Right Side - User Menu & Actions */}

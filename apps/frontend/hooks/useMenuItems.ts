@@ -2,17 +2,30 @@ import { useCallback, useMemo } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { useJourneyStore } from '@/stores/journeyStore';
 import { getRoleBasedMenuItems, hasMenuItemPermission } from '@/utils/menuItems';
-import { MenuItem, BadgeContext } from '@/types/menu';
+import { MenuItem, BadgeContext, User as MenuUser } from '@/types/menu';
+import { UserRole } from '@/types/enums';
 
 export const useMenuItems = () => {
   const { user } = useAuthStore();
   const { journeys } = useJourneyStore();
 
+  // Map auth user to menu user type
+  const mapUserToMenuUser = (authUser: any): MenuUser => ({
+    id: authUser.id,
+    name: authUser.name,
+    email: authUser.email,
+    role: authUser.role as any,
+    clientId: authUser.company_id,
+    locationId: authUser.location_id,
+    status: 'ACTIVE' as any,
+    permissions: []
+  });
+
   const getMenuItems = useCallback(() => {
     if (!user) return [];
 
     // Base menu items based on role
-    let items = getRoleBasedMenuItems(user.role);
+    let items = getRoleBasedMenuItems(user.role as UserRole);
 
     // Add dynamic badges and counts
     items = items.map(item => {
@@ -20,7 +33,7 @@ export const useMenuItems = () => {
         activeJourneys: journeys.filter(j => j.status !== 'COMPLETED').length,
         unreadMessages: 0, // TODO: Implement chat store
         pendingAudits: 0, // TODO: Implement audit store
-        user
+        user: mapUserToMenuUser(user)
       });
 
       return { ...item, badge };

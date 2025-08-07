@@ -424,7 +424,7 @@ export interface BookingWorkflow {
     customerRegistration: {
       personalInfo: CustomerInfo;
       contactInfo: ContactDetails;
-      paymentInfo: PaymentMethod;
+      paymentInfo: PaymentMethodInfo;
       termsAcceptance: boolean;
     };
   };
@@ -468,7 +468,7 @@ export interface ContactDetails {
   address: string;
 }
 
-export interface PaymentMethod {
+export interface PaymentMethodInfo {
   type: PaymentMethod;
   details: any;
   autoRenewal: boolean;

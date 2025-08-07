@@ -288,7 +288,7 @@ export const StorageAnalytics: React.FC<StorageAnalyticsProps> = ({
                     <p className="text-lg font-bold text-gray-900">
                       {operationalKPIs.customerService.responseTime}h
                     </p>
-                    {getStatusIcon(operationalKPIs.customerService.responseTime, 2, true)}
+                    {getStatusIcon(operationalKPIs.customerService.responseTime, 2)}
                   </div>
                 </div>
 

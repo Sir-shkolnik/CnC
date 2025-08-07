@@ -6,7 +6,7 @@
 **Feature:** Interactive Drag-and-Drop Storage Map  
 **Integration:** LGM Locations with POD/Locker Storage  
 **Last Updated:** January 2025  
-**Status:** ✅ **FRONTEND IMPLEMENTATION COMPLETE - Ready for Backend Integration**
+**Status:** ✅ **DATABASE SCHEMA COMPLETE - StorageUnit, StorageBooking, BillingPlan Models Implemented**
 
 ---
 
@@ -45,17 +45,51 @@ interface StorageMap {
 }
 ```
 
-#### **2. Storage Unit Management**
+#### **2. Storage Unit Management (Database Schema)**
 ```typescript
-interface StorageUnit {
-  id: string;
-  type: 'POD' | 'LOCKER' | 'CONTAINER';
-  size: StorageSize;
-  position: MapPosition;
-  status: 'AVAILABLE' | 'OCCUPIED' | 'RESERVED' | 'MAINTENANCE';
-  customer?: CustomerInfo;
-  pricing: StoragePricing;
-  dimensions: PhysicalDimensions;
+model StorageUnit {
+  id          String   @id @default(cuid())
+  locationId  String
+  clientId    String
+  unitNumber  String
+  unitType    StorageUnitType  // SMALL, MEDIUM, LARGE, XLARGE, CUSTOM
+  size        Int              // Size in square feet
+  status      StorageUnitStatus @default(AVAILABLE) // AVAILABLE, OCCUPIED, RESERVED, MAINTENANCE, OUT_OF_SERVICE
+  monthlyRate Decimal  @db.Decimal(10,2)
+  currency    String   @default("CAD")
+  features    String[] // Array of features (climate-controlled, security, etc.)
+  notes       String?
+}
+```
+
+#### **3. Storage Booking System (Database Schema)**
+```typescript
+model StorageBooking {
+  id          String   @id @default(cuid())
+  storageUnitId String
+  journeyId   String
+  clientId    String
+  startDate   DateTime
+  endDate     DateTime
+  status      BookingStatus @default(ACTIVE) // PENDING, ACTIVE, COMPLETED, CANCELLED, OVERDUE
+  totalCost   Decimal  @db.Decimal(10,2)
+  currency    String   @default("CAD")
+}
+```
+
+#### **4. Billing Plan Management (Database Schema)**
+```typescript
+model BillingPlan {
+  id          String   @id @default(cuid())
+  clientId    String
+  name        String
+  description String?
+  planType    BillingPlanType // BASIC, STANDARD, PREMIUM, ENTERPRISE, CUSTOM
+  monthlyRate Decimal  @db.Decimal(10,2)
+  currency    String   @default("CAD")
+  features    Json?    // Feature flags
+  limits      Json?    // Usage limits
+  status      BillingPlanStatus @default(ACTIVE) // ACTIVE, INACTIVE, SUSPENDED, EXPIRED
 }
 ```
 

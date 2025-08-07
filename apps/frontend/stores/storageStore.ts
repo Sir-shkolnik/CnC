@@ -486,9 +486,7 @@ export const useStorageStore = create<StorageState>()(
           await new Promise(resolve => setTimeout(resolve, 1000));
           const newLocation: StorageLocation = {
             ...location,
-            id: `loc_${Date.now()}`,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            id: `loc_${Date.now()}`
           };
           set((state) => ({ 
             locations: [...state.locations, newLocation], 

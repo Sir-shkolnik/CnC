@@ -3,7 +3,7 @@ import { UserRole, UserStatus, Permission } from './enums';
 export interface MenuItem {
   id: string;
   label: string;
-  icon: string;
+  icon?: string;
   href: string;
   badge?: string | null;
   children?: MenuItem[];

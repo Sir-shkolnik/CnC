@@ -75,46 +75,46 @@ interface User {
 // Role-based permissions mapping
 const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   ADMIN: [
-    'user.create', 'user.edit', 'user.delete', 'user.view',
-    'journey.create', 'journey.edit', 'journey.delete', 'journey.view',
-    'client.create', 'client.edit', 'client.delete', 'client.view',
-    'crew.assign', 'crew.view', 'audit.view', 'audit.create',
-    'feedback.view', 'feedback.create', 'settings.edit', 'settings.view',
-    'storage.create', 'storage.edit', 'storage.delete', 'storage.view',
-    'booking.create', 'booking.edit', 'booking.delete', 'booking.view'
+    'user.create' as Permission, 'user.edit' as Permission, 'user.delete' as Permission, 'user.view' as Permission,
+    'journey.create' as Permission, 'journey.edit' as Permission, 'journey.delete' as Permission, 'journey.view' as Permission,
+    'client.create' as Permission, 'client.edit' as Permission, 'client.delete' as Permission, 'client.view' as Permission,
+    'crew.assign' as Permission, 'crew.view' as Permission, 'audit.view' as Permission, 'audit.create' as Permission,
+    'feedback.view' as Permission, 'feedback.create' as Permission, 'settings.edit' as Permission, 'settings.view' as Permission,
+    'storage.create' as Permission, 'storage.edit' as Permission, 'storage.delete' as Permission, 'storage.view' as Permission,
+    'booking.create' as Permission, 'booking.edit' as Permission, 'booking.delete' as Permission, 'booking.view' as Permission
   ],
   MANAGER: [
-    'user.view', 'journey.create', 'journey.edit', 'journey.view',
-    'client.create', 'client.edit', 'client.view', 'crew.assign', 'crew.view',
-    'audit.view', 'feedback.view', 'feedback.create', 'settings.view',
-    'storage.view', 'booking.view'
+    'user.view' as Permission, 'journey.create' as Permission, 'journey.edit' as Permission, 'journey.view' as Permission,
+    'client.create' as Permission, 'client.edit' as Permission, 'client.view' as Permission, 'crew.assign' as Permission, 'crew.view' as Permission,
+    'audit.view' as Permission, 'feedback.view' as Permission, 'feedback.create' as Permission, 'settings.view' as Permission,
+    'storage.view' as Permission, 'booking.view' as Permission
   ],
   DISPATCHER: [
-    'journey.create', 'journey.edit', 'journey.view', 'client.view',
-    'crew.assign', 'crew.view', 'feedback.view', 'storage.view'
+    'journey.create' as Permission, 'journey.edit' as Permission, 'journey.view' as Permission, 'client.view' as Permission,
+    'crew.assign' as Permission, 'crew.view' as Permission, 'feedback.view' as Permission, 'storage.view' as Permission
   ],
   DRIVER: [
-    'journey.view', 'client.view', 'feedback.create', 'storage.view'
+    'journey.view' as Permission, 'client.view' as Permission, 'feedback.create' as Permission, 'storage.view' as Permission
   ],
   MOVER: [
-    'journey.view', 'client.view', 'feedback.create'
+    'journey.view' as Permission, 'client.view' as Permission, 'feedback.create' as Permission
   ],
   AUDITOR: [
-    'journey.view', 'audit.view', 'audit.create', 'feedback.view'
+    'journey.view' as Permission, 'audit.view' as Permission, 'audit.create' as Permission, 'feedback.view' as Permission
   ]
 };
 
 // Permission categories for better organization
-const PERMISSION_CATEGORIES = {
-  'User Management': ['user.create', 'user.edit', 'user.delete', 'user.view'],
-  'Journey Management': ['journey.create', 'journey.edit', 'journey.delete', 'journey.view'],
-  'Client Management': ['client.create', 'client.edit', 'client.delete', 'client.view'],
-  'Crew Management': ['crew.assign', 'crew.view'],
-  'Audit & Compliance': ['audit.view', 'audit.create'],
-  'Feedback System': ['feedback.view', 'feedback.create'],
-  'Settings & Configuration': ['settings.edit', 'settings.view'],
-  'Storage Management': ['storage.create', 'storage.edit', 'storage.delete', 'storage.view'],
-  'Booking Management': ['booking.create', 'booking.edit', 'booking.delete', 'booking.view']
+const PERMISSION_CATEGORIES: Record<string, Permission[]> = {
+  'User Management': ['user.create' as Permission, 'user.edit' as Permission, 'user.delete' as Permission, 'user.view' as Permission],
+  'Journey Management': ['journey.create' as Permission, 'journey.edit' as Permission, 'journey.delete' as Permission, 'journey.view' as Permission],
+  'Client Management': ['client.create' as Permission, 'client.edit' as Permission, 'client.delete' as Permission, 'client.view' as Permission],
+  'Crew Management': ['crew.assign' as Permission, 'crew.view' as Permission],
+  'Audit & Compliance': ['audit.view' as Permission, 'audit.create' as Permission],
+  'Feedback System': ['feedback.view' as Permission, 'feedback.create' as Permission],
+  'Settings & Configuration': ['settings.edit' as Permission, 'settings.view' as Permission],
+  'Storage Management': ['storage.create' as Permission, 'storage.edit' as Permission, 'storage.delete' as Permission, 'storage.view' as Permission],
+  'Booking Management': ['booking.create' as Permission, 'booking.edit' as Permission, 'booking.delete' as Permission, 'booking.view' as Permission]
 };
 
 // Mock locations for demonstration

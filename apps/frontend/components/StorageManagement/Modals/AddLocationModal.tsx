@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStorageStore } from '@/stores/storageStore';
-import { StorageLocation, StorageLocationType } from '@/types/storage';
+import { StorageLocation } from '@/types/storage';
+import { StorageLocationType, StorageLocationStatus, StorageUnitType } from '@/types/enums';
 import { Button } from '@/components/atoms/Button';
 import { Input } from '@/components/atoms/Input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/atoms/Card';
@@ -39,6 +40,7 @@ export const AddLocationModal: React.FC<AddLocationModalProps> = ({
     name: '',
     companyId: 'company_1', // Default company
     type: 'CORPORATE' as StorageLocationType,
+    status: 'ACTIVE' as StorageLocationStatus,
     address: {
       street: '',
       city: '',
@@ -67,7 +69,7 @@ export const AddLocationModal: React.FC<AddLocationModalProps> = ({
       timezone: 'America/Toronto'
     },
     storage: {
-      types: [] as string[],
+      types: [] as StorageUnitType[],
       totalCapacity: 100,
       availableCapacity: 100,
       layout: {
@@ -123,7 +125,7 @@ export const AddLocationModal: React.FC<AddLocationModalProps> = ({
     setFormData(prev => ({
       ...prev,
       [parent]: {
-        ...prev[parent as keyof typeof prev],
+        ...(prev[parent as keyof typeof prev] as any),
         [field]: value
       }
     }));
@@ -149,7 +151,7 @@ export const AddLocationModal: React.FC<AddLocationModalProps> = ({
     }));
   };
 
-  const handleStorageTypeToggle = (type: string) => {
+  const handleStorageTypeToggle = (type: StorageUnitType) => {
     setFormData(prev => ({
       ...prev,
       storage: {
@@ -172,7 +174,8 @@ export const AddLocationModal: React.FC<AddLocationModalProps> = ({
         setFormData({
           name: '',
           companyId: 'company_1',
-          type: 'CORPORATE',
+          type: 'CORPORATE' as StorageLocationType,
+          status: 'ACTIVE' as StorageLocationStatus,
           address: {
             street: '',
             city: '',
@@ -439,7 +442,7 @@ export const AddLocationModal: React.FC<AddLocationModalProps> = ({
                     Storage Types Available
                   </label>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    {['POD', 'LOCKER', 'CONTAINER'].map((type) => (
+                    {(['POD', 'LOCKER', 'CONTAINER'] as StorageUnitType[]).map((type) => (
                       <Button
                         key={type}
                         variant={formData.storage.types.includes(type) ? 'primary' : 'ghost'}

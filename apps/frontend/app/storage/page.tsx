@@ -457,11 +457,11 @@ export default function StorageSystemPage() {
         {/* Main Content Area */}
         <div className="h-[600px]">
           {viewMode === 'GRID' && (
-            <InteractiveMap locationId={selectedLocation} />
+            <InteractiveMap locationId={selectedLocation || undefined} />
           )}
           
           {viewMode === 'ANALYTICS' && (
-            <StorageAnalytics locationId={selectedLocation} />
+            <StorageAnalytics locationId={selectedLocation || undefined} />
           )}
           
           {viewMode === 'LIST' && (

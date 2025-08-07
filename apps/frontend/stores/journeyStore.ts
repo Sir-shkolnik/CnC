@@ -36,7 +36,6 @@ interface JourneyActions {
   
   // Journey Entries
   setJourneyEntries: (entries: JourneyEntry[]) => void;
-  addJourneyEntry: (entry: JourneyEntry) => void;
   updateJourneyEntry: (id: string, updates: Partial<JourneyEntry>) => void;
   
   // Media Management
@@ -145,9 +144,7 @@ export const useJourneyStore = create<JourneyStore>()(
       // Journey Entries
       setJourneyEntries: (entries) => set({ journeyEntries: entries }),
       
-      addJourneyEntry: (entry) => set(state => ({
-        journeyEntries: [...state.journeyEntries, entry]
-      })),
+
       
       updateJourneyEntry: (id, updates) => set(state => ({
         journeyEntries: state.journeyEntries.map(entry =>

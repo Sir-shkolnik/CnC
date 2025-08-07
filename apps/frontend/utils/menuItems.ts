@@ -1,4 +1,5 @@
-import { MenuItem, UserRole } from '@/types/menu';
+import { MenuItem } from '@/types/menu';
+import { UserRole } from '@/types/enums';
 
 // Admin Menu (Full System Access)
 const adminMenuItems: MenuItem[] = [
@@ -17,9 +18,9 @@ const adminMenuItems: MenuItem[] = [
     href: '/journeys',
     badge: null,
     children: [
-      { id: 'journey-list', label: 'All Journeys', href: '/journeys' },
-      { id: 'journey-create', label: 'Create Journey', href: '/journey/create' },
-      { id: 'journey-calendar', label: 'Calendar View', href: '/calendar' }
+      { id: 'journey-list', label: 'All Journeys', href: '/journeys', icon: 'List' },
+      { id: 'journey-create', label: 'Create Journey', href: '/journey/create', icon: 'Plus' },
+      { id: 'journey-calendar', label: 'Calendar View', href: '/calendar', icon: 'Calendar' }
     ]
   },
   {

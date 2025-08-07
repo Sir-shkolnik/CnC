@@ -8,7 +8,8 @@ import {
   useSelectedLocation,
   useStorageDragDrop 
 } from '@/stores/storageStore';
-import { StorageUnit, StorageUnitType } from '@/types/storage';
+import { StorageUnit } from '@/types/storage';
+import { StorageUnitType } from '@/types/enums';
 import { Button } from '@/components/atoms/Button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/atoms/Card';
 import { Badge } from '@/components/atoms/Badge';

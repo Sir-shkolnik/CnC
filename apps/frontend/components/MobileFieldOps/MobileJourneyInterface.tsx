@@ -86,7 +86,7 @@ export const MobileJourneyInterface: React.FC<MobileJourneyInterfaceProps> = ({ 
         }
         break;
       case 'report_issue':
-        toast.info('Issue reporting feature coming soon');
+        toast('Issue reporting feature coming soon');
         break;
       case 'update_location':
         if (navigator.geolocation) {
@@ -106,10 +106,10 @@ export const MobileJourneyInterface: React.FC<MobileJourneyInterfaceProps> = ({ 
         }
         break;
       case 'add_note':
-        toast.info('Note feature coming soon');
+        toast('Note feature coming soon');
         break;
       case 'call_customer':
-        toast.info('Call feature coming soon');
+        toast('Call feature coming soon');
         break;
       default:
         break;

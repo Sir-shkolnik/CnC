@@ -16,7 +16,7 @@ import {
   MapPin,
   Clock
 } from 'lucide-react';
-import { Journey } from '@/types/menu';
+import { Journey } from '@/types/journey';
 import toast from 'react-hot-toast';
 
 interface JourneyOverviewProps {

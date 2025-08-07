@@ -10,14 +10,11 @@ export type {
   StorageLocation,
   StorageZone,
   StorageMap,
-  StorageAnalytics,
+  StorageAnalytics as StorageAnalyticsType,
   StorageBooking,
   StorageUser,
   StorageFilter,
   LocationFilter,
   OperationalKPIs,
-  FinancialKPIs,
-  StorageUnitType,
-  StorageUnitStatus,
-  StorageLocationType
+  FinancialKPIs
 } from '@/types/storage'; 

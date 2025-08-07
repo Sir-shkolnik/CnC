@@ -51,7 +51,7 @@ export const MenuItem: React.FC<MenuItemProps> = ({
       >
         {/* Icon */}
         <Icon
-          name={item.icon}
+          name={item.icon || 'Circle'}
           className={cn(
             "transition-transform",
             isCollapsed ? "mr-0" : "mr-3",
