@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { MainNavigation } from '@/components/navigation/MainNavigation';
+import { SmartNavigation } from '@/components/SmartNavigation/SmartNavigation';
 import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -39,9 +39,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <MainNavigation>
+        <SmartNavigation>
           {children}
-        </MainNavigation>
+        </SmartNavigation>
         <Toaster 
           position="top-right"
           toastOptions={{

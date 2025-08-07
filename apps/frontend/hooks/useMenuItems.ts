@@ -1,71 +1,67 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { useJourneyStore } from '@/stores/journeyStore';
-import { getRoleBasedMenuItems, hasMenuItemPermission } from '@/utils/menuItems';
-import { MenuItem, BadgeContext, User as MenuUser } from '@/types/menu';
+import { useSmartNavigationStore, useInterfaceConfig, useUserContext } from '@/stores/smartNavigationStore';
+import { useDeviceDetection } from '@/hooks/useDeviceDetection';
+import { generateSmartMenuItems, generateMenuItemBadge } from '@/utils/smartMenuItems';
+import { MenuItem } from '@/types/menu';
 import { UserRole } from '@/types/enums';
 
 export const useMenuItems = () => {
   const { user } = useAuthStore();
   const { journeys } = useJourneyStore();
+  const { deviceType } = useDeviceDetection();
+  
+  // Smart navigation state
+  const interfaceConfig = useInterfaceConfig();
+  const userContext = useUserContext();
+  const { detectAndSetInterface, updateUserContext } = useSmartNavigationStore();
 
-  // Map auth user to menu user type
-  const mapUserToMenuUser = (authUser: any): MenuUser => ({
-    id: authUser.id,
-    name: authUser.name,
-    email: authUser.email,
-    role: authUser.role as any,
-    clientId: authUser.company_id,
-    locationId: authUser.location_id,
-    status: 'ACTIVE' as any,
-    permissions: []
-  });
+  // Initialize interface detection when user changes
+  useEffect(() => {
+    if (user && user.role) {
+      detectAndSetInterface(user.role as UserRole);
+      
+      // Update user context with real data
+      updateUserContext({
+        role: user.role as UserRole,
+        deviceType,
+        isOnline: navigator.onLine,
+        hasActiveJourney: journeys.some(j => j.status !== 'COMPLETED'),
+        location: {},
+        permissions: []
+      });
+    }
+  }, [user, deviceType, journeys, detectAndSetInterface, updateUserContext]);
 
   const getMenuItems = useCallback(() => {
-    if (!user) return [];
+    if (!user || !interfaceConfig || !userContext) return [];
 
-    // Base menu items based on role
-    let items = getRoleBasedMenuItems(user.role as UserRole);
+    // Generate smart menu items based on interface configuration
+    let items = generateSmartMenuItems(
+      user.role as UserRole,
+      interfaceConfig,
+      userContext
+    );
 
-    // Add dynamic badges and counts
+    // Add real-time badges and counts
     items = items.map(item => {
-      const badge = getMenuItemBadge(item.id, {
+      const badge = generateMenuItemBadge(item.id, userContext, {
         activeJourneys: journeys.filter(j => j.status !== 'COMPLETED').length,
         unreadMessages: 0, // TODO: Implement chat store
         pendingAudits: 0, // TODO: Implement audit store
-        user: mapUserToMenuUser(user)
+        newFeedback: 0 // TODO: Implement feedback store
       });
 
       return { ...item, badge };
     });
 
-    // Filter items based on user permissions
-    items = items.filter(item => hasMenuItemPermission(item, user, {}));
-
     return items;
-  }, [user, journeys]);
+  }, [user, interfaceConfig, userContext, journeys]);
 
   const menuItems = useMemo(() => getMenuItems(), [getMenuItems]);
 
   return { menuItems };
 };
 
-const getMenuItemBadge = (itemId: string, context: BadgeContext): string | null => {
-  switch (itemId) {
-    case 'journeys':
-    case 'my-journeys':
-      return context.activeJourneys > 0 ? context.activeJourneys.toString() : null;
-    case 'crew-chat':
-      return context.unreadMessages > 0 ? context.unreadMessages.toString() : null;
-    case 'audit':
-      return context.pendingAudits > 0 ? context.pendingAudits.toString() : null;
-    case 'dispatch':
-      return context.activeJourneys > 0 ? context.activeJourneys.toString() : null;
-    case 'feedback':
-      return '3'; // TODO: Implement real feedback count
-    case 'reports':
-      return null; // No badge for reports
-    default:
-      return null;
-  }
-}; 
+ 

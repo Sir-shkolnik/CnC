@@ -11,6 +11,8 @@ export interface MenuItem {
   roles?: UserRole[];
   clientTypes?: string[];
   locations?: string[];
+  priority?: 'high' | 'medium' | 'low';
+  mobileOnly?: boolean;
 }
 
 export interface BadgeContext {
