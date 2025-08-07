@@ -151,7 +151,7 @@ async def health_check() -> Dict[str, Any]:
             "auth": "active",
             "journey": "active", 
             "audit": "active",
-            "multi_tenant": "active"
+            "multi_tenant": "disabled"
         }
     }
 
