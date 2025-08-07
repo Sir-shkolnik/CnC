@@ -101,7 +101,7 @@ async def get_current_user(
             "id": payload.get("sub"),
             "email": payload.get("email"),
             "role": payload.get("role"),
-            "client_id": payload.get("company_id"),
+            "client_id": payload.get("company_id"),  # Map company_id to client_id
             "location_id": payload.get("location_id"),
             "status": "ACTIVE"  # Assume active for now
         }
