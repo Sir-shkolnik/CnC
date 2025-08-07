@@ -1,17 +1,21 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMobileFieldOpsStore, useMobileIsAuthenticated, useMobileUIState } from '@/stores/mobileFieldOpsStore';
 import { MobileLogin } from '@/components/MobileFieldOps/MobileLogin';
 import { MobileJourneyInterface } from '@/components/MobileFieldOps/MobileJourneyInterface';
 import { Toaster } from 'react-hot-toast';
 
+// Mobile Field Operations Portal - Hydration Fixed Version
 export default function MobileFieldOpsPage() {
+  const [isMounted, setIsMounted] = useState(false);
   const isAuthenticated = useMobileIsAuthenticated();
   const { currentView } = useMobileUIState();
   const { checkAuth } = useMobileFieldOpsStore();
 
   useEffect(() => {
+    setIsMounted(true);
+    
     // Check authentication status on mount
     checkAuth();
     
@@ -32,6 +36,18 @@ export default function MobileFieldOpsPage() {
       window.removeEventListener('offline', handleOffline);
     };
   }, [checkAuth]);
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Show loading state while checking auth
   if (currentView === 'login' && !isAuthenticated) {
