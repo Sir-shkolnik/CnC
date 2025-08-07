@@ -2,10 +2,24 @@ from fastapi import APIRouter, Depends, HTTPException
 from psycopg2.extras import RealDictCursor
 from typing import Dict, Any
 import json
+import psycopg2
+import os
 from datetime import datetime, timedelta
 
 from ..middleware.auth import get_current_user
-from ..database import get_db_connection
+
+# Database configuration
+DB_CONFIG = {
+    "host": os.getenv("DB_HOST", "localhost"),
+    "port": os.getenv("DB_PORT", "5432"),
+    "database": os.getenv("DB_NAME", "c_and_c_crm"),
+    "user": os.getenv("DB_USER", "c_and_c_user"),
+    "password": os.getenv("DB_PASSWORD", "c_and_c_password")
+}
+
+def get_db_connection():
+    """Get database connection"""
+    return psycopg2.connect(**DB_CONFIG)
 
 router = APIRouter()
 
