@@ -55,6 +55,11 @@ class ApiClient {
     }
   }
 
+  // Health Check
+  async healthCheck() {
+    return this.request('/health');
+  }
+
   // Authentication
   async login(credentials: { email: string; password: string }) {
     return this.request('/auth/login', {
@@ -74,6 +79,10 @@ class ApiClient {
   }
 
   // Journeys
+  async getJourneys() {
+    return this.request('/journey/');
+  }
+
   async getActiveJourneys() {
     return this.request('/journey/active');
   }
