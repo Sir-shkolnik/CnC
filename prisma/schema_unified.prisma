@@ -1,0 +1,997 @@
+// C&C CRM - Unified Database Schema
+// Comprehensive schema that consolidates all existing schemas
+// Aligned with application design, colors, and functionality
+// Version: 3.0.0 - Production Ready
+
+generator client {
+  provider = "prisma-client-py"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===== CORE ENTITIES =====
+
+model User {
+  id         String     @id @default(cuid())
+  name       String
+  email      String     @unique
+  role       UserRole
+  locationId String
+  clientId   String
+  status     UserStatus @default(ACTIVE)
+  
+  // Enhanced fields
+  phone      String?
+  avatar     String?
+  lastLogin  DateTime?
+  preferences Json?     // User preferences and settings
+  apiKey     String?    @unique // For API access
+  twoFactorEnabled Boolean @default(false)
+  
+  // Audit fields
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  createdBy  String?    // Who created this user
+  updatedBy  String?    // Who last updated this user
+
+  // Relations
+  location Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  client   Client   @relation(fields: [clientId], references: [id], onDelete: Restrict)
+
+  // Journey relations
+  assignedJourneys AssignedCrew[]
+  createdJourneys  TruckJourney[] @relation("JourneyCreator")
+  journeyEntries   JourneyEntry[]
+  mediaUploads     Media[]
+  auditEntries     AuditEntry[]
+
+  // Mobile relations
+  mobileSessions        MobileSession[]
+  mobileJourneyUpdates  MobileJourneyUpdate[]
+  mobileMediaItems      MobileMediaItem[]
+  mobileNotifications   MobileNotification[]
+
+  // Journey step relations
+  approvedSteps         JourneyStep[] @relation("StepApprover")
+  createdActivities     StepActivity[] @relation("ActivityCreator")
+
+  // Enhanced indexes for performance
+  @@index([clientId, locationId, status])
+  @@index([email, status])
+  @@index([role, status])
+  @@index([lastLogin])
+  @@index([createdAt])
+  
+  // Composite unique constraints
+  @@unique([email, clientId])
+}
+
+model Client {
+  id          String   @id @default(cuid())
+  name        String
+  industry    String?
+  isFranchise Boolean  @default(false)
+  
+  // Enhanced fields
+  contactEmail String?
+  contactPhone String?
+  website     String?
+  logo        String?
+  timezone    String   @default("America/Toronto")
+  currency    String   @default("CAD")
+  language    String   @default("en")
+  
+  // Business settings
+  settings    Json?    // Enhanced settings object
+  features    Json?    // Feature flags and capabilities
+  limits      Json?    // Usage limits and quotas
+  
+  // Status and audit
+  status      ClientStatus @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?
+  updatedBy   String?
+
+  // Relations
+  locations     Location[]
+  users         User[]
+  truckJourneys TruckJourney[]
+  moveSources   MoveSource[]
+  auditEntries  AuditEntry[]
+  storageUnits  StorageUnit[]
+  billingPlans  BillingPlan[]
+
+  // Enhanced indexes
+  @@index([name, status])
+  @@index([isFranchise, status])
+  @@index([createdAt])
+  @@unique([name])
+}
+
+model Location {
+  id        String   @id @default(cuid())
+  clientId  String
+  name      String
+  
+  // Enhanced location data
+  timezone  String   @default("America/Toronto")
+  address   String?
+  city      String?
+  province  String?
+  postalCode String?
+  country   String   @default("Canada")
+  
+  // Contact information
+  contactName  String?
+  contactPhone String?
+  contactEmail String?
+  
+  // Business details
+  businessHours Json?    // Operating hours
+  services      Json?    // Services offered
+  storageType   StorageType @default(NO_STORAGE)
+  storageCapacity Int?   // Number of storage units
+  
+  // Operational settings
+  isActive   Boolean  @default(true)
+  isCorporate Boolean @default(false)
+  maxTrucks  Int?     // Maximum number of trucks
+  
+  // Audit fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+
+  // Relations
+  client        Client         @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  users         User[]
+  truckJourneys TruckJourney[]
+  auditEntries  AuditEntry[]
+  mobileSessions MobileSession[]
+  storageUnits  StorageUnit[]
+
+  // Enhanced indexes
+  @@index([clientId, isActive])
+  @@index([storageType, isActive])
+  @@index([isCorporate, isActive])
+  @@index([city, province])
+  @@unique([clientId, name])
+}
+
+model TruckJourney {
+  id           String       @id @default(cuid())
+  locationId   String
+  clientId     String
+  
+  // Core journey data
+  date         DateTime
+  status       JourneyStage @default(MORNING_PREP)
+  truckNumber  String?
+  moveSourceId String?
+  
+  // Timing
+  startTime    DateTime?
+  endTime      DateTime?
+  estimatedDuration Int?    // Estimated duration in minutes
+  actualDuration    Int?    // Actual duration in minutes
+  
+  // Enhanced journey data
+  notes        String?
+  priority     JourneyPriority @default(NORMAL)
+  tags         String[]        // Array of tags for categorization
+  
+  // Financial data
+  estimatedCost Decimal?    @db.Decimal(10,2)
+  actualCost    Decimal?    @db.Decimal(10,2)
+  billingStatus BillingStatus @default(PENDING)
+  
+  // GPS and location data
+  startLocation Json?       // GPS coordinates
+  endLocation   Json?       // GPS coordinates
+  routeData     Json?       // Route information
+  
+  // Audit fields
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  createdBy String
+  updatedBy String?
+
+  // Relations
+  location        Location        @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  client          Client          @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  createdByUser   User            @relation("JourneyCreator", fields: [createdBy], references: [id])
+  assignedCrew    AssignedCrew[]
+  entries         JourneyEntry[]
+  mediaUploads    Media[]
+  mobileUpdates   MobileJourneyUpdate[]
+  mobileMedia     MobileMediaItem[]
+  journeySteps    JourneyStep[]
+  storageBookings StorageBooking[]
+
+  // Enhanced indexes for performance
+  @@index([clientId, locationId, status])
+  @@index([status, date])
+  @@index([date, status])
+  @@index([priority, status])
+  @@index([billingStatus])
+  @@index([createdAt])
+  @@index([startTime, endTime])
+}
+
+model JourneyStep {
+  id          String        @id @default(cuid())
+  journeyId   String
+  stepNumber  Int           // 1-4
+  stepName    String        // "Ready to Go", "Points A", "New Location", "Back to Dispatcher"
+  status      StepStatus    @default(PENDING)
+  
+  // Timing
+  startedAt   DateTime?
+  completedAt DateTime?
+  estimatedDuration Int?    // Estimated duration in minutes
+  actualDuration    Int?    // Actual duration in minutes
+  
+  // Approval workflow
+  approvedBy  String?
+  approvedAt  DateTime?
+  rejectionReason String?
+  
+  // Enhanced step data
+  notes       String?
+  checklist   Json?         // Checklist items and completion status
+  location    Json?         // GPS coordinates for this step
+  
+  // Audit fields
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  // Relations
+  journey   TruckJourney    @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  approver  User?           @relation("StepApprover", fields: [approvedBy], references: [id])
+  activities StepActivity[]
+
+  // Enhanced indexes
+  @@index([journeyId, stepNumber])
+  @@index([status, startedAt])
+  @@index([approvedBy, approvedAt])
+  @@unique([journeyId, stepNumber])
+}
+
+model StepActivity {
+  id           String        @id @default(cuid())
+  stepId       String
+  activityType ActivityType  @default(CHECKLIST)
+  data         Json?         // Flexible data structure for different activity types
+  
+  // Enhanced activity data
+  status       ActivityStatus @default(COMPLETED)
+  duration     Int?          // Duration in seconds
+  location     Json?         // GPS coordinates
+  
+  // Audit fields
+  createdBy    String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // Relations
+  step    JourneyStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  creator User       @relation("ActivityCreator", fields: [createdBy], references: [id])
+
+  // Enhanced indexes
+  @@index([stepId, activityType])
+  @@index([createdBy, createdAt])
+  @@index([status, createdAt])
+}
+
+model RolePermission {
+  id        String @id @default(cuid())
+  role      UserRole
+  stepNumber Int
+  canEdit   Boolean @default(false)
+  canApprove Boolean @default(false)
+  canView   Boolean @default(true)
+  canDelete Boolean @default(false)
+  
+  // Enhanced permissions
+  canExport Boolean @default(false)
+  canAudit  Boolean @default(false)
+  
+  // Audit fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Enhanced indexes
+  @@index([role, stepNumber])
+  @@unique([role, stepNumber])
+}
+
+model AssignedCrew {
+  id        String   @id @default(cuid())
+  journeyId String
+  userId    String
+  role      UserRole
+  
+  // Enhanced assignment data
+  assignedAt DateTime @default(now())
+  status     CrewStatus @default(ASSIGNED)
+  notes      String?
+  
+  // Timing
+  startTime  DateTime?
+  endTime    DateTime?
+  
+  // Audit fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  journey TruckJourney @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  user    User         @relation(fields: [userId], references: [id])
+
+  // Enhanced indexes
+  @@index([journeyId, role])
+  @@index([userId, status])
+  @@index([assignedAt])
+  @@unique([journeyId, userId])
+}
+
+model JourneyEntry {
+  id        String    @id @default(cuid())
+  journeyId String
+  createdBy String
+  type      EntryType @default(NOTE)
+  data      Json?
+  tag       TagType?
+  
+  // Enhanced entry data
+  priority  EntryPriority @default(NORMAL)
+  location  Json?         // GPS coordinates
+  duration  Int?          // Duration in seconds
+  
+  // Audit fields
+  timestamp DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  journey TruckJourney @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  user    User         @relation(fields: [createdBy], references: [id])
+
+  // Enhanced indexes
+  @@index([journeyId, type])
+  @@index([createdBy, timestamp])
+  @@index([tag, timestamp])
+  @@index([priority, timestamp])
+}
+
+model Media {
+  id        String    @id @default(cuid())
+  journeyId String
+  uploadedBy String
+  type      MediaType @default(PHOTO)
+  url       String
+  filename  String?
+  size      Int?
+  
+  // Enhanced media data
+  mimeType  String?
+  width     Int?
+  height    Int?
+  duration  Int?      // For videos, duration in seconds
+  thumbnail String?   // Thumbnail URL
+  
+  // Metadata
+  metadata  Json?
+  tags      String[]  // Array of tags
+  
+  // Audit fields
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  journey    TruckJourney @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  user       User         @relation(fields: [uploadedBy], references: [id])
+
+  // Enhanced indexes
+  @@index([journeyId, type])
+  @@index([uploadedBy, createdAt])
+  @@index([size])
+  @@index([tags])
+}
+
+model AuditEntry {
+  id         String   @id @default(cuid())
+  clientId   String
+  locationId String
+  userId     String
+  action     String
+  entity     String
+  entityId   String
+  diff       Json?
+  
+  // Enhanced audit data
+  ipAddress  String?
+  userAgent  String?
+  sessionId  String?
+  severity   AuditSeverity @default(INFO)
+  
+  // Audit fields
+  timestamp  DateTime @default(now())
+
+  // Relations
+  client   Client   @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  location Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  user     User     @relation(fields: [userId], references: [id])
+
+  // Enhanced indexes
+  @@index([clientId, timestamp])
+  @@index([locationId, timestamp])
+  @@index([userId, timestamp])
+  @@index([entity, entityId])
+  @@index([severity, timestamp])
+  @@index([action, timestamp])
+}
+
+model MoveSource {
+  id          String   @id @default(cuid())
+  clientId    String
+  name        String
+  description String?
+  
+  // Enhanced move source data
+  externalId  String?   @unique // External system ID
+  address     String?
+  phone       String?
+  email       String?
+  website     String?
+  
+  // Business data
+  price       Decimal?  @db.Decimal(10,2)
+  currency    String    @default("CAD")
+  status      MoveSourceStatus @default(ACTIVE)
+  
+  // Audit fields
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?
+  updatedBy   String?
+
+  // Relations
+  client Client @relation(fields: [clientId], references: [id], onDelete: Restrict)
+
+  // Enhanced indexes
+  @@index([clientId, status])
+  @@index([externalId])
+  @@index([status, isActive])
+  @@unique([clientId, name])
+}
+
+// ===== STORAGE SYSTEM MODELS =====
+
+model StorageUnit {
+  id          String   @id @default(cuid())
+  locationId  String
+  clientId    String
+  unitNumber  String
+  unitType    StorageUnitType
+  size        Int      // Size in square feet
+  status      StorageUnitStatus @default(AVAILABLE)
+  
+  // Pricing
+  monthlyRate Decimal  @db.Decimal(10,2)
+  currency    String   @default("CAD")
+  
+  // Features
+  features    String[] // Array of features (climate-controlled, security, etc.)
+  notes       String?
+  
+  // Audit fields
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?
+  updatedBy   String?
+
+  // Relations
+  location        Location         @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  client          Client           @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  storageBookings StorageBooking[]
+
+  // Indexes
+  @@index([locationId, status])
+  @@index([clientId, unitType])
+  @@index([status, monthlyRate])
+  @@unique([locationId, unitNumber])
+}
+
+model StorageBooking {
+  id          String   @id @default(cuid())
+  storageUnitId String
+  journeyId   String
+  clientId    String
+  
+  // Booking details
+  startDate   DateTime
+  endDate     DateTime
+  status      BookingStatus @default(ACTIVE)
+  
+  // Pricing
+  totalCost   Decimal  @db.Decimal(10,2)
+  currency    String   @default("CAD")
+  
+  // Audit fields
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?
+  updatedBy   String?
+
+  // Relations
+  storageUnit StorageUnit @relation(fields: [storageUnitId], references: [id], onDelete: Restrict)
+  journey     TruckJourney @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  client      Client       @relation(fields: [clientId], references: [id], onDelete: Restrict)
+
+  // Indexes
+  @@index([storageUnitId, status])
+  @@index([journeyId])
+  @@index([startDate, endDate])
+  @@index([status, startDate])
+}
+
+model BillingPlan {
+  id          String   @id @default(cuid())
+  clientId    String
+  name        String
+  description String?
+  
+  // Plan details
+  planType    BillingPlanType
+  monthlyRate Decimal  @db.Decimal(10,2)
+  currency    String   @default("CAD")
+  
+  // Features and limits
+  features    Json?    // Feature flags
+  limits      Json?    // Usage limits
+  
+  // Status
+  status      BillingPlanStatus @default(ACTIVE)
+  
+  // Audit fields
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?
+  updatedBy   String?
+
+  // Relations
+  client Client @relation(fields: [clientId], references: [id], onDelete: Restrict)
+
+  // Indexes
+  @@index([clientId, status])
+  @@index([planType, status])
+  @@unique([clientId, name])
+}
+
+// ===== SUPER ADMIN MODELS =====
+
+model SuperAdminUser {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  role      String   @default("SUPER_ADMIN")
+  
+  // Enhanced fields
+  firstName String?
+  lastName  String?
+  phone     String?
+  avatar    String?
+  lastLogin DateTime?
+  
+  // Security
+  isActive  Boolean  @default(true)
+  twoFactorEnabled Boolean @default(false)
+  failedLoginAttempts Int @default(0)
+  lockedUntil DateTime?
+  
+  // Audit fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
+
+  // Relations
+  sessions   SuperAdminSession[]
+  accessLogs CompanyAccessLog[]
+
+  // Enhanced indexes
+  @@index([username, isActive])
+  @@index([email, isActive])
+  @@index([lastLogin])
+  @@index([failedLoginAttempts])
+}
+
+model SuperAdminSession {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  
+  // Enhanced session data
+  ipAddress String?
+  userAgent String?
+  deviceId  String?
+  
+  // Audit fields
+  createdAt DateTime @default(now())
+  lastActive DateTime @default(now())
+
+  // Relations
+  user SuperAdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Enhanced indexes
+  @@index([userId, expiresAt])
+  @@index([token, expiresAt])
+  @@index([lastActive])
+}
+
+model CompanyAccessLog {
+  id        String   @id @default(cuid())
+  adminId   String
+  clientId  String
+  action    String
+  details   Json?
+  
+  // Enhanced access data
+  ipAddress String?
+  userAgent String?
+  sessionId String?
+  severity  AuditSeverity @default(INFO)
+  
+  // Audit fields
+  timestamp DateTime @default(now())
+
+  // Relations
+  admin SuperAdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  // Enhanced indexes
+  @@index([adminId, timestamp])
+  @@index([clientId, timestamp])
+  @@index([action, timestamp])
+  @@index([severity, timestamp])
+}
+
+// ===== MOBILE APP MODELS =====
+
+model MobileSession {
+  id        String   @id @default(cuid())
+  userId    String
+  deviceId  String
+  locationId String
+  
+  // Enhanced session data
+  deviceType String?    // iOS, Android, Web
+  appVersion String?
+  osVersion  String?
+  lastActive DateTime @default(now())
+  
+  // Offline capabilities
+  offlineData Json?
+  syncStatus String @default("online") // online, offline, syncing
+  lastSyncAt DateTime?
+  
+  // Security
+  sessionToken String? @unique
+  expiresAt    DateTime?
+  
+  // Audit fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  location Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
+
+  // Enhanced indexes
+  @@unique([userId, deviceId], name: "MobileSession_userId_deviceId_key")
+  @@index([userId, syncStatus])
+  @@index([locationId, lastActive])
+  @@index([syncStatus, lastSyncAt])
+  @@index([sessionToken, expiresAt])
+}
+
+model MobileJourneyUpdate {
+  id        String   @id @default(cuid())
+  journeyId String
+  userId    String
+  updateType String  // status, location, note, checklist, media
+  data      Json
+  
+  // Enhanced update data
+  location  Json?    // GPS coordinates
+  timestamp DateTime @default(now())
+  syncStatus String @default("pending") // pending, syncing, synced, failed
+  
+  // Retry logic
+  retryCount Int @default(0)
+  lastRetryAt DateTime?
+  errorMessage String?
+  
+  // Audit fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  journey TruckJourney @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+
+  // Enhanced indexes
+  @@index([journeyId, updateType])
+  @@index([userId, syncStatus])
+  @@index([timestamp, syncStatus])
+  @@index([syncStatus, retryCount])
+}
+
+model MobileMediaItem {
+  id        String    @id @default(cuid())
+  journeyId String
+  userId    String
+  type      String    // photo, video, signature
+  filePath  String
+  fileSize  Int?
+  
+  // Enhanced media data
+  mimeType  String?
+  width     Int?
+  height    Int?
+  duration  Int?      // For videos
+  thumbnail String?
+  
+  // Upload tracking
+  uploadStatus String @default("pending") // pending, uploading, completed, failed
+  uploadProgress Int @default(0)          // Upload progress percentage
+  retryCount     Int @default(0)
+  
+  // Metadata
+  metadata  Json?
+  tags      String[]
+  
+  // Audit fields
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  journey TruckJourney @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  user    User         @relation(fields: [userId], references: [id])
+
+  // Enhanced indexes
+  @@index([journeyId, type])
+  @@index([userId, uploadStatus])
+  @@index([uploadStatus, retryCount])
+  @@index([fileSize])
+  @@index([tags])
+}
+
+model MobileNotification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String
+  
+  // Enhanced notification data
+  data      Json?
+  priority  NotificationPriority @default(NORMAL)
+  category  String?
+  
+  // Delivery tracking
+  sentAt    DateTime?
+  deliveredAt DateTime?
+  readAt    DateTime?
+  read      Boolean @default(false)
+  
+  // Audit fields
+  timestamp DateTime @default(now())
+  expiresAt DateTime?
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Enhanced indexes
+  @@index([userId, read])
+  @@index([type, priority])
+  @@index([timestamp, read])
+  @@index([expiresAt])
+}
+
+// ===== ENUMS =====
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  DRIVER
+  MOVER
+  DISPATCHER
+  AUDITOR
+  SUPER_ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum ClientStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum JourneyStage {
+  MORNING_PREP
+  EN_ROUTE
+  ONSITE
+  COMPLETED
+  AUDITED
+  CANCELLED
+}
+
+enum JourneyPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum BillingStatus {
+  PENDING
+  INVOICED
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum EntryType {
+  NOTE
+  GPS
+  PHOTO
+  SIGNATURE
+  STATUS_UPDATE
+  CHECKLIST
+  APPROVAL
+}
+
+enum EntryPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum MediaType {
+  PHOTO
+  VIDEO
+  SIGNATURE
+  DOCUMENT
+  AUDIO
+}
+
+enum TagType {
+  COMPLETED
+  DAMAGE
+  FEEDBACK
+  ISSUE
+  DELAY
+  URGENT
+  REVIEW
+}
+
+enum StepStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum ActivityType {
+  CHECKLIST
+  PHOTO
+  VIDEO
+  APPROVAL
+  NOTE
+  SIGNATURE
+  GPS
+  TIMER
+}
+
+enum ActivityStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum CrewStatus {
+  ASSIGNED
+  CONFIRMED
+  ON_SITE
+  COMPLETED
+  CANCELLED
+}
+
+enum StorageType {
+  NO_STORAGE
+  LOCKER
+  POD
+  WAREHOUSE
+  CONTAINER
+}
+
+enum StorageUnitType {
+  SMALL
+  MEDIUM
+  LARGE
+  XLARGE
+  CUSTOM
+}
+
+enum StorageUnitStatus {
+  AVAILABLE
+  OCCUPIED
+  RESERVED
+  MAINTENANCE
+  OUT_OF_SERVICE
+}
+
+enum BookingStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  OVERDUE
+}
+
+enum BillingPlanType {
+  BASIC
+  STANDARD
+  PREMIUM
+  ENTERPRISE
+  CUSTOM
+}
+
+enum BillingPlanStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  EXPIRED
+}
+
+enum MoveSourceStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  ARCHIVED
+}
+
+enum AuditSeverity {
+  DEBUG
+  INFO
+  WARNING
+  ERROR
+  CRITICAL
+}
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+} 

@@ -112,17 +112,50 @@ export default function UnifiedLoginPage() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const detectUserType = (email: string): 'web' | 'mobile' | 'super' => {
-    // Super admin detection
-    if (email === 'udi.shkolnik@lgm.com') return 'super';
-    
-    // Mobile users (drivers, movers)
-    const mobileRoles = ['driver', 'mover'];
-    const emailLower = email.toLowerCase();
-    if (mobileRoles.some(role => emailLower.includes(role))) return 'mobile';
-    
-    // Default to web users (dispatchers, managers, admins, auditors)
-    return 'web';
+  const detectUserType = async (email: string, password: string): Promise<'web' | 'mobile' | 'super'> => {
+    try {
+      // Try super admin login first
+      const superAdminResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/super-admin/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: email, password })
+      });
+      
+      if (superAdminResponse.ok) {
+        return 'super';
+      }
+      
+      // Try regular user login
+      const userResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, company_id: selectedCompany?.id })
+      });
+      
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        const role = userData.data?.user?.role || '';
+        
+        // Mobile roles get mobile interface
+        if (['DRIVER', 'MOVER'].includes(role.toUpperCase())) {
+          return 'mobile';
+        }
+        
+        // Web roles get web interface
+        return 'web';
+      }
+      
+      throw new Error('Invalid credentials');
+    } catch (error) {
+      // Fallback to email-based detection for development
+      if (email === 'udi.shkolnik@lgm.com') return 'super';
+      
+      const mobileRoles = ['driver', 'mover'];
+      const emailLower = email.toLowerCase();
+      if (mobileRoles.some(role => emailLower.includes(role))) return 'mobile';
+      
+      return 'web';
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -134,14 +167,23 @@ export default function UnifiedLoginPage() {
     }
 
     try {
-      const userType = detectUserType(formData.email);
+      const userType = await detectUserType(formData.email, formData.password);
       
-      if (userType === 'super') {
-        await superAdminLogin(formData.email, formData.password);
-        router.push('/super-admin/dashboard');
-      } else {
-        await authLogin(formData.email, formData.password, selectedCompany?.id);
-        router.push('/dashboard');
+      switch (userType) {
+        case 'super':
+          await superAdminLogin(formData.email, formData.password);
+          router.push('/super-admin/dashboard');
+          break;
+          
+        case 'mobile':
+          await authLogin(formData.email, formData.password, selectedCompany?.id);
+          router.push('/mobile'); // Mobile-specific interface
+          break;
+          
+        case 'web':
+          await authLogin(formData.email, formData.password, selectedCompany?.id);
+          router.push('/dashboard'); // Web interface
+          break;
       }
       
       toast.success('Login successful!');

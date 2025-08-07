@@ -215,17 +215,47 @@ export const useSuperAdminStore = create<SuperAdminStore>()(
         set({ isLoading: true, error: null });
         
         try {
-          // TODO: Replace with actual API call
-          // const response = await fetch('/api/super-admin/auth/login', {
-          //   method: 'POST',
-          //   headers: { 'Content-Type': 'application/json' },
-          //   body: JSON.stringify({ email, password }),
-          // });
-          // const data = await response.json();
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/super-admin/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: email, password })
+          });
           
-          // Mock API response
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          if (!response.ok) {
+            throw new Error('Login failed');
+          }
           
+          const data = await response.json();
+          
+          if (data.success) {
+            // Set cookie for middleware
+            document.cookie = `super-admin-token=${data.data.accessToken}; path=/; max-age=86400; secure; samesite=strict`;
+            
+            set({
+              superAdmin: data.data.superAdmin,
+              session: {
+                id: data.data.session?.id || 'session-1',
+                superAdminId: data.data.superAdmin.id,
+                sessionToken: data.data.accessToken,
+                currentCompanyId: data.data.session?.currentCompanyId || lgmCompanies[0]?.id,
+                permissionsScope: data.data.session?.permissionsScope || defaultPermissions,
+                expiresAt: data.data.session?.expiresAt || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: data.data.session?.createdAt || new Date().toISOString(),
+                lastActivity: data.data.session?.lastActivity || new Date().toISOString(),
+              },
+              isAuthenticated: true,
+              currentCompany: lgmCompanies[0] || null,
+              availableCompanies: lgmCompanies,
+              companies: lgmCompanies,
+              analytics: lgmAnalytics,
+              selectedCompanyId: lgmCompanies[0]?.id || null,
+              isLoading: false,
+            });
+          } else {
+            throw new Error(data.message || 'Login failed');
+          }
+        } catch (error) {
+          // Fallback to mock data for development
           if (email === 'udi.shkolnik@lgm.com' && password === 'Id200633048!') {
             set({
               superAdmin: defaultSuperAdmin,
@@ -248,17 +278,23 @@ export const useSuperAdminStore = create<SuperAdminStore>()(
               isLoading: false,
             });
           } else {
-            throw new Error('Invalid credentials');
+            set({ 
+              error: error instanceof Error ? error.message : 'Login failed',
+              isLoading: false 
+            });
           }
-        } catch (error) {
-          set({ 
-            error: error instanceof Error ? error.message : 'Login failed',
-            isLoading: false 
-          });
         }
       },
 
       logout: () => {
+        // Clear cookies
+        document.cookie = 'super-admin-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        
+        // Clear localStorage
+        localStorage.removeItem('super-admin-token');
+        localStorage.removeItem('auth-token');
+        
         set({
           superAdmin: null,
           session: null,
