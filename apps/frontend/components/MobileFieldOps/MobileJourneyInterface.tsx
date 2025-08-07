@@ -316,8 +316,8 @@ export const MobileJourneyInterface: React.FC<MobileJourneyInterfaceProps> = ({ 
           </div>
           
           <div className="flex items-center justify-between text-sm">
-            <span className="text-text-secondary">Started: {new Date(currentJourney.startTime).toLocaleTimeString()}</span>
-            <span className="text-text-secondary">ETA: {new Date(currentJourney.estimatedCompletion).toLocaleTimeString()}</span>
+            <span className="text-text-secondary">Started: {currentJourney.startTime ? new Date(currentJourney.startTime).toLocaleTimeString() : 'Not started'}</span>
+            <span className="text-text-secondary">ETA: {currentJourney.estimatedCompletion ? new Date(currentJourney.estimatedCompletion).toLocaleTimeString() : 'Not set'}</span>
           </div>
         </CardContent>
       </Card>
@@ -334,7 +334,7 @@ export const MobileJourneyInterface: React.FC<MobileJourneyInterfaceProps> = ({ 
                 variant={getStepStatusColor(getCurrentStep()?.status || 'pending')}
                 className="text-xs"
               >
-                {getCurrentStep()?.status.replace('_', ' ')}
+                {getCurrentStep()?.status?.replace('_', ' ') || 'Unknown'}
               </Badge>
             </div>
           </CardHeader>
