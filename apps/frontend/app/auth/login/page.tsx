@@ -302,19 +302,6 @@ export default function UnifiedLoginPage() {
           <h2 className="text-2xl font-bold text-text-primary mb-2">Welcome Back</h2>
           <p className="text-text-secondary">Sign in to your account</p>
           
-          {/* Mobile Access Button */}
-          <div className="mt-4">
-            <Button 
-              variant="secondary" 
-              size="sm"
-              onClick={() => router.push('/mobile')}
-              className="flex items-center gap-2"
-            >
-              <Smartphone className="w-4 h-4" />
-              Field Operations Mobile App
-            </Button>
-          </div>
-          
           {/* Selected Company */}
           {selectedCompany && (
             <div className="mt-4 p-3 bg-surface/50 rounded-lg border border-gray-700">
