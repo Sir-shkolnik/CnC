@@ -341,7 +341,7 @@ export default function StorageSystemPage() {
                   placeholder="Search locations..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  icon={<Search className="w-4 h-4" />}
+                  leftIcon={<Search className="w-4 h-4" />}
                 />
               </div>
               
