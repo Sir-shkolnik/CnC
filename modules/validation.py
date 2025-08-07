@@ -116,7 +116,7 @@ class EnumRule(ValidationRule):
     """Enum value validation"""
     
     def __init__(self, field: str, enum_class, message: str = None):
-        super().__init__(field, "enum", message or f"{self.field} must be one of {list(enum_class)}")
+        super().__init__(field, "enum", message or f"{field} must be one of {list(enum_class)}")
         self.enum_class = enum_class
     
     def validate(self, value: Any) -> Tuple[bool, str]:
