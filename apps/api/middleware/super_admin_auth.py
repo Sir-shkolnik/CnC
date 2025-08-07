@@ -306,7 +306,10 @@ class SuperAdminAuth:
             raise HTTPException(status_code=500, detail=f"Failed to get companies: {str(e)}")
 
 # Global instance
-super_admin_auth = SuperAdminAuth("postgresql://c_and_c_user:c_and_c_password@postgres:5432/c_and_c_crm")
+# Initialize with environment variable or default to production database
+import os
+database_url = os.getenv("DATABASE_URL", "postgresql://c_and_c_user:c_and_c_password@dpg-d29kpcfgi27c73cnano0-a.oregon-postgres.render.com/c_and_c_crm?sslmode=require")
+super_admin_auth = SuperAdminAuth(database_url)
 
 # Dependency functions
 async def get_current_super_admin(super_admin: Dict[str, Any] = Depends(super_admin_auth.get_current_super_admin)):
