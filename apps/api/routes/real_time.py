@@ -9,6 +9,15 @@ from apps.api.database import get_db_connection
 
 router = APIRouter()
 
+@router.get("/test")
+async def test_endpoint(current_user: Dict[str, Any] = Depends(get_current_user)) -> Dict[str, Any]:
+    """Test endpoint to check authentication"""
+    return {
+        "success": True,
+        "message": "Authentication working",
+        "user": current_user
+    }
+
 @router.get("/dashboard")
 async def get_real_time_dashboard(current_user: Dict[str, Any] = Depends(get_current_user)) -> Dict[str, Any]:
     """Get real-time dashboard data for the current user"""
