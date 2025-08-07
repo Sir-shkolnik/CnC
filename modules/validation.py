@@ -7,6 +7,9 @@ from datetime import datetime, timedelta
 from enum import Enum
 import re
 
+# Import enums from journey_engine
+from .journey_engine import JourneyStatus, UserRole, CrewStatus
+
 # ===== VALIDATION RULES =====
 
 class ValidationRule:
