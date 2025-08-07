@@ -258,7 +258,7 @@ export function CustomerModal({ customer, onClose, onSave }: CustomerModalProps)
                     value={formData.phone || ''}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
                     error={errors.phone}
-                    icon={<Phone className="w-4 h-4" />}
+                    leftIcon={<Phone className="w-4 h-4" />}
                     required
                   />
                 </div>
@@ -370,7 +370,7 @@ export function CustomerModal({ customer, onClose, onSave }: CustomerModalProps)
                   type="number"
                   value={formData.estimatedValue || ''}
                   onChange={(e) => handleInputChange('estimatedValue', e.target.value ? parseFloat(e.target.value) : null)}
-                  icon={<DollarSign className="w-4 h-4" />}
+                                      leftIcon={<DollarSign className="w-4 h-4" />}
                   placeholder="0.00"
                   min="0"
                   step="0.01"
