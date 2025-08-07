@@ -1,5 +1,6 @@
 # C&C CRM - Render Deployment Configuration
 # Command & Control CRM for Moving & Logistics Operations
+# Last Updated: January 2025 - Fixed deployment sync issues
 
 services:
   # ===== BACKEND API SERVICE =====
