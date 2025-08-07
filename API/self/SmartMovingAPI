@@ -1,0 +1,65 @@
+Here’s what I found about **SmartMoving’s API**, the open API offerings tailored to moving companies—perfect for streamlining CRM, operations, and integrations:
+
+---
+
+## What Is SmartMoving's Open API?
+
+SmartMoving's **Open API** enables seamless automation and integration with external systems. It’s available to users on the Growth Plan, with two tiers:
+
+* **Standard API** (included in Growth Plan): **Read-only access**—ideal for extracting data and generating custom reports.
+* **Premium API** (paid add-on): **Full read/write access**, enabling real-time sync with external systems. ([smartmoving.com][1])
+
+---
+
+## Key Use Cases
+
+According to their blog, “Unlock Efficiency: 6 Ways to Use SmartMoving's New API” (Sep 2024), popular use cases include:
+
+1. **Custom Reporting Dashboards** – Connect to tools like Tableau or Power BI to visualize job and customer metrics.
+2. **Project Management Workflows** – Use webhooks to send leads or booked moves into platforms like Asana or Monday automatically.
+3. **Phone System Integration** – Route incoming calls based on SmartMoving CRM data like leads or booked jobs.
+4. **Sales Tool Sync** – Keep systems like Salesforce up‑to‑date with lead, customer, and job data in real time.
+5. **In-App Notifications** – Send alerts to messaging platforms (e.g., Teams, Slack) for new leads or booked moves.
+6. **Automated Lead Ingestion** – Push leads from websites or third-party sources directly into SmartMoving without manual input. ([smartmoving.com][1])
+
+---
+
+## Webhook Functionality
+
+SmartMoving supports event-driven workflows via webhooks:
+
+* You can configure **webhooks** through the SmartMoving web interface (Settings → Integrations → SmartMoving API).
+* Select events to subscribe to, define your callback URL, and optionally include custom headers (e.g., API key).
+* Once set, SmartMoving will POST notifications to your URL whenever those events occur. ([SmartMoving API Developer Portal][2])
+
+---
+
+## Lead API Integration Guide
+
+If you want to send leads into SmartMoving programmatically, their **Lead API** lets you do just that:
+
+* Submit via HTTP POST to:
+  `https://api.smartmoving.com/api/leads/from-provider/v2?providerKey={your_provider_key}`
+* Use JSON payloads with required fields: either `"FirstName"` & `"LastName"` or `"FullName"`.
+* Include optional lead details: phone, email, move date, origin/destination, service type, etc.
+* Fields like `ReferralSource` or `MoveSize` must align with SmartMoving's settings (or they'll auto-create new entries). ([help.smartmoving.com][3], [help.smartmoving.com][4])
+
+---
+
+## Summary Table
+
+| Feature               | Description                                                                 |
+| --------------------- | --------------------------------------------------------------------------- |
+| **API Types**         | Standard (read), Premium (read/write)                                       |
+| **Use Cases**         | Reporting, workflows, phone routing, CRM sync, alerts, automated lead entry |
+| **Webhook Support**   | Configurable event-based POST notifications                                 |
+| **Lead API Endpoint** | Submit lead data via POST with a provider key                               |
+
+---
+
+Would you like help integrating this into your existing Cursor AI setup? I can help map API use cases into your rule enforcement—like validating incoming lead payloads against your schema or triggering Cursor-controlled workflows based on API/webhook events.
+
+[1]: https://www.smartmoving.com/blog/6-ways-to-use-smartmoving-api?utm_source=chatgpt.com "Unlock Efficiency: 6 Ways to Use SmartMoving's New API ..."
+[2]: https://smartmoving-prod-api-management.developer.azure-api.net/webhook-document?utm_source=chatgpt.com "Webhook Document - SmartMoving API Developer Portal"
+[3]: https://help.smartmoving.com/en/articles/3269925-getting-started-guide?utm_source=chatgpt.com "Getting Started Guide"
+[4]: https://help.smartmoving.com/en/articles/3994387-smartmoving-lead-api-integration-guide?utm_source=chatgpt.com "SmartMoving Lead API Integration Guide"
