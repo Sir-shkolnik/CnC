@@ -49,6 +49,8 @@ interface CompanyUser {
   role: string;
   locationId: string;
   status: string;
+  locationName?: string;
+  locationType?: 'CORPORATE' | 'FRANCHISE';
 }
 
 export default function UnifiedLoginPage() {
@@ -244,6 +246,11 @@ export default function UnifiedLoginPage() {
       case 'AUDITOR': return '🔍';
       default: return '👤';
     }
+  };
+
+  const handleUserSelect = (user: CompanyUser) => {
+    setFormData(prev => ({ ...prev, email: user.email }));
+    toast.success(`Filled ${user.name}'s email`);
   };
 
   if (step === 'company') {
@@ -459,35 +466,49 @@ export default function UnifiedLoginPage() {
                   <span className="ml-2 text-text-secondary">Loading users...</span>
                 </div>
               ) : (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
+                <div className="space-y-2 max-h-64 overflow-y-auto">
                   {filteredUsers.map((user) => (
                     <div
                       key={user.id}
-                      className="p-3 bg-surface/30 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors"
+                      className="flex items-center justify-between p-3 bg-surface rounded-lg border border-gray-700 hover:border-primary transition-colors cursor-pointer"
+                      onClick={() => handleUserSelect(user)}
                     >
                       <div className="flex items-center space-x-3">
-                        <div className="text-2xl">{getRoleIcon(user.role)}</div>
-                        <div className="flex-1 min-w-0">
+                        <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
+                          <User className="w-4 h-4 text-primary" />
+                        </div>
+                        <div>
                           <div className="flex items-center space-x-2">
-                            <h4 className="text-sm font-medium text-text-primary truncate">
-                              {user.name}
-                            </h4>
-                            <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
+                            <span className="font-medium text-text-primary">{user.name}</span>
+                            <Badge variant={getRoleBadgeVariant(user.role)}>
                               {user.role}
                             </Badge>
+                            {user.locationType && (
+                              <Badge variant={user.locationType === 'CORPORATE' ? 'default' : 'secondary'}>
+                                {user.locationType}
+                              </Badge>
+                            )}
                           </div>
-                          <p className="text-xs text-text-secondary truncate">{user.email}</p>
+                          <div className="text-sm text-text-secondary">
+                            {user.email}
+                          </div>
+                          {user.locationName && (
+                            <div className="text-xs text-text-secondary">
+                              📍 {user.locationName}
+                            </div>
+                          )}
                         </div>
-                        <button
-                          onClick={() => {
-                            setFormData(prev => ({ ...prev, email: user.email }));
-                            toast.success(`Filled ${user.name}'s email`);
-                          }}
-                          className="text-xs text-primary hover:text-primary/80 transition-colors"
-                        >
-                          Use
-                        </button>
                       </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUserSelect(user);
+                        }}
+                      >
+                        Use
+                      </Button>
                     </div>
                   ))}
                 </div>

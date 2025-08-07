@@ -283,23 +283,39 @@ async def get_company_users(company_id: str) -> Dict[str, Any]:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
         cursor.execute("""
-            SELECT id, name, email, role, "locationId", status
-            FROM "User" 
-            WHERE "clientId" = %s AND status = 'ACTIVE'
-            ORDER BY name
+            SELECT u.id, u.name, u.email, u.role, u."locationId", u.status,
+                   l.name as location_name,
+                   CASE WHEN l.id LIKE '%corporate%' THEN 'CORPORATE' ELSE 'FRANCHISE' END as location_type
+            FROM "User" u
+            JOIN "Location" l ON u."locationId" = l.id
+            WHERE u."clientId" = %s AND u.status = 'ACTIVE'
+            ORDER BY u.name
         """, (company_id,))
         
         users = cursor.fetchall()
+        
         cursor.close()
         conn.close()
         
         return {
             "success": True,
-            "data": [dict(user) for user in users]
+            "data": [
+                {
+                    "id": user["id"],
+                    "name": user["name"],
+                    "email": user["email"],
+                    "role": user["role"],
+                    "locationId": user["locationId"],
+                    "status": user["status"],
+                    "locationName": user["location_name"],
+                    "locationType": user["location_type"]
+                }
+                for user in users
+            ]
         }
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get users: {str(e)}")
 
 @router.get("/locations")
 async def get_locations(
