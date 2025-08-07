@@ -51,93 +51,93 @@
 
 #### **🔧 ADMINISTRATORS (Full System Access)**
 ```
-👤 Name: Sarah Johnson
-📧 Email: sarah.johnson@lgm.com
+👤 Name: Demo Admin
+📧 Email: admin@letsgetmoving.com
 🔑 Password: 1234
 🎯 Role: ADMIN
-📍 Location: LGM Toronto Central
+📍 Location: Toronto Main Office
 📋 Access: Full system management
 
-👤 Name: Frank Williams
-📧 Email: frank.williams@lgm.com
+👤 Name: Udi Shkolnik
+📧 Email: udi.shkolnik@candc.com
 🔑 Password: 1234
 🎯 Role: ADMIN
-📍 Location: LGM Hamilton
+📍 Location: Toronto Main Office
+📋 Access: Full system management
+
+👤 Name: Super Admin
+📧 Email: superadmin@candc.com
+🔑 Password: 1234
+🎯 Role: ADMIN
+📍 Location: Toronto Main Office
 📋 Access: Full system management
 ```
 
 #### **🚚 DISPATCHERS (Journey Management)**
 ```
-👤 Name: Mike Chen
-📧 Email: mike.chen@lgm.com
+👤 Name: Sarah Johnson
+📧 Email: sarah.johnson@letsgetmoving.com
 🔑 Password: 1234
 🎯 Role: DISPATCHER
-📍 Location: LGM Toronto Central
+📍 Location: Toronto Main Office
 📋 Access: Journey creation, crew assignment, dispatch
 
-👤 Name: Jennifer Lee
-📧 Email: jennifer.lee@lgm.com
+👤 Name: Demo Dispatcher
+📧 Email: dispatcher@letsgetmoving.com
 🔑 Password: 1234
 🎯 Role: DISPATCHER
-📍 Location: LGM Mississauga
+📍 Location: Toronto Main Office
 📋 Access: Journey management, crew coordination
 
-👤 Name: Patricia Moore
-📧 Email: patricia.moore@lgm.com
+👤 Name: Mike Dispatcher
+📧 Email: mike.dispatcher@letsgetmoving.com
 🔑 Password: 1234
 🎯 Role: DISPATCHER
-📍 Location: LGM Vancouver
+📍 Location: Toronto Main Office
 📋 Access: Journey dispatch, route planning
+
+👤 Name: Sarah Dispatcher
+📧 Email: sarah.dispatcher@letsgetmoving.com
+🔑 Password: 1234
+🎯 Role: DISPATCHER
+📍 Location: Toronto Main Office
+📋 Access: Journey management, crew coordination
 ```
 
 #### **🚛 DRIVERS (Field Operations)**
 ```
-👤 Name: David Rodriguez
-📧 Email: david.rodriguez@lgm.com
+👤 Name: Demo Driver
+📧 Email: driver@letsgetmoving.com
 🔑 Password: 1234
 🎯 Role: DRIVER
-📍 Location: LGM Toronto Central
+📍 Location: Toronto Main Office
 📋 Access: Journey status updates, GPS tracking, mobile operations
 
-👤 Name: Carlos Martinez
-📧 Email: carlos.martinez@lgm.com
+👤 Name: Mike Wilson
+📧 Email: mike.wilson@letsgetmoving.com
 🔑 Password: 1234
 🎯 Role: DRIVER
-📍 Location: LGM Mississauga
+📍 Location: Toronto Main Office
 📋 Access: Mobile field operations, route navigation
-
-👤 Name: Daniel Taylor
-📧 Email: daniel.taylor@lgm.com
-🔑 Password: 1234
-🎯 Role: DRIVER
-📍 Location: LGM Vancouver
-📋 Access: Journey completion, customer interaction
 ```
 
 #### **📦 MOVERS (Field Operations)**
 ```
-👤 Name: Lisa Thompson
-📧 Email: lisa.thompson@lgm.com
+👤 Name: Lisa Chen
+📧 Email: lisa.chen@letsgetmoving.com
 🔑 Password: 1234
 🎯 Role: MOVER
-📍 Location: LGM Toronto Central
+📍 Location: Toronto Main Office
 📋 Access: Media upload, activity logging, customer service
-
-👤 Name: Amanda Foster
-📧 Email: amanda.foster@lgm.com
-🔑 Password: 1234
-🎯 Role: MOVER
-📍 Location: LGM Mississauga
-📋 Access: Item handling, damage reporting, customer signatures
 ```
 
 #### **👔 MANAGERS (Location Oversight)**
 ```
-👤 Name: Robert Wilson
-📧 Email: robert.wilson@lgm.com
+👤 Name: John Manager
+📧 Email: john.manager@letsgetmoving.com
 🔑 Password: 1234
 🎯 Role: MANAGER
-📍 Location: LGM Toronto Central
+📍 Location: Toronto Main Office
 📋 Access: Location management, performance monitoring, reports
 ```
 
@@ -634,7 +634,7 @@
 ### **2. Admin Testing**
 ```
 🌐 URL: https://c-and-c-crm-frontend.onrender.com
-👤 Email: sarah.johnson@lgm.com
+👤 Email: admin@letsgetmoving.com
 🔑 Password: 1234
 ```
 **Test:** Full system management, user creation, settings
@@ -642,7 +642,7 @@
 ### **3. Dispatcher Testing**
 ```
 🌐 URL: https://c-and-c-crm-frontend.onrender.com
-👤 Email: mike.chen@lgm.com
+👤 Email: sarah.johnson@letsgetmoving.com
 🔑 Password: 1234
 ```
 **Test:** Journey management, crew assignment, dispatch
@@ -650,7 +650,7 @@
 ### **4. Driver Testing**
 ```
 🌐 URL: https://c-and-c-crm-frontend.onrender.com/mobile
-👤 Email: david.rodriguez@lgm.com
+👤 Email: driver@letsgetmoving.com
 🔑 Password: 1234
 ```
 **Test:** Mobile field operations, GPS tracking, status updates
@@ -658,7 +658,7 @@
 ### **5. Mover Testing**
 ```
 🌐 URL: https://c-and-c-crm-frontend.onrender.com/mobile
-👤 Email: lisa.thompson@lgm.com
+👤 Email: lisa.chen@letsgetmoving.com
 🔑 Password: 1234
 ```
 **Test:** Media upload, activity logging, customer interaction
@@ -666,18 +666,10 @@
 ### **6. Manager Testing**
 ```
 🌐 URL: https://c-and-c-crm-frontend.onrender.com
-👤 Email: robert.wilson@lgm.com
+👤 Email: john.manager@letsgetmoving.com
 🔑 Password: 1234
 ```
 **Test:** Location oversight, performance monitoring, reports
-
-### **7. Auditor Testing**
-```
-🌐 URL: https://c-and-c-crm-frontend.onrender.com
-👤 Email: lisa.thompson@lgm.com
-🔑 Password: 1234
-```
-**Test:** Audit logs, compliance reports, quality assurance
 
 ---
 
@@ -692,10 +684,9 @@
 
 ### **Mobile User Credentials**
 ```
-👤 Driver: david.rodriguez@lgm.com / 1234
-👤 Mover: lisa.thompson@lgm.com / 1234
-👤 Driver: carlos.martinez@lgm.com / 1234
-👤 Mover: amanda.foster@lgm.com / 1234
+👤 Driver: driver@letsgetmoving.com / 1234
+👤 Mover: lisa.chen@letsgetmoving.com / 1234
+👤 Driver: mike.wilson@letsgetmoving.com / 1234
 ```
 
 ---
