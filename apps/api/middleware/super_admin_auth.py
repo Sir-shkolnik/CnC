@@ -51,7 +51,7 @@ class SuperAdminAuth:
             return payload
         except jwt.ExpiredSignatureError:
             raise HTTPException(status_code=401, detail="Token has expired")
-        except jwt.JWTError:
+        except jwt.PyJWTError:
             raise HTTPException(status_code=401, detail="Invalid token")
 
     async def authenticate_super_admin(self, username: str, password: str) -> Dict[str, Any]:

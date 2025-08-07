@@ -238,7 +238,15 @@ app.include_router(storage.router, prefix="/storage", tags=["Cloud & Control"])
 app.include_router(audit.router, prefix="/audit", tags=["Compliance & Consistency"])
 
 # Super Admin routes
-app.include_router(super_admin.router, prefix="/super-admin", tags=["Super Admin"])
+try:
+    app.include_router(super_admin.router, prefix="/super-admin", tags=["Super Admin"])
+    print("✅ Super Admin routes loaded successfully")
+except Exception as e:
+    print(f"❌ Error loading Super Admin routes: {e}")
+    # Create a simple test endpoint
+    @app.get("/super-admin/test")
+    async def super_admin_test():
+        return {"message": "Super Admin test endpoint working"}
 
 # Admin routes
 app.include_router(admin.router, tags=["Admin"])

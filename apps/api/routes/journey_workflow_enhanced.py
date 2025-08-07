@@ -11,7 +11,7 @@ import json
 from ..middleware.auth import get_current_user
 from ..middleware.tenant import get_tenant_context
 from ..services.journey_phase_service import JourneyPhaseService
-from ..database import get_database_connection_connection
+from ..database import get_database_connection
 
 router = APIRouter()
 
