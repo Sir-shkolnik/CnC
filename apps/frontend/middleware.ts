@@ -4,13 +4,13 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
+  // Redirect all login attempts to unified login
+  if (pathname === '/login' || pathname === '/super-admin/login' || pathname === '/mobile/login') {
+    return NextResponse.redirect(new URL('/auth/login', request.url));
+  }
+  
   // Super admin routes protection
   if (pathname.startsWith('/super-admin/')) {
-    // Allow access to auth routes
-    if (pathname.startsWith('/super-admin/auth/')) {
-      return NextResponse.next();
-    }
-    
     // Check for super admin token
     const superAdminToken = request.cookies.get('super-admin-token')?.value;
     const authToken = request.cookies.get('auth-token')?.value;
@@ -63,6 +63,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/login',
     '/super-admin/:path*',
     '/mobile/:path*', 
     '/dashboard/:path*',

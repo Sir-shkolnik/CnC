@@ -1,23 +1,27 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useMobileFieldOpsStore, useMobileIsAuthenticated, useMobileUIState } from '@/stores/mobileFieldOpsStore';
-import { MobileLogin } from '@/components/MobileFieldOps/MobileLogin';
 import { MobileJourneyInterface } from '@/components/MobileFieldOps/MobileJourneyInterface';
 import { Toaster } from 'react-hot-toast';
 
-// Mobile Field Operations Portal - Hydration Fixed Version
+// Mobile Field Operations Portal - Unified Login Version
 export default function MobileFieldOpsPage() {
+  const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const isAuthenticated = useMobileIsAuthenticated();
   const { currentView } = useMobileUIState();
-  const { checkAuth } = useMobileFieldOpsStore();
 
   useEffect(() => {
     setIsMounted(true);
     
     // Check authentication status on mount
-    checkAuth();
+    if (!isAuthenticated) {
+      // Redirect to unified login if not authenticated
+      router.push('/auth/login');
+      return;
+    }
     
     // Set up online/offline listeners
     const handleOnline = () => {
@@ -35,7 +39,7 @@ export default function MobileFieldOpsPage() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, [checkAuth]);
+  }, [isAuthenticated, router]);
 
   // Prevent hydration mismatch by not rendering until mounted
   if (!isMounted) {
@@ -46,26 +50,6 @@ export default function MobileFieldOpsPage() {
           <p className="text-gray-400">Loading...</p>
         </div>
       </div>
-    );
-  }
-
-  // Show loading state while checking auth
-  if (currentView === 'login' && !isAuthenticated) {
-    return (
-      <>
-        <MobileLogin />
-        <Toaster 
-          position="top-center"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: '#1f2937',
-              color: '#fff',
-              border: '1px solid #374151',
-            },
-          }}
-        />
-      </>
     );
   }
 
