@@ -142,6 +142,7 @@ export default function UnifiedLoginPage() {
     setSelectedCompany(company);
     setFormData(prev => ({ ...prev, email: '', password: '' }));
     setSearchTerm('');
+    setStep('login');
   };
 
   const handleInputChange = (field: string, value: string) => {
