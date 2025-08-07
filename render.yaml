@@ -8,7 +8,6 @@ services:
     name: c-and-c-crm-api
     env: python
     plan: starter
-    pythonVersion: "3.11"
     buildCommand: |
       python -m pip install --upgrade pip
       pip install -r requirements.txt
