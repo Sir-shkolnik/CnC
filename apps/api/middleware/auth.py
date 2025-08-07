@@ -224,6 +224,11 @@ class AuthMiddleware:
                 await self.app(scope, receive, send)
                 return
             
+            # Allow unauthenticated access to setup endpoints
+            if path.startswith("/setup/"):
+                await self.app(scope, receive, send)
+                return
+            
             # Allow unauthenticated access to auth endpoints
             if path.startswith("/auth/"):
                 await self.app(scope, receive, send)
