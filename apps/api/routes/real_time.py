@@ -4,8 +4,8 @@ from typing import Dict, Any
 import json
 from datetime import datetime, timedelta
 
-from apps.api.middleware.auth import get_current_user
-from apps.api.database import get_db_connection
+from ..middleware.auth import get_current_user
+from ..database import get_db_connection
 
 router = APIRouter()
 
