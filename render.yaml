@@ -11,7 +11,8 @@ services:
     buildCommand: |
       python -m pip install --upgrade pip
       pip install -r requirements.txt
-      prisma generate
+      npm install
+      npx prisma generate
     startCommand: |
       # Start the API server
       python -m uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT

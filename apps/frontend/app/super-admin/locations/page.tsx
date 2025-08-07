@@ -55,15 +55,26 @@ interface MockLocation {
   updatedAt: string;
 }
 
-const mockLocations: MockLocation[] = [];
+const mockLocations: MockLocation[] = [
+  {
+    id: 'location-1',
+    name: 'Toronto Main',
+    contact: 'Sarah Manager',
+    directLine: '+1-416-555-0101',
+    ownershipType: 'CORPORATE',
+    companyId: 'company-1',
+    companyName: 'LGM Corporate',
+    trucks: 5,
+    storageType: 'LOCKER',
+    storagePricing: '$75/month',
     cxCare: true,
     province: 'Ontario',
     region: 'Greater Toronto Area',
-    address: '321 East Rd, Toronto, ON M4B 1B2',
-    coordinates: { lat: 43.6769, lng: -79.3506 },
-    status: 'INACTIVE',
-    createdAt: '2024-04-01T00:00:00Z',
-    updatedAt: '2025-01-10T00:00:00Z'
+    address: '123 Main St, Toronto, ON M5V 1A1',
+    coordinates: { lat: 43.6532, lng: -79.3832 },
+    status: 'ACTIVE',
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2025-01-15T00:00:00Z'
   },
   {
     id: 'location-5',
