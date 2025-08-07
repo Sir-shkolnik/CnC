@@ -20,7 +20,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'modules'))
 
 # Import routes
 from apps.api.routes import auth, journey, calendar, dispatch, feedback, crew, storage, media, audit
-from apps.api.routes import users, super_admin, mobile, locations, journey_steps, admin, setup
+from apps.api.routes import users, mobile, locations, journey_steps, admin, setup
 
 # Import middleware
 from apps.api.middleware.auth import AuthMiddleware
@@ -208,7 +208,7 @@ app.include_router(storage.router, prefix="/storage", tags=["Cloud & Control"])
 app.include_router(audit.router, prefix="/audit", tags=["Compliance & Consistency"])
 
 # Super Admin routes
-app.include_router(super_admin.router, prefix="/super-admin", tags=["Super Admin"])
+# app.include_router(super_admin.router, prefix="/super-admin", tags=["Super Admin"])
 
 # Admin routes
 app.include_router(admin.router, tags=["Admin"])
