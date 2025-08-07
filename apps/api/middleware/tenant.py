@@ -78,6 +78,24 @@ def require_tenant_context() -> Dict[str, str]:
         "user_id": user_id
     }
 
+def get_tenant_context() -> Dict[str, str]:
+    """Get current tenant context for dependency injection"""
+    client_id = get_current_client_id()
+    location_id = get_current_location_id()
+    user_id = get_current_user_id()
+    
+    if not client_id or not location_id or not user_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Tenant context not set"
+        )
+    
+    return {
+        "client_id": client_id,
+        "location_id": location_id,
+        "user_id": user_id
+    }
+
 # ===== DATABASE QUERY HELPERS =====
 
 def add_tenant_filters(filters: Dict[str, Any]) -> Dict[str, Any]:
