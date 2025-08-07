@@ -1,6 +1,7 @@
 import { MenuItem } from '@/types/menu';
 import { UserRole } from '@/types/enums';
 import { InterfaceConfig, UserContext } from './interfaceDetection';
+import { RealTimeData } from '@/hooks/useRealTimeData';
 
 // ===== FIELD WORKER MENU ITEMS =====
 const fieldWorkerMenuItems: MenuItem[] = [
@@ -190,7 +191,8 @@ const managementMenuItems: MenuItem[] = [
 export const generateSmartMenuItems = (
   userRole: UserRole,
   interfaceConfig: InterfaceConfig,
-  userContext: UserContext
+  userContext: UserContext,
+  realTimeData?: RealTimeData
 ): MenuItem[] => {
   // Get base menu items based on role
   let baseItems: MenuItem[] = [];
@@ -247,8 +249,8 @@ export const generateSmartMenuItems = (
   // Apply interface-specific filtering
   filteredItems = applyInterfaceFiltering(filteredItems, interfaceConfig);
   
-  // Add contextual items based on user context
-  const contextualItems = getContextualItems(userContext);
+  // Add contextual items based on user context and real-time data
+  const contextualItems = getContextualItems(userContext, realTimeData);
   
   // Limit items based on interface configuration
   const maxItems = interfaceConfig.navigation.maxMenuItems;
@@ -296,7 +298,7 @@ const applyInterfaceFiltering = (items: MenuItem[], config: InterfaceConfig): Me
 };
 
 // ===== CONTEXTUAL ITEMS =====
-const getContextualItems = (userContext: UserContext): MenuItem[] => {
+const getContextualItems = (userContext: UserContext, realTimeData?: RealTimeData): MenuItem[] => {
   const contextualItems: MenuItem[] = [];
   
   // Add offline indicator if offline
@@ -332,9 +334,36 @@ const getContextualItems = (userContext: UserContext): MenuItem[] => {
       label: 'Location Active',
       icon: 'MapPin',
       href: '/gps',
-      badge: 'gps',
+      badge: realTimeData?.locationUpdates ? realTimeData.locationUpdates.toString() : 'gps',
       priority: 'medium',
       roles: ['DRIVER', 'MOVER']
+    });
+  }
+
+  // Add system alerts if any
+  if (realTimeData?.systemAlerts && realTimeData.systemAlerts > 0) {
+    contextualItems.push({
+      id: 'system_alerts',
+      label: 'System Alerts',
+      icon: 'AlertTriangle',
+      href: '/alerts',
+      badge: realTimeData.systemAlerts.toString(),
+      priority: 'high',
+      roles: ['DRIVER', 'MOVER', 'DISPATCHER', 'MANAGER', 'ADMIN']
+    });
+  }
+
+  // Add pending approvals for managers and admins
+  if (realTimeData?.pendingApprovals && realTimeData.pendingApprovals > 0 && 
+      ['MANAGER', 'ADMIN'].includes(userContext.role)) {
+    contextualItems.push({
+      id: 'pending_approvals',
+      label: 'Pending Approvals',
+      icon: 'Clock',
+      href: '/approvals',
+      badge: realTimeData.pendingApprovals.toString(),
+      priority: 'high',
+      roles: ['MANAGER', 'ADMIN']
     });
   }
   

@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { useSmartNavigationStore } from '@/stores/smartNavigationStore';
 import { useDeviceDetection } from '@/hooks/useDeviceDetection';
 import { InterfaceConfig } from '@/utils/interfaceDetection';
+import { CompactRealTimeStatus } from './RealTimeStatusIndicator';
 import { Button } from '@/components/atoms/Button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/atoms/Card';
 import { Badge } from '@/components/atoms/Badge';
@@ -157,11 +158,9 @@ export const MobileFieldOpsLayout: React.FC<MobileFieldOpsLayoutProps> = ({
 
           {/* Status Indicators */}
           <div className="flex items-center gap-2">
-            {/* Online Status */}
-            <div className={`p-1 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'}`}>
-              {isOnline ? <Wifi size={16} className="text-white" /> : <WifiOff size={16} className="text-white" />}
-            </div>
-
+            {/* Real-time Status */}
+            <CompactRealTimeStatus />
+            
             {/* GPS Status */}
             {isLocationEnabled && (
               <div className="p-1 rounded-full bg-blue-500">

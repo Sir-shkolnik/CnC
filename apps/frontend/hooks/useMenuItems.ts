@@ -3,6 +3,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { useJourneyStore } from '@/stores/journeyStore';
 import { useSmartNavigationStore, useInterfaceConfig, useUserContext } from '@/stores/smartNavigationStore';
 import { useDeviceDetection } from '@/hooks/useDeviceDetection';
+import { useRealTimeData } from '@/hooks/useRealTimeData';
 import { generateSmartMenuItems, generateMenuItemBadge } from '@/utils/smartMenuItems';
 import { MenuItem } from '@/types/menu';
 import { UserRole } from '@/types/enums';
@@ -16,6 +17,9 @@ export const useMenuItems = () => {
   const interfaceConfig = useInterfaceConfig();
   const userContext = useUserContext();
   const { detectAndSetInterface, updateUserContext } = useSmartNavigationStore();
+  
+  // Real-time data
+  const { data: realTimeData, isConnected, lastUpdated } = useRealTimeData();
 
   // Initialize interface detection when user changes
   useEffect(() => {
@@ -37,27 +41,28 @@ export const useMenuItems = () => {
   const getMenuItems = useCallback(() => {
     if (!user || !interfaceConfig || !userContext) return [];
 
-    // Generate smart menu items based on interface configuration
+    // Generate smart menu items based on interface configuration and real-time data
     let items = generateSmartMenuItems(
       user.role as UserRole,
       interfaceConfig,
-      userContext
+      userContext,
+      realTimeData
     );
 
     // Add real-time badges and counts
     items = items.map(item => {
       const badge = generateMenuItemBadge(item.id, userContext, {
-        activeJourneys: journeys.filter(j => j.status !== 'COMPLETED').length,
-        unreadMessages: 0, // TODO: Implement chat store
-        pendingAudits: 0, // TODO: Implement audit store
-        newFeedback: 0 // TODO: Implement feedback store
+        activeJourneys: realTimeData?.activeJourneys || journeys.filter(j => j.status !== 'COMPLETED').length,
+        unreadMessages: realTimeData?.unreadMessages || 0,
+        pendingAudits: realTimeData?.pendingAudits || 0,
+        newFeedback: realTimeData?.newFeedback || 0
       });
 
       return { ...item, badge };
     });
 
     return items;
-  }, [user, interfaceConfig, userContext, journeys]);
+  }, [user, interfaceConfig, userContext, journeys, realTimeData]);
 
   const menuItems = useMemo(() => getMenuItems(), [getMenuItems]);
 

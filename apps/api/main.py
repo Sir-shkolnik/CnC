@@ -20,7 +20,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'modules'))
 
 # Import routes
 from apps.api.routes import auth, journey, calendar, dispatch, feedback, crew, storage, media, audit
-from apps.api.routes import users, mobile, locations, journey_steps, admin, setup
+from apps.api.routes import users, mobile, locations, journey_steps, admin, setup, real_time
 
 # Import middleware
 from apps.api.middleware.auth import AuthMiddleware
@@ -224,6 +224,9 @@ app.include_router(journey_steps.router, tags=["Journey Steps"])
 
 # Setup routes
 app.include_router(setup.router, tags=["Setup"])
+
+# Real-time routes
+app.include_router(real_time.router, prefix="/real-time", tags=["Real-time"])
 
 # ===== WEBSOCKET ENDPOINTS =====
 
