@@ -170,7 +170,8 @@ async def get_active_journeys(current_user: Dict[str, Any] = Depends(verify_toke
             )
         else:
             # Regular users can only see journeys from their location
-            if not current_user.get("locationId"):
+            location_id = current_user.get("locationId") or current_user.get("location_id")
+            if not location_id:
                 return {
                     "success": False,
                     "error": "Missing tenant information",
@@ -178,7 +179,7 @@ async def get_active_journeys(current_user: Dict[str, Any] = Depends(verify_toke
                 }
             
             success, journeys, message = journey_engine.get_journeys_by_location(
-                current_user.get("locationId"),
+                location_id,
                 current_user["id"],
                 UserRole(current_user["role"])
             )
