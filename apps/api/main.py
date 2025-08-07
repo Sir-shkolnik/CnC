@@ -220,11 +220,15 @@ app.include_router(crew.router, prefix="/crew", tags=["Crew & Customer"])
 app.include_router(feedback.router, prefix="/feedback", tags=["Feedback & Rating"])
 
 # CRM Management routes
-app.include_router(customer.router, prefix="/customers", tags=["Customer Management"])
+app.include_router(customers.router, prefix="/customers", tags=["Customer Management"])
 app.include_router(quotes.router, prefix="/quotes", tags=["Sales Pipeline"])
 
 # Journey Workflow routes
 app.include_router(journey_workflow.router, prefix="/journey-workflow", tags=["Journey Workflow"])
+
+# Import enhanced workflow routes
+from apps.api.routes import journey_workflow_enhanced
+app.include_router(journey_workflow_enhanced.router, prefix="/journey-workflow", tags=["Enhanced Journey Workflow"])
 
 # Capture & Confirm routes
 app.include_router(media.router, prefix="/media", tags=["Media & Capture"])

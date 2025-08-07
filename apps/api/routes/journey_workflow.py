@@ -9,9 +9,9 @@ from datetime import datetime
 import json
 
 from ..middleware.auth import get_current_user
-from ..middleware.tenant import get_tenant_info
+from ..middleware.tenant import get_tenant_context
 from ..services.journey_phase_service import JourneyPhaseService
-from ..database import get_database
+from ..database import get_database_connection
 
 router = APIRouter()
 
@@ -19,8 +19,8 @@ router = APIRouter()
 async def create_journey_phases(
     journey_id: str,
     current_user: dict = Depends(get_current_user),
-    tenant_info: dict = Depends(get_tenant_info),
-    db = Depends(get_database)
+    tenant_info: dict = Depends(get_tenant_context),
+    db = Depends(get_database_connection)
 ):
     """Create all 6 phases for a new journey"""
     try:
@@ -43,8 +43,8 @@ async def create_journey_phases(
 async def get_journey_phases(
     journey_id: str,
     current_user: dict = Depends(get_current_user),
-    tenant_info: dict = Depends(get_tenant_info),
-    db = Depends(get_database)
+    tenant_info: dict = Depends(get_tenant_context),
+    db = Depends(get_database_connection)
 ):
     """Get all phases for a journey with detailed progress"""
     try:
@@ -67,8 +67,8 @@ async def start_phase(
     journey_id: str,
     phase_id: str,
     current_user: dict = Depends(get_current_user),
-    tenant_info: dict = Depends(get_tenant_info),
-    db = Depends(get_database)
+    tenant_info: dict = Depends(get_tenant_context),
+    db = Depends(get_database_connection)
 ):
     """Start a journey phase"""
     try:
@@ -88,8 +88,8 @@ async def complete_phase(
     journey_id: str,
     phase_id: str,
     current_user: dict = Depends(get_current_user),
-    tenant_info: dict = Depends(get_tenant_info),
-    db = Depends(get_database)
+    tenant_info: dict = Depends(get_tenant_context),
+    db = Depends(get_database_connection)
 ):
     """Complete a journey phase"""
     try:
@@ -111,8 +111,8 @@ async def complete_checklist_item(
     notes: Optional[str] = Form(None),
     media_files: List[UploadFile] = File([]),
     current_user: dict = Depends(get_current_user),
-    tenant_info: dict = Depends(get_tenant_info),
-    db = Depends(get_database)
+    tenant_info: dict = Depends(get_tenant_context),
+    db = Depends(get_database_connection)
 ):
     """Complete a checklist item with optional media"""
     try:
@@ -149,8 +149,8 @@ async def complete_checklist_item(
 async def get_journey_progress(
     journey_id: str,
     current_user: dict = Depends(get_current_user),
-    tenant_info: dict = Depends(get_tenant_info),
-    db = Depends(get_database)
+    tenant_info: dict = Depends(get_tenant_context),
+    db = Depends(get_database_connection)
 ):
     """Get comprehensive journey progress with all phases"""
     try:
@@ -169,8 +169,8 @@ async def get_phase_checklist(
     journey_id: str,
     phase_id: str,
     current_user: dict = Depends(get_current_user),
-    tenant_info: dict = Depends(get_tenant_info),
-    db = Depends(get_database)
+    tenant_info: dict = Depends(get_tenant_context),
+    db = Depends(get_database_connection)
 ):
     """Get checklist items for a specific phase"""
     try:
@@ -205,8 +205,8 @@ async def get_phase_media_requirements(
     journey_id: str,
     phase_id: str,
     current_user: dict = Depends(get_current_user),
-    tenant_info: dict = Depends(get_tenant_info),
-    db = Depends(get_database)
+    tenant_info: dict = Depends(get_tenant_context),
+    db = Depends(get_database_connection)
 ):
     """Get media requirements for a specific phase"""
     try:
@@ -245,8 +245,8 @@ async def get_phase_media_requirements(
 async def get_journey_summary(
     journey_id: str,
     current_user: dict = Depends(get_current_user),
-    tenant_info: dict = Depends(get_tenant_info),
-    db = Depends(get_database)
+    tenant_info: dict = Depends(get_tenant_context),
+    db = Depends(get_database_connection)
 ):
     """Get journey summary with key metrics"""
     try:
@@ -308,8 +308,8 @@ async def get_journey_summary(
 @router.get("/active-journeys")
 async def get_active_journeys(
     current_user: dict = Depends(get_current_user),
-    tenant_info: dict = Depends(get_tenant_info),
-    db = Depends(get_database)
+    tenant_info: dict = Depends(get_tenant_context),
+    db = Depends(get_database_connection)
 ):
     """Get all active journeys with progress"""
     try:
@@ -349,8 +349,8 @@ async def get_active_journeys(
 @router.get("/journey-stats")
 async def get_journey_statistics(
     current_user: dict = Depends(get_current_user),
-    tenant_info: dict = Depends(get_tenant_info),
-    db = Depends(get_database)
+    tenant_info: dict = Depends(get_tenant_context),
+    db = Depends(get_database_connection)
 ):
     """Get journey statistics and metrics"""
     try:
