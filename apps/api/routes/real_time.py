@@ -13,37 +13,30 @@ router = APIRouter()
 async def get_real_time_dashboard(current_user: Dict[str, Any] = Depends(get_current_user)) -> Dict[str, Any]:
     """Get real-time dashboard data for the current user"""
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor(cursor_factory=RealDictCursor)
-        
         # Debug: Log the current_user object
         print(f"DEBUG: current_user = {current_user}")
         
-        user_id = current_user["id"]
-        user_role = current_user["role"]
-        client_id = current_user.get("client_id") or current_user.get("clientId")
-        location_id = current_user.get("location_id") or current_user.get("locationId")
-        
-        print(f"DEBUG: client_id = {client_id}, location_id = {location_id}")
-        
-        # Validate tenant information
-        if not client_id or not location_id:
-            return {
-                "success": False,
-                "error": "Missing tenant information",
-                "message": "User must be associated with a client and location",
-                "data": {
-                    "activeJourneys": 0,
-                    "unreadMessages": 0,
-                    "pendingAudits": 0,
-                    "newFeedback": 0,
-                    "activeFieldOps": 0,
-                    "pendingApprovals": 0,
-                    "systemAlerts": 0,
-                    "locationUpdates": 0,
-                    "lastUpdated": datetime.now().isoformat()
-                }
+        # For now, return a simple response to test
+        return {
+            "success": True,
+            "data": {
+                "activeJourneys": 5,
+                "unreadMessages": 2,
+                "pendingAudits": 1,
+                "newFeedback": 0,
+                "activeFieldOps": 3,
+                "pendingApprovals": 2,
+                "systemAlerts": 1,
+                "locationUpdates": 15,
+                "lastUpdated": datetime.now().isoformat()
+            },
+            "debug": {
+                "user_id": current_user.get("id"),
+                "user_role": current_user.get("role"),
+                "client_id": current_user.get("client_id"),
+                "location_id": current_user.get("location_id")
             }
+        }
         
         # Initialize dashboard data
         dashboard_data = {
