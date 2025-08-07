@@ -81,20 +81,14 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) 
         if user_id is None:
             raise HTTPException(status_code=401, detail="Invalid token")
         
-        # Get user from database based on type
+        # Get user from database
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
-        if user_type == "super_admin":
-            cursor.execute(
-                "SELECT id, username, email, role FROM super_admin_users WHERE id = %s AND status = 'ACTIVE'",
-                (user_id,)
-            )
-        else:
-            cursor.execute(
-                "SELECT id, name, email, role, \"clientId\", \"locationId\", status FROM \"User\" WHERE id = %s AND status = 'ACTIVE'",
-                (user_id,)
-            )
+        cursor.execute(
+            "SELECT id, name, email, role, \"clientId\", \"locationId\", status FROM \"User\" WHERE id = %s AND status = 'ACTIVE'",
+            (user_id,)
+        )
         
         user = cursor.fetchone()
         cursor.close()
@@ -119,43 +113,7 @@ async def login(request: LoginRequest) -> Dict[str, Any]:
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
-        # First try super admin login
-        cursor.execute(
-            "SELECT id, username, email, role FROM super_admin_users WHERE (username = %s OR email = %s) AND status = 'ACTIVE'",
-            (request.email, request.email)
-        )
-        super_admin = cursor.fetchone()
-        
-        if super_admin:
-            # Check password (assuming password is stored as hash)
-            # For demo purposes, accept the specific password for super admin
-            if request.password == "Id200633048!":
-                # Create super admin token
-                access_token_expires = datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-                access_token = create_access_token(
-                    data={
-                        "sub": str(super_admin["id"]),
-                        "user_type": "super_admin",
-                        "email": super_admin["email"],
-                        "role": super_admin["role"]
-                    },
-                    expires_delta=access_token_expires
-                )
-                
-                return {
-                    "success": True,
-                    "access_token": access_token,
-                    "token_type": "bearer",
-                    "user": {
-                        "id": super_admin["id"],
-                        "name": super_admin["username"],
-                        "email": super_admin["email"],
-                        "role": super_admin["role"],
-                        "user_type": "super_admin"
-                    }
-                }
-        
-        # If not super admin, check regular users
+        # Check regular users (super admin functionality moved to separate endpoint)
         if request.company_id:
             # Company-specific login
             cursor.execute(
