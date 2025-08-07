@@ -15,12 +15,12 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'modules'))
 
 # Import business logic modules
 try:
-    from journey_engine import journey_engine, JourneyStatus, UserRole, CrewStatus
-    from media_upload import media_handler, MediaType
-    from websocket_server import journey_event_broadcaster
-    from gps_tracking import gps_tracker, location_service
-    from notifications import notification_service, NotificationType
-    from validation import business_logic_validator
+    from modules.journey_engine import journey_engine, JourneyStatus, UserRole, CrewStatus
+    from modules.media_upload import media_handler, MediaType
+    from modules.websocket_server import journey_event_broadcaster
+    from modules.gps_tracking import gps_tracker, location_service
+    from modules.notifications import notification_service, NotificationType
+    from modules.validation import business_logic_validator
 except ImportError as e:
     print(f"Warning: Could not import business logic modules: {e}")
     # Create placeholder classes for development

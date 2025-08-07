@@ -21,7 +21,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'modules'))
 # Import routes
 from apps.api.routes import auth, journey, calendar, dispatch, feedback, crew, storage, media, audit
 from apps.api.routes import users, mobile, locations, journey_steps, admin, setup, real_time
-from apps.api.routes import customer, quotes
+from apps.api.routes import customers, quotes
 from apps.api.routes import journey_workflow
 # Import middleware
 from apps.api.middleware.auth import AuthMiddleware
