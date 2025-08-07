@@ -1,7 +1,8 @@
 -- Update existing demo users to real LGM users
--- Based on the LGM locations data
+-- Based on the LGM locations data - Each location has a manager
+-- All users use password: "1234"
 
--- Update existing users to real LGM users
+-- Corporate Location Managers (MANAGER role)
 UPDATE "User" SET 
     name = 'Ankit',
     email = 'ankit@lgm.com',
@@ -38,6 +39,7 @@ UPDATE "User" SET
     role = 'MANAGER'
 WHERE id = 'usr_mover_1';
 
+-- Franchise Location Managers (ADMIN role)
 UPDATE "User" SET 
     name = 'Anees Aps',
     email = 'anees.aps@lgm.com',
@@ -68,8 +70,9 @@ UPDATE "User" SET
     role = 'ADMIN'
 WHERE id = 'usr_udi_admin';
 
--- Add more real LGM users
+-- Add more real LGM location managers
 INSERT INTO "User" (id, name, email, role, "locationId", "clientId", status, "createdAt", "updatedAt") VALUES
+-- Corporate Location Managers
 ('usr_harsh_brantford', 'Harsh', 'harsh@lgm.com', 'ADMIN', 'loc_12345678_abcd_efgh_ijkl_mnopqrstuvwx', 'clm_f55e13de_a5c4_4990_ad02_34bb07187daa', 'ACTIVE', NOW(), NOW()),
 ('usr_simranjit_burlington', 'Simranjit', 'simranjit@lgm.com', 'ADMIN', 'loc_12345678_abcd_efgh_ijkl_mnopqrstuvwx', 'clm_f55e13de_a5c4_4990_ad02_34bb07187daa', 'ACTIVE', NOW(), NOW()),
 ('usr_jasdeep_calgary', 'Jasdeep', 'jasdeep@lgm.com', 'ADMIN', 'loc_12345678_abcd_efgh_ijkl_mnopqrstuvwx', 'clm_f55e13de_a5c4_4990_ad02_34bb07187daa', 'ACTIVE', NOW(), NOW()),

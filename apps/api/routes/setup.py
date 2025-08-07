@@ -183,3 +183,42 @@ async def setup_status():
         
     except Exception as e:
         return {"success": False, "error": str(e)} 
+
+@router.post("/setup/update-lgm-users")
+async def update_lgm_users():
+    """Update database with real LGM users"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Read the SQL script
+        sql_file_path = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'update_to_real_lgm_users.sql')
+        
+        with open(sql_file_path, 'r') as file:
+            sql_script = file.read()
+        
+        # Execute the SQL script
+        cursor.execute(sql_script)
+        conn.commit()
+        
+        # Verify the changes
+        cursor.execute("SELECT COUNT(*) FROM \"User\" WHERE email LIKE '%@lgm.com'")
+        count = cursor.fetchone()[0]
+        
+        cursor.close()
+        conn.close()
+        
+        return {
+            "success": True,
+            "message": f"Successfully updated LGM users. Total LGM users: {count}",
+            "data": {
+                "total_lgm_users": count
+            }
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Failed to update LGM users"
+        } 
