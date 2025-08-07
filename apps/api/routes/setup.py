@@ -19,9 +19,8 @@ def get_db_connection():
     )
 
 @router.post("/setup/database")
-async def setup_database(token: str = Depends(security)):
-    # Skip authentication for setup endpoint
-
+async def setup_database():
+    """Create database tables and populate with real LGM data"""
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
