@@ -125,7 +125,7 @@ class TenantMiddleware:
                 # Set tenant context from authenticated user
                 client_id = user_info.get("client_id")
                 location_id = user_info.get("location_id")
-                user_id = user_info.get("sub")
+                user_id = user_info.get("id") or user_info.get("sub")  # Support both id and sub
                 
                 if client_id and location_id and user_id:
                     # Create tenant context
