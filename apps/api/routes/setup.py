@@ -1,13 +1,10 @@
-from fastapi import APIRouter, HTTPException, Depends
-from fastapi.security import HTTPBearer
+from fastapi import APIRouter, HTTPException
 from typing import Dict, Any
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
-from urllib.parse import urlparse
 
 router = APIRouter(tags=["Setup"])
-security = HTTPBearer(auto_error=False)
 
 def get_db_connection():
     return psycopg2.connect(
