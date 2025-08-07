@@ -315,7 +315,7 @@ export const useMobileFieldOpsStore = create<MobileFieldOpsStore>()(
         currentJourney: null,
         pendingUpdates: [],
         mediaQueue: [],
-        lastSync: new Date().toISOString(),
+        lastSync: '',
         user: null as any,
         location: null as any
       },
@@ -326,13 +326,13 @@ export const useMobileFieldOpsStore = create<MobileFieldOpsStore>()(
       isLocationEnabled: false,
       
       syncStatus: {
-        isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
-        lastSync: new Date().toISOString(),
+        isOnline: true,
+        lastSync: '',
         pendingUpdates: 0,
         pendingMedia: 0,
         syncProgress: 0
       },
-      isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
+      isOnline: true,
       
       uiState: {
         isLoading: false,
@@ -340,8 +340,8 @@ export const useMobileFieldOpsStore = create<MobileFieldOpsStore>()(
         currentView: 'login',
         offlineMode: false,
         syncStatus: {
-          isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
-          lastSync: new Date().toISOString(),
+          isOnline: true,
+          lastSync: '',
           pendingUpdates: 0,
           pendingMedia: 0,
           syncProgress: 0
@@ -354,6 +354,21 @@ export const useMobileFieldOpsStore = create<MobileFieldOpsStore>()(
       quickActions: defaultQuickActions,
 
       // Actions
+      checkAuth: () => {
+        // Initialize online status after mounting
+        if (typeof navigator !== 'undefined') {
+          set({ 
+            isOnline: navigator.onLine,
+            syncStatus: { ...get().syncStatus, isOnline: navigator.onLine },
+            uiState: { 
+              ...get().uiState, 
+              syncStatus: { ...get().uiState.syncStatus, isOnline: navigator.onLine }
+            }
+          });
+        }
+        return get().isAuthenticated;
+      },
+
       login: async (request: MobileLoginRequest) => {
         set({ uiState: { ...get().uiState, isLoading: true, error: null } });
         
@@ -396,12 +411,12 @@ export const useMobileFieldOpsStore = create<MobileFieldOpsStore>()(
               userId: result.data.user.id,
               deviceId: request.deviceId,
               locationId: request.locationId,
-              lastActive: new Date().toISOString(),
+              lastActive: '',
               offlineData: {
                 currentJourney: result.data.activeJourney,
                 pendingUpdates: [],
                 mediaQueue: [],
-                lastSync: new Date().toISOString(),
+                lastSync: '',
                 user: result.data.user,
                 location: result.data.location
               },
@@ -438,9 +453,7 @@ export const useMobileFieldOpsStore = create<MobileFieldOpsStore>()(
         });
       },
 
-      checkAuth: () => {
-        return get().isAuthenticated;
-      },
+
 
       setCurrentJourney: (journey) => {
         set({ currentJourney: journey });
