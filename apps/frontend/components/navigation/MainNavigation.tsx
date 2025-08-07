@@ -84,7 +84,7 @@ export const MainNavigation: React.FC<MainNavigationProps> = ({ children }) => {
         isOpen={isMobileMenuOpen}
         onClose={toggleMobileMenu}
         menuItems={menuItems}
-        user={user as any}
+        user={user}
       />
 
       {/* Desktop Menu */}
@@ -92,7 +92,7 @@ export const MainNavigation: React.FC<MainNavigationProps> = ({ children }) => {
         isCollapsed={isDesktopMenuCollapsed}
         onToggle={toggleDesktopMenu}
         menuItems={menuItems}
-        user={user as any}
+        user={user}
       />
 
       {/* Main Content Area */}
@@ -115,7 +115,7 @@ export const MainNavigation: React.FC<MainNavigationProps> = ({ children }) => {
                 <Menu className="w-4 h-4" />
               </Button>
               
-              <Breadcrumbs pathname={pathname} user={user as any} />
+              <Breadcrumbs pathname={pathname} user={user} />
             </div>
 
             {/* Right Side - User Menu & Actions */}

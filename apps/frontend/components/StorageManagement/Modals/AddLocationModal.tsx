@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStorageStore } from '@/stores/storageStore';
-import { StorageLocation } from '@/types/storage';
+import { StorageLocation, StorageLocationType } from '@/types/storage';
 import { Button } from '@/components/atoms/Button';
 import { Input } from '@/components/atoms/Input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/atoms/Card';
@@ -38,7 +38,7 @@ export const AddLocationModal: React.FC<AddLocationModalProps> = ({
   const [formData, setFormData] = useState({
     name: '',
     companyId: 'company_1', // Default company
-    type: 'CORPORATE' as string,
+    type: 'CORPORATE' as StorageLocationType,
     address: {
       street: '',
       city: '',
@@ -123,7 +123,7 @@ export const AddLocationModal: React.FC<AddLocationModalProps> = ({
     setFormData(prev => ({
       ...prev,
       [parent]: {
-        ...(prev[parent as keyof typeof prev] as any),
+        ...prev[parent as keyof typeof prev],
         [field]: value
       }
     }));
@@ -163,7 +163,7 @@ export const AddLocationModal: React.FC<AddLocationModalProps> = ({
 
   const handleSubmit = async () => {
     try {
-      const result = await createLocation({ ...formData, status: 'ACTIVE' } as any);
+      const result = await createLocation(formData);
       if (result.success && result.data) {
         toast.success('Location created successfully!');
         onSuccess?.(result.data);

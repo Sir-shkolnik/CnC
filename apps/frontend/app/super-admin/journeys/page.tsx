@@ -56,16 +56,7 @@ interface MockJourney {
   updatedAt: string;
 }
 
-const mockJourneys: MockJourney[] = [
-  {
-    id: 'journey-1',
-    customerName: 'Sarah Johnson',
-    customerPhone: '+1-416-555-0101',
-    customerEmail: 'sarah.johnson@email.com',
-    pickupAddress: '123 Main St, Toronto, ON M5V 1A1',
-    deliveryAddress: '456 Oak Ave, Toronto, ON M6K 1B2',
-    scheduledDate: '2025-01-20T09:00:00Z',
-    estimatedDuration: 3,
+const mockJourneys: MockJourney[] = [];
     crewSize: 3,
     specialRequirements: 'Piano moving, stairs access',
     status: 'ONSITE',

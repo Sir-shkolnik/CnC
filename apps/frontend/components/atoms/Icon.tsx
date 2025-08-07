@@ -38,6 +38,8 @@ export const Icon: React.FC<IconProps> = ({
     'MapPin': LucideIcons.MapPin,
     
     // Crew Management
+    'UserCheck': LucideIcons.UserCheck,
+    'Users': LucideIcons.Users,
     'Clock': LucideIcons.Clock,
     
     // Audit & Compliance
@@ -63,10 +65,13 @@ export const Icon: React.FC<IconProps> = ({
     'File': LucideIcons.File,
     
     // GPS & Tracking
+    'MapPin': LucideIcons.MapPin,
     'Navigation': LucideIcons.Navigation,
     'Compass': LucideIcons.Compass,
     
     // Communication
+    'MessageCircle': LucideIcons.MessageCircle,
+    'MessageSquare': LucideIcons.MessageSquare,
     'Phone': LucideIcons.Phone,
     
     // Activities

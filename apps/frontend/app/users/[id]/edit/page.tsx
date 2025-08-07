@@ -649,8 +649,8 @@ export default function UserEditPage() {
                         <label key={permission} className="flex items-center space-x-3 cursor-pointer">
                           <input
                             type="checkbox"
-                            checked={formData.permissions.includes(permission as any)}
-                            onChange={() => handlePermissionToggle(permission as any)}
+                            checked={formData.permissions.includes(permission)}
+                            onChange={() => handlePermissionToggle(permission)}
                             disabled={!canManageRoles}
                             className="rounded border-gray-600"
                           />

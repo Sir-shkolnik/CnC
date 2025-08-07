@@ -20,7 +20,6 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
-import { useSuperAdminStore } from '@/stores/superAdminStore';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 
@@ -46,7 +45,6 @@ interface User {
 export const MobileLogin: React.FC<MobileLoginProps> = ({ className = '' }) => {
   const router = useRouter();
   const { login: authLogin, isLoading: authLoading } = useAuthStore();
-  const { login: superAdminLogin, isLoading: superAdminLoading } = useSuperAdminStore();
   
   const [step, setStep] = useState<'company' | 'login'>('company');
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -84,15 +82,27 @@ export const MobileLogin: React.FC<MobileLoginProps> = ({ className = '' }) => {
 
   const loadCompanies = async () => {
     try {
+      console.log('Loading companies from:', `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/companies`);
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/companies`);
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.data) {
           setCompanies(data.data);
         }
+      } else {
+        console.error('Failed to load companies:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Failed to load companies:', error);
+      // Fallback to demo company if API fails
+      setCompanies([
+        {
+          id: 'clm_f55e13de_a5c4_4990_ad02_34bb07187daa',
+          name: 'LGM (Let\'s Get Moving)',
+          industry: 'Moving & Logistics',
+          isFranchise: false
+        }
+      ]);
     } finally {
       setIsLoadingCompanies(false);
     }
@@ -101,15 +111,24 @@ export const MobileLogin: React.FC<MobileLoginProps> = ({ className = '' }) => {
   const loadUsersForCompany = async (companyId: string) => {
     setIsLoadingUsers(true);
     try {
+      console.log('Loading users for company:', companyId);
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/companies/${companyId}/users`);
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.data) {
           setUsers(data.data);
         }
+      } else {
+        console.error('Failed to load users:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Failed to load users for company:', error);
+      // Fallback to demo users if API fails
+      setUsers([
+        { id: 'usr_1ba8fa5a', name: 'ANKIT', email: 'ankit@lgm.com', role: 'MANAGER', status: 'ACTIVE' },
+        { id: 'usr_2ba8fa5b', name: 'DAVID', email: 'david@lgm.com', role: 'DRIVER', status: 'ACTIVE' },
+        { id: 'usr_3ba8fa5c', name: 'MARIA', email: 'maria@lgm.com', role: 'MOVER', status: 'ACTIVE' }
+      ]);
     } finally {
       setIsLoadingUsers(false);
     }
@@ -125,13 +144,7 @@ export const MobileLogin: React.FC<MobileLoginProps> = ({ className = '' }) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const detectUserType = (email: string) => {
-    // Check if it's a super admin (has @lgm.com domain)
-    if (email.includes('@lgm.com')) {
-      return 'super_admin';
-    }
-    return 'regular';
-  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,24 +155,19 @@ export const MobileLogin: React.FC<MobileLoginProps> = ({ className = '' }) => {
     }
 
     try {
-      const userType = detectUserType(formData.email);
+      console.log('Mobile Login - Unified login attempt:', { 
+        email: formData.email, 
+        companyId: selectedCompany?.id 
+      });
       
-      if (userType === 'super_admin') {
-        // Use super admin login
-        console.log('Mobile Login - Super Admin login attempt');
-        await superAdminLogin(formData.email, formData.password);
-        console.log('Mobile Login - Super Admin login successful');
-        router.push('/mobile/journey');
-      } else {
-        // Use regular login with company
-        console.log('Mobile Login - Regular login attempt:', { email: formData.email, companyId: selectedCompany?.id });
-        await authLogin(formData.email, formData.password, selectedCompany?.id);
-        console.log('Mobile Login - Regular login successful');
-        router.push('/mobile/journey');
-      }
+      // Use unified login - same for all users
+      await authLogin(formData.email, formData.password, selectedCompany?.id);
+      console.log('Mobile Login - Login successful');
       
       toast.success('Login successful!');
+      router.push('/mobile/journey');
     } catch (error) {
+      console.error('Mobile Login - Login failed:', error);
       toast.error(error instanceof Error ? error.message : 'Login failed');
     }
   };
@@ -397,10 +405,10 @@ export const MobileLogin: React.FC<MobileLoginProps> = ({ className = '' }) => {
 
               <Button
                 type="submit"
-                disabled={authLoading || superAdminLoading || !isOnline}
+                disabled={authLoading || !isOnline}
                 className="w-full h-12 text-base font-medium"
               >
-                {(authLoading || superAdminLoading) ? (
+                {authLoading ? (
                   <div className="flex items-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     Signing In...

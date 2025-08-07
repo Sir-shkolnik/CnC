@@ -80,7 +80,7 @@ services:
       target: frontend-builder
     container_name: c-and-c-crm-frontend
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_API_URL=http://api:8000
       - NEXT_PUBLIC_APP_URL=http://localhost:3000
       - NODE_ENV=development
     ports:

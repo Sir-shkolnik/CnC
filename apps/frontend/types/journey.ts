@@ -187,4 +187,21 @@ export interface JourneyTimelineEvent {
   data?: Record<string, any>;
 }
 
- 
+// Export all types
+export type {
+  Journey,
+  JourneyEntry,
+  Media,
+  AssignedCrew,
+  MoveSource,
+  Location,
+  Client,
+  User,
+  JourneyStats,
+  JourneyTimelineEvent,
+  CreateJourneyRequest,
+  UpdateJourneyRequest,
+  GetJourneysRequest,
+  CreateJourneyEntryRequest,
+  AssignCrewRequest
+}; 

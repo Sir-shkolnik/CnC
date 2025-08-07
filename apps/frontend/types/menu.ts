@@ -1,6 +1,4 @@
-import type { UserRole, UserStatus, Permission } from './enums';
-
-export type { UserRole, UserStatus, Permission };
+import { UserRole, UserStatus, Permission } from './enums';
 
 export interface MenuItem {
   id: string;

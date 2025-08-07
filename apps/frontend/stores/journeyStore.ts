@@ -36,6 +36,7 @@ interface JourneyActions {
   
   // Journey Entries
   setJourneyEntries: (entries: JourneyEntry[]) => void;
+  addJourneyEntry: (entry: JourneyEntry) => void;
   updateJourneyEntry: (id: string, updates: Partial<JourneyEntry>) => void;
   
   // Media Management
@@ -61,7 +62,7 @@ interface JourneyActions {
   fetchJourneys: (params?: GetJourneysRequest) => Promise<void>;
   createJourney: (data: CreateJourneyRequest) => Promise<Journey>;
   updateJourneyStatus: (id: string, status: Journey['status']) => Promise<void>;
-
+  addJourneyEntry: (data: CreateJourneyEntryRequest) => Promise<JourneyEntry>;
   assignCrewMember: (data: AssignCrewRequest) => Promise<AssignedCrew>;
 }
 
@@ -144,13 +145,8 @@ export const useJourneyStore = create<JourneyStore>()(
       // Journey Entries
       setJourneyEntries: (entries) => set({ journeyEntries: entries }),
       
-      addJourneyEntry: (entry: any) => set(state => ({
-        journeyEntries: [...state.journeyEntries, {
-          ...entry,
-          id: `entry_${Date.now()}`,
-          createdBy: 'current_user',
-          timestamp: new Date().toISOString()
-        } as JourneyEntry]
+      addJourneyEntry: (entry) => set(state => ({
+        journeyEntries: [...state.journeyEntries, entry]
       })),
       
       updateJourneyEntry: (id, updates) => set(state => ({
@@ -263,7 +259,36 @@ export const useJourneyStore = create<JourneyStore>()(
         }
       },
       
-
+      addJourneyEntry: async (data) => {
+        set({ isLoading: true, error: null });
+        try {
+          // TODO: Replace with real API call
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          const newEntry: JourneyEntry = {
+            id: `entry_${Date.now()}`,
+            journeyId: data.journeyId,
+            createdBy: 'user1', // TODO: Get from auth
+            type: data.type,
+            data: data.data,
+            tag: data.tag,
+            timestamp: new Date().toISOString()
+          };
+          
+          set(state => ({
+            journeyEntries: [...state.journeyEntries, newEntry],
+            isLoading: false
+          }));
+          
+          return newEntry;
+        } catch (error) {
+          set({ 
+            error: error instanceof Error ? error.message : 'Failed to add journey entry',
+            isLoading: false 
+          });
+          throw error;
+        }
+      },
       
       assignCrewMember: async (data) => {
         set({ isLoading: true, error: null });

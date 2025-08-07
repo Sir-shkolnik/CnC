@@ -127,16 +127,6 @@ class ApiClient {
   async getSuperAdminJourneys() {
     return this.request('/super-admin/journeys');
   }
-
-  // Health check
-  async healthCheck() {
-    return this.request('/health');
-  }
-
-  // Get all journeys (for testing)
-  async getJourneys() {
-    return this.request('/journey/');
-  }
 }
 
 export const apiClient = new ApiClient();
