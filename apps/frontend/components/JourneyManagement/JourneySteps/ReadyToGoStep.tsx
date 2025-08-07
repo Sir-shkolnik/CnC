@@ -254,7 +254,7 @@ export const ReadyToGoStep: React.FC<ReadyToGoStepProps> = ({
                   </div>
                 ))}
               </div>
-              <Button variant="outline" size="sm">
+              <Button variant="secondary" size="sm">
                 <UserCheck className="w-4 h-4 mr-2" />
                 Assign Crew
               </Button>
@@ -383,11 +383,11 @@ export const ReadyToGoStep: React.FC<ReadyToGoStepProps> = ({
             <div className="space-y-3">
               <h4 className="font-medium">Documentation</h4>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm">
+                <Button variant="secondary" size="sm">
                   <Camera className="w-4 h-4 mr-2" />
                   Add Photo
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="secondary" size="sm">
                   <Video className="w-4 h-4 mr-2" />
                   Add Video
                 </Button>
@@ -450,11 +450,11 @@ export const ReadyToGoStep: React.FC<ReadyToGoStepProps> = ({
             <div className="space-y-3">
               <h4 className="font-medium">Documentation</h4>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm">
+                <Button variant="secondary" size="sm">
                   <Camera className="w-4 h-4 mr-2" />
                   Add Photo
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="secondary" size="sm">
                   <Video className="w-4 h-4 mr-2" />
                   Add Video
                 </Button>
