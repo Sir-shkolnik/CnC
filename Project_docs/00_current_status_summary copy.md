@@ -307,3 +307,39 @@
 ---
 
 **🎉 The C&C CRM is now PRODUCTION READY with a complete journey management system, modular component architecture, zero errors, compact layout, and enhanced mobile experience!** 
+
+
+
+graph TD
+    A[Mobile Login] --> B[Authentication API]
+    B --> C[Role Detection]
+    C --> D[User Session]
+    D --> E[Role-Based Redirect]
+    
+    E --> F[Driver: Mobile Journey]
+    E --> G[Dispatcher: Dashboard]
+    E --> H[Admin: Admin Panel]
+    
+    F --> I[GPS Tracking]
+    F --> J[Media Upload]
+    F --> K[Status Updates]
+    
+    G --> L[Journey Management]
+    G --> M[Crew Assignment]
+    G --> N[Real-time Monitoring]
+    
+    H --> O[User Management]
+    H --> P[System Analytics]
+    H --> Q[Compliance Reports]
+    
+    I --> R[Location Database]
+    J --> S[Media Storage]
+    K --> T[Status Database]
+    
+    L --> U[Journey Database]
+    M --> V[Crew Database]
+    N --> W[Real-time API]
+    
+    O --> X[User Database]
+    P --> Y[Analytics Database]
+    Q --> Z[Audit Database]

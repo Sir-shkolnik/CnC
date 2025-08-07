@@ -21,7 +21,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'modules'))
 # Import routes
 from apps.api.routes import auth, journey, calendar, dispatch, feedback, crew, storage, media, audit
 from apps.api.routes import users, mobile, locations, journey_steps, admin, setup, real_time
-
+from apps.api.routes import customer, quotes
+from apps.api.routes import journey_workflow
 # Import middleware
 from apps.api.middleware.auth import AuthMiddleware
 from apps.api.middleware.tenant import TenantMiddleware
@@ -199,6 +200,13 @@ app.include_router(dispatch.router, prefix="/dispatch", tags=["Command & Control
 # Crew & Customer routes
 app.include_router(crew.router, prefix="/crew", tags=["Crew & Customer"])
 app.include_router(feedback.router, prefix="/feedback", tags=["Feedback & Rating"])
+
+# CRM Management routes
+app.include_router(customer.router, prefix="/customers", tags=["Customer Management"])
+app.include_router(quotes.router, prefix="/quotes", tags=["Sales Pipeline"])
+
+# Journey Workflow routes
+app.include_router(journey_workflow.router, prefix="/journey-workflow", tags=["Journey Workflow"])
 
 # Capture & Confirm routes
 app.include_router(media.router, prefix="/media", tags=["Media & Capture"])

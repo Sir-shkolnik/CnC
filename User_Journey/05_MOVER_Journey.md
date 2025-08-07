@@ -3,7 +3,7 @@
 **Role:** MOVER  
 **Access Level:** Own journeys only  
 **Primary Interface:** Mobile Field Operations Portal  
-**Device Support:** Mobile-First, Tablet, Desktop  
+**Device Support:** Mobile-First, Tablet, Desktop (No Desktop Menus on Mobile)  
 
 ---
 

@@ -3,7 +3,7 @@
 **Role:** DISPATCHER  
 **Access Level:** Assigned locations only  
 **Primary Interface:** Desktop Management Portal  
-**Device Support:** Desktop, Tablet, Mobile  
+**Device Support:** Desktop, Tablet, Mobile (Responsive Design)  
 
 ---
 
@@ -64,6 +64,189 @@ The Dispatcher is responsible for **journey management and crew coordination** w
 
 ## 🚛 **JOURNEY MANAGEMENT JOURNEY**
 
+### **🎯 COMPLETE JOURNEY WORKFLOW LOGIC**
+
+#### **🔄 Journey Flow: Dispatcher → Pickup → Delivery → Dispatcher**
+```typescript
+// Complete journey workflow with shared database
+{
+  journeyFlow: {
+    phase1: {
+      title: "Journey Creation & Assignment",
+      location: "Dispatcher Office",
+      responsible: "DISPATCHER",
+      actions: [
+        "Create journey with pickup/delivery addresses",
+        "Assign driver and mover crew",
+        "Set journey schedule and priority",
+        "Review customer requirements and special instructions"
+      ],
+      databaseUpdates: [
+        "Create journey record in shared database",
+        "Update crew availability status",
+        "Generate journey ID and tracking number"
+      ]
+    },
+    phase2: {
+      title: "Morning Preparation",
+      location: "Dispatcher Office → Crew Location",
+      responsible: "DRIVER + MOVER",
+      actions: [
+        "Vehicle inspection and equipment check",
+        "Route review and GPS setup",
+        "Customer contact verification",
+        "Safety equipment preparation"
+      ],
+      requiredMedia: [
+        "Vehicle inspection photos",
+        "Equipment checklist photos",
+        "Route confirmation screenshot"
+      ],
+      databaseUpdates: [
+        "Update journey status to MORNING_PREP",
+        "Log preparation checklist completion",
+        "Record start time and crew departure"
+      ]
+    },
+    phase3: {
+      title: "Pickup Operations",
+      location: "Customer Pickup Address",
+      responsible: "DRIVER + MOVER",
+      actions: [
+        "Arrive at pickup location",
+        "Customer verification and greeting",
+        "Pre-move walkthrough and assessment",
+        "Loading operations with safety protocols",
+        "Customer signature on pickup documentation"
+      ],
+      requiredMedia: [
+        "Arrival photo with location verification",
+        "Pre-move condition photos of all items",
+        "Loading process photos/videos",
+        "Customer signature capture",
+        "Final pickup location photo"
+      ],
+      databaseUpdates: [
+        "Update journey status to LOADING",
+        "Log pickup completion time",
+        "Store all media files with metadata",
+        "Record customer signature and feedback"
+      ]
+    },
+    phase4: {
+      title: "Transport Operations",
+      location: "En Route",
+      responsible: "DRIVER",
+      actions: [
+        "Safe driving with GPS tracking",
+        "Route adherence monitoring",
+        "Real-time location updates",
+        "Communication with dispatcher and customer"
+      ],
+      requiredMedia: [
+        "GPS tracking data (automatic)",
+        "Route progress photos",
+        "Any incident documentation"
+      ],
+      databaseUpdates: [
+        "Update journey status to EN_ROUTE",
+        "Continuous GPS location logging",
+        "Real-time ETA calculations",
+        "Route deviation alerts if needed"
+      ]
+    },
+    phase5: {
+      title: "Delivery Operations",
+      location: "Customer Delivery Address",
+      responsible: "DRIVER + MOVER",
+      actions: [
+        "Arrive at delivery location",
+        "Customer verification and greeting",
+        "Unloading operations with care",
+        "Post-move inspection and verification",
+        "Customer signature on delivery documentation"
+      ],
+      requiredMedia: [
+        "Arrival photo with location verification",
+        "Unloading process photos/videos",
+        "Post-move condition photos",
+        "Customer signature capture",
+        "Final delivery location photo"
+      ],
+      databaseUpdates: [
+        "Update journey status to DELIVERING",
+        "Log delivery completion time",
+        "Store all media files with metadata",
+        "Record customer signature and satisfaction rating"
+      ]
+    },
+    phase6: {
+      title: "Journey Completion",
+      location: "Return to Dispatcher",
+      responsible: "DRIVER + MOVER",
+      actions: [
+        "Return to base location",
+        "Vehicle and equipment cleanup",
+        "Final journey documentation",
+        "Handover to dispatcher"
+      ],
+      requiredMedia: [
+        "Return to base photo",
+        "Equipment condition photos",
+        "Final journey summary"
+      ],
+      databaseUpdates: [
+        "Update journey status to COMPLETED",
+        "Log completion time and duration",
+        "Generate journey summary report",
+        "Update crew availability status"
+      ]
+    }
+  }
+}
+```
+
+#### **📊 Shared Database Architecture**
+```typescript
+// All users access the same journey data with different views
+{
+  sharedDatabase: {
+    journeyData: {
+      // Same data accessed by all roles
+      journeyId: "jour_001",
+      status: "EN_ROUTE",
+      currentStep: "TRANSPORT",
+      progress: 60,
+      
+      // Real-time updates visible to all users
+      dispatcherView: {
+        overview: "Journey list with status and alerts",
+        actions: "Create, assign, monitor, communicate"
+      },
+      driverView: {
+        overview: "Current journey with step-by-step guidance",
+        actions: "Execute steps, capture media, update status"
+      },
+      moverView: {
+        overview: "Current journey with moving tasks",
+        actions: "Execute moving tasks, capture media, assist driver"
+      },
+      managerView: {
+        overview: "Performance analytics and oversight",
+        actions: "Monitor, analyze, optimize, support"
+      }
+    },
+    
+    realTimeSync: {
+      status: "ACTIVE",
+      updateFrequency: "30 seconds",
+      syncMethod: "WebSocket + REST API",
+      conflictResolution: "Timestamp-based priority"
+    }
+  }
+}
+```
+
 ### **Journey Overview (`/journeys`)**
 
 #### **📋 Journey List View**
@@ -81,15 +264,21 @@ The Dispatcher is responsible for **journey management and crew coordination** w
   startTime: "2025-01-15T08:30:00Z",
   estimatedCompletion: "2025-01-15T16:00:00Z",
   revenue: "$850",
-  priority: "HIGH"
+  priority: "HIGH",
+  currentStep: "MORNING_PREP",
+  progress: 15,
+  lastUpdate: "2025-01-15T08:30:00Z",
+  mediaCount: 8,
+  checklistCompletion: "3/20 items completed"
 }
 ```
 
 #### **🔍 Journey Filtering & Search**
-- **Status Filter:** Morning Prep, En Route, On Site, Completed, Audited
+- **Status Filter:** Morning Prep, Loading, En Route, Delivering, Completed, Audited
 - **Date Range:** Today, this week, custom date range
 - **Crew Filter:** Specific driver or mover
 - **Priority Filter:** High, Medium, Low priority
+- **Progress Filter:** In Progress, Completed, Delayed
 - **Search:** Truck number, customer name, address
 
 #### **📊 Journey Analytics**
@@ -97,27 +286,33 @@ The Dispatcher is responsible for **journey management and crew coordination** w
 - **Crew Performance:** Driver and mover efficiency
 - **Customer Satisfaction:** Ratings and feedback trends
 - **Operational Insights:** Peak times, route optimization
+- **Media Analytics:** Photo/video completion rates
+- **Checklist Analytics:** Checklist completion rates
 
 ### **Journey Creation (`/journey/create`)**
 
 #### **📝 Journey Setup Wizard**
 1. **Basic Information**
    - Customer information and contact details
-   - Pickup and delivery addresses
+   - Pickup address (first location)
+   - Delivery address (second location)
    - Date and time scheduling
    - Service type (residential, commercial)
+   - Special requirements and equipment needs
 
 2. **Crew Assignment**
    - Driver selection from available drivers
    - Mover assignment from available movers
    - Backup crew options
    - Crew availability confirmation
+   - Skill matching for journey requirements
 
 3. **Service Details**
-   - Special requirements and equipment needs
    - Insurance coverage and liability
    - Customer preferences and instructions
    - Emergency contact information
+   - Special handling requirements
+   - Equipment and vehicle requirements
 
 4. **Pricing & Billing**
    - Service pricing calculation
@@ -125,20 +320,93 @@ The Dispatcher is responsible for **journey management and crew coordination** w
    - Payment terms and methods
    - Invoice generation and delivery
 
+5. **Journey Planning**
+   - Route optimization and planning
+   - Estimated travel times
+   - Fuel and cost calculations
+   - Risk assessment and mitigation
+
 ### **Journey Monitoring (`/journey/[id]`)**
 
 #### **📊 Real-Time Journey Tracking**
 - **GPS Tracking:** Real-time location updates from crew
-- **Status Updates:** Journey progress monitoring
-- **Media Uploads:** Photo and video documentation
+- **Status Updates:** Journey progress monitoring through all phases
+- **Media Uploads:** Photo and video documentation at each step
 - **Communication:** Crew chat and customer updates
+- **Checklist Progress:** Real-time checklist completion tracking
 
 #### **📋 Journey Documentation**
-- **Pre-Journey Checklist:** Equipment, route, customer info
-- **Journey Progress:** Status updates and milestones
-- **Media Gallery:** Photos and videos from the journey
+- **Pre-Journey Checklist:** Equipment, route, customer info, safety checks
+- **Journey Progress:** Status updates and milestones for each phase
+- **Media Gallery:** Photos and videos from each journey step
 - **Customer Feedback:** Ratings and comments
 - **Post-Journey Report:** Completion summary and notes
+- **Quality Assurance:** Media quality and completeness review
+
+#### **🎯 Phase-by-Phase Monitoring**
+```typescript
+{
+  phaseMonitoring: {
+    phase1: {
+      title: "Journey Creation",
+      status: "COMPLETED",
+      completionTime: "2025-01-15T08:00:00Z",
+      responsible: "DISPATCHER",
+      checklist: "Journey created, crew assigned, route planned"
+    },
+    phase2: {
+      title: "Morning Preparation",
+      status: "IN_PROGRESS",
+      startTime: "2025-01-15T08:30:00Z",
+      responsible: "DRIVER + MOVER",
+      checklist: "Vehicle inspection, equipment check, route review",
+      mediaRequired: ["vehicle_photos", "equipment_photos", "route_screenshot"],
+      mediaCompleted: ["vehicle_photos", "equipment_photos"],
+      mediaPending: ["route_screenshot"]
+    },
+    phase3: {
+      title: "Pickup Operations",
+      status: "PENDING",
+      estimatedStart: "2025-01-15T09:30:00Z",
+      responsible: "DRIVER + MOVER",
+      checklist: "Arrival, customer verification, loading, signatures",
+      mediaRequired: ["arrival_photo", "condition_photos", "loading_videos", "signatures"],
+      mediaCompleted: [],
+      mediaPending: ["arrival_photo", "condition_photos", "loading_videos", "signatures"]
+    },
+    phase4: {
+      title: "Transport Operations",
+      status: "PENDING",
+      estimatedStart: "2025-01-15T11:00:00Z",
+      responsible: "DRIVER",
+      checklist: "Safe driving, GPS tracking, route adherence",
+      mediaRequired: ["gps_tracking", "route_photos"],
+      mediaCompleted: [],
+      mediaPending: ["gps_tracking", "route_photos"]
+    },
+    phase5: {
+      title: "Delivery Operations",
+      status: "PENDING",
+      estimatedStart: "2025-01-15T14:00:00Z",
+      responsible: "DRIVER + MOVER",
+      checklist: "Arrival, unloading, inspection, signatures",
+      mediaRequired: ["arrival_photo", "unloading_videos", "condition_photos", "signatures"],
+      mediaCompleted: [],
+      mediaPending: ["arrival_photo", "unloading_videos", "condition_photos", "signatures"]
+    },
+    phase6: {
+      title: "Journey Completion",
+      status: "PENDING",
+      estimatedStart: "2025-01-15T16:00:00Z",
+      responsible: "DRIVER + MOVER",
+      checklist: "Return to base, cleanup, documentation",
+      mediaRequired: ["return_photo", "equipment_photos", "summary"],
+      mediaCompleted: [],
+      mediaPending: ["return_photo", "equipment_photos", "summary"]
+    }
+  }
+}
+```
 
 ---
 
