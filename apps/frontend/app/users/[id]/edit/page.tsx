@@ -150,6 +150,9 @@ export default function UserEditPage() {
     locationAccess: [] as { locationId: string; locationName: string; accessType: 'MANAGE' | 'VIEW' | 'NONE' }[]
   });
 
+  // Real locations from database
+  const [locations, setLocations] = useState<Location[]>([]);
+
   // Determine user's permissions
   const isSuperAdmin = superAdmin?.role === 'SUPER_ADMIN';
   const isCompanyAdmin = superAdmin?.role === 'COMPANY_ADMIN';

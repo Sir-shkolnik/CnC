@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Truck, Users, Shield, Zap, ArrowRight, CheckCircle, MapPin, Clock, BarChart3 } from 'lucide-react'
+import { Truck, Users, Shield, Zap, ArrowRight, CheckCircle, MapPin, Clock, BarChart3, Smartphone } from 'lucide-react'
 
 export default function HomePage() {
   return (
@@ -43,19 +43,20 @@ export default function HomePage() {
             Mobile-first operations management for moving & logistics. 
             Track, manage, and optimize your field operations with real-time data.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 mt-8">
             <Link 
-              href="/auth/register" 
-              className="inline-flex items-center justify-center px-6 py-2.5 bg-primary text-background rounded-lg hover:bg-primary/90 transition-colors font-medium"
+              href="/auth/login"
+              className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors"
             >
-              Start Free Trial
-              <ArrowRight className="w-4 h-4 ml-2" />
+              Get Started
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
             <Link 
-              href="/demo" 
-              className="inline-flex items-center justify-center px-6 py-2.5 bg-surface border border-gray-700 text-text-primary rounded-lg hover:bg-surface/80 transition-colors font-medium"
+              href="/mobile"
+              className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-text-primary bg-surface hover:bg-surface/80 transition-colors"
             >
-              Watch Demo
+              <Smartphone className="mr-2 h-4 w-4" />
+              Mobile App
             </Link>
           </div>
         </div>
@@ -188,24 +189,13 @@ export default function HomePage() {
       {/* Footer - Compact */}
       <footer className="bg-surface border-t border-gray-800 py-10 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div>
-              <div className="flex items-center space-x-2 mb-3">
-                <div className="w-6 h-6 bg-primary rounded-lg flex items-center justify-center">
-                  <Truck className="w-4 h-4 text-background" />
-                </div>
-                <span className="text-lg font-bold text-gradient">C&C CRM</span>
-              </div>
-              <p className="text-sm text-text-secondary">
-                Trust the Journey. Mobile-first operations management for modern logistics.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold text-text-primary mb-3 text-sm">Product</h3>
-              <ul className="space-y-1 text-sm text-text-secondary">
+              <h3 className="text-sm font-semibold text-text-primary tracking-wider uppercase mb-4">Product</h3>
+              <ul className="space-y-2">
                 <li><Link href="/features" className="hover:text-primary transition-colors">Features</Link></li>
                 <li><Link href="/pricing" className="hover:text-primary transition-colors">Pricing</Link></li>
-                <li><Link href="/demo" className="hover:text-primary transition-colors">Demo</Link></li>
+                <li><Link href="/docs" className="hover:text-primary transition-colors">Documentation</Link></li>
               </ul>
             </div>
             <div>

@@ -188,7 +188,8 @@ export default function UsersPage() {
   const error = useSuperAdminError();
 
   // State management
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  // Real user data from database
+  const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>(mockUsers);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState<UserRole | 'ALL'>('ALL');

@@ -215,10 +215,15 @@ export const useSuperAdminStore = create<SuperAdminStore>()(
         set({ isLoading: true, error: null });
         
         try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/super-admin/auth/login`, {
+          // Use unified login endpoint
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: email, password })
+            body: JSON.stringify({ 
+              email, 
+              password,
+              company_id: null // Super admin doesn't need company_id
+            })
           });
           
           if (!response.ok) {
@@ -227,21 +232,30 @@ export const useSuperAdminStore = create<SuperAdminStore>()(
           
           const data = await response.json();
           
-          if (data.success) {
+          if (data.success && data.user?.role === 'SUPER_ADMIN') {
             // Set cookie for middleware
-            document.cookie = `super-admin-token=${data.data.accessToken}; path=/; max-age=86400; secure; samesite=strict`;
+            document.cookie = `super-admin-token=${data.access_token}; path=/; max-age=86400; secure; samesite=strict`;
             
             set({
-              superAdmin: data.data.superAdmin,
+              superAdmin: {
+                id: data.user.id,
+                username: data.user.name,
+                email: data.user.email,
+                role: data.user.role,
+                permissions: ['VIEW_ALL_COMPANIES', 'VIEW_ALL_USERS', 'VIEW_AUDIT_LOGS'],
+                status: 'ACTIVE',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+              },
               session: {
-                id: data.data.session?.id || 'session-1',
-                superAdminId: data.data.superAdmin.id,
-                sessionToken: data.data.accessToken,
-                currentCompanyId: data.data.session?.currentCompanyId || lgmCompanies[0]?.id,
-                permissionsScope: data.data.session?.permissionsScope || defaultPermissions,
-                expiresAt: data.data.session?.expiresAt || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-                createdAt: data.data.session?.createdAt || new Date().toISOString(),
-                lastActivity: data.data.session?.lastActivity || new Date().toISOString(),
+                id: 'session-1',
+                superAdminId: data.user.id,
+                sessionToken: data.access_token,
+                currentCompanyId: lgmCompanies[0]?.id,
+                permissionsScope: defaultPermissions,
+                expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date().toISOString(),
+                lastActivity: new Date().toISOString(),
               },
               isAuthenticated: true,
               currentCompany: lgmCompanies[0] || null,
@@ -252,37 +266,14 @@ export const useSuperAdminStore = create<SuperAdminStore>()(
               isLoading: false,
             });
           } else {
-            throw new Error(data.message || 'Login failed');
+            throw new Error('Invalid super admin credentials');
           }
         } catch (error) {
-          // Fallback to mock data for development
-          if (email === 'udi.shkolnik@lgm.com' && password === 'Id200633048!') {
-            set({
-              superAdmin: defaultSuperAdmin,
-              session: {
-                id: 'session-1',
-                superAdminId: defaultSuperAdmin.id,
-                sessionToken: 'dev-super-admin-token',
-                currentCompanyId: lgmCompanies[0].id,
-                permissionsScope: defaultPermissions,
-                expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-                createdAt: new Date().toISOString(),
-                lastActivity: new Date().toISOString(),
-              },
-              isAuthenticated: true,
-              currentCompany: lgmCompanies[0],
-              availableCompanies: lgmCompanies,
-              companies: lgmCompanies,
-              analytics: lgmAnalytics,
-              selectedCompanyId: lgmCompanies[0].id,
-              isLoading: false,
-            });
-          } else {
-            set({ 
-              error: error instanceof Error ? error.message : 'Login failed',
-              isLoading: false 
-            });
-          }
+          set({ 
+            error: error instanceof Error ? error.message : 'Login failed',
+            isLoading: false 
+          });
+          throw error;
         }
       },
 

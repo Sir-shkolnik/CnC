@@ -114,18 +114,7 @@ export default function UnifiedLoginPage() {
 
   const detectUserType = async (email: string, password: string): Promise<'web' | 'mobile' | 'super'> => {
     try {
-      // Try super admin login first
-      const superAdminResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/super-admin/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: email, password })
-      });
-      
-      if (superAdminResponse.ok) {
-        return 'super';
-      }
-      
-      // Try regular user login
+      // Use unified login endpoint for all users
       const userResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -135,6 +124,12 @@ export default function UnifiedLoginPage() {
       if (userResponse.ok) {
         const userData = await userResponse.json();
         const role = userData.data?.user?.role || '';
+        const userType = userData.data?.user?.user_type || '';
+        
+        // Super admin gets super interface
+        if (role.toUpperCase() === 'SUPER_ADMIN' || userType === 'super_admin') {
+          return 'super';
+        }
         
         // Mobile roles get mobile interface
         if (['DRIVER', 'MOVER'].includes(role.toUpperCase())) {
@@ -148,7 +143,7 @@ export default function UnifiedLoginPage() {
       throw new Error('Invalid credentials');
     } catch (error) {
       // Fallback to email-based detection for development
-      if (email === 'udi.shkolnik@lgm.com') return 'super';
+      if (email === 'udi.shkolnik@candc.com') return 'super';
       
       const mobileRoles = ['driver', 'mover'];
       const emailLower = email.toLowerCase();
