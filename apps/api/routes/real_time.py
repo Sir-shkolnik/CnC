@@ -18,8 +18,27 @@ async def get_real_time_dashboard(current_user: Dict[str, Any] = Depends(get_cur
         
         user_id = current_user["id"]
         user_role = current_user["role"]
-        client_id = current_user["client_id"]
-        location_id = current_user["location_id"]
+        client_id = current_user.get("client_id") or current_user.get("clientId")
+        location_id = current_user.get("location_id") or current_user.get("locationId")
+        
+        # Validate tenant information
+        if not client_id or not location_id:
+            return {
+                "success": False,
+                "error": "Missing tenant information",
+                "message": "User must be associated with a client and location",
+                "data": {
+                    "activeJourneys": 0,
+                    "unreadMessages": 0,
+                    "pendingAudits": 0,
+                    "newFeedback": 0,
+                    "activeFieldOps": 0,
+                    "pendingApprovals": 0,
+                    "systemAlerts": 0,
+                    "locationUpdates": 0,
+                    "lastUpdated": datetime.now().isoformat()
+                }
+            }
         
         # Initialize dashboard data
         dashboard_data = {
