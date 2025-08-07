@@ -1,0 +1,18 @@
+// Current Demo Users (for testing)
+{
+  email: "admin@letsgetmoving.com",
+  password: "1234",
+  role: "ADMIN"
+}
+
+{
+  email: "sarah.johnson@letsgetmoving.com", 
+  password: "1234",
+  role: "DISPATCHER"
+}
+
+{
+  email: "driver@letsgetmoving.com",
+  password: "password123",
+  role: "DRIVER"
+}

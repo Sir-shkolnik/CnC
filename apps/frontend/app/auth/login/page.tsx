@@ -293,22 +293,23 @@ export default function UnifiedLoginPage() {
                     <button
                       key={company.id}
                       onClick={() => handleCompanySelect(company)}
-                      className="p-4 text-left bg-surface/50 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors hover:shadow-lg"
+                      className="p-4 text-left bg-surface/50 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors hover:shadow-lg w-full"
+                      type="button"
                     >
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+                        <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
                           <Building2 className="w-5 h-5 text-primary" />
                         </div>
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-text-primary">{company.name}</h3>
-                          <p className="text-sm text-text-secondary">{company.industry}</p>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg font-semibold text-text-primary truncate">{company.name}</h3>
+                          <p className="text-sm text-text-secondary truncate">{company.industry}</p>
                           <div className="flex items-center space-x-2 mt-1">
                             <Badge variant={company.isFranchise ? 'warning' : 'success'} className="text-xs">
                               {company.isFranchise ? 'Franchise' : 'Corporate'}
                             </Badge>
                           </div>
                         </div>
-                        <ArrowRight className="w-5 h-5 text-text-secondary" />
+                        <ArrowRight className="w-5 h-5 text-text-secondary flex-shrink-0" />
                       </div>
                     </button>
                   ))}
@@ -352,9 +353,9 @@ export default function UnifiedLoginPage() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
           {/* Login Form */}
-          <Card className="bg-surface border-gray-700">
+          <Card className="bg-surface border-gray-700 order-1 lg:order-1">
             <CardHeader>
               <CardTitle className="text-text-primary text-lg text-center">
                 Sign In
@@ -430,6 +431,7 @@ export default function UnifiedLoginPage() {
                 <button
                   onClick={() => setStep('company')}
                   className="text-sm text-text-secondary hover:text-primary transition-colors"
+                  type="button"
                 >
                   ← Back to Company Selection
                 </button>
@@ -438,7 +440,7 @@ export default function UnifiedLoginPage() {
           </Card>
 
           {/* Company Users */}
-          <Card className="bg-surface border-gray-700">
+          <Card className="bg-surface border-gray-700 order-2 lg:order-2">
             <CardHeader>
               <CardTitle className="text-text-primary text-lg text-center">
                 Company Users
@@ -474,27 +476,27 @@ export default function UnifiedLoginPage() {
                       className="flex items-center justify-between p-3 bg-surface rounded-lg border border-gray-700 hover:border-primary transition-colors cursor-pointer"
                       onClick={() => handleUserSelect(user)}
                     >
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
+                      <div className="flex items-center space-x-3 min-w-0 flex-1">
+                        <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
                           <User className="w-4 h-4 text-primary" />
                         </div>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <span className="font-medium text-text-primary">{user.name}</span>
-                            <Badge variant={getRoleBadgeVariant(user.role)}>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center space-x-2 flex-wrap">
+                            <span className="font-medium text-text-primary truncate">{user.name}</span>
+                            <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs flex-shrink-0">
                               {user.role}
                             </Badge>
                             {user.locationType && (
-                              <Badge variant={user.locationType === 'CORPORATE' ? 'default' : 'secondary'}>
+                              <Badge variant={user.locationType === 'CORPORATE' ? 'default' : 'secondary'} className="text-xs flex-shrink-0">
                                 {user.locationType}
                               </Badge>
                             )}
                           </div>
-                          <div className="text-sm text-text-secondary">
+                          <div className="text-sm text-text-secondary truncate">
                             {user.email}
                           </div>
                           {user.locationName && (
-                            <div className="text-xs text-text-secondary">
+                            <div className="text-xs text-text-secondary truncate">
                               📍 {user.locationName}
                             </div>
                           )}
@@ -507,6 +509,7 @@ export default function UnifiedLoginPage() {
                           e.stopPropagation();
                           handleUserSelect(user);
                         }}
+                        className="flex-shrink-0"
                       >
                         Use
                       </Button>
