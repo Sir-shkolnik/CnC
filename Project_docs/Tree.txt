@@ -1,0 +1,170 @@
+Absolutely. Below is your **full file & folder tree** for the project named **`C&C CRM`** – modular, scalable, production-ready. It’s built with:
+
+* **Backend**: `FastAPI + Prisma + PostgreSQL`
+* **Frontend**: `Next.js 14 (App Router) + Tailwind + Zustand`
+* **Monorepo**: For shared code
+* **Dockerized**: For deployment (Render or others)
+* **Multi-tenant**: For LGM + clients
+* **PWA-ready**: Mobile-first design
+
+---
+
+## 📁 Full Project Folder Tree: `c_and_c_crm/`
+
+```plaintext
+c_and_c_crm/
+├── apps/
+│   ├── api/                        # FastAPI Backend
+│   │   ├── main.py
+│   │   ├── routes/
+│   │   │   ├── auth.py
+│   │   │   ├── journey.py
+│   │   │   ├── calendar.py
+│   │   │   ├── dispatch.py
+│   │   │   ├── feedback.py
+│   │   │   ├── crew.py
+│   │   │   ├── storage.py
+│   │   │   ├── media.py
+│   │   │   └── audit.py
+│   │   ├── services/
+│   │   │   ├── journey_service.py
+│   │   │   ├── dispatch_service.py
+│   │   │   ├── feedback_service.py
+│   │   │   ├── cost_service.py
+│   │   │   └── auth_service.py
+│   │   └── middleware/
+│   │       ├── auth.py
+│   │       ├── tenant.py
+│   │       └── audit_logger.py
+│
+│   └── frontend/                   # Next.js Frontend
+│       ├── app/                   # App Router
+│       │   ├── layout.tsx
+│       │   ├── page.tsx
+│       │   ├── dashboard/
+│       │   ├── journey/
+│       │   │   └── [id]/page.tsx
+│       │   ├── calendar/
+│       │   ├── feedback/
+│       │   ├── auth/
+│       │   │   └── login.tsx
+│       │   └── settings/
+│       ├── components/
+│       │   ├── FormSections/
+│       │   ├── CalendarView.tsx
+│       │   ├── JourneyCard.tsx
+│       │   ├── StatusTag.tsx
+│       │   ├── UploadZone.tsx
+│       │   └── PhotoViewer.tsx
+│       ├── store/
+│       │   ├── useJourneyStore.ts
+│       │   ├── useUserStore.ts
+│       │   └── useSyncStore.ts
+│       ├── hooks/
+│       │   ├── useJourneyData.ts
+│       │   └── useOnlineSync.ts
+│       ├── styles/
+│       │   └── globals.css
+│       └── utils/
+│           ├── date.ts
+│           ├── api.ts
+│           ├── auth.ts
+│           └── validators.ts
+│
+├── modules/                        # Shared Business Logic (backend only)
+│   ├── journey_engine.py
+│   ├── capture_logic.py
+│   ├── crew_scoring.py
+│   ├── calendar_allocator.py
+│   ├── audit_engine.py
+│   └── cost_estimator.py
+│
+├── packages/
+│   └── shared/                     # Shared code (frontend + backend)
+│       ├── models/
+│       │   ├── enums.ts
+│       │   └── types.ts
+│       ├── constants/
+│       │   ├── status.ts
+│       │   └── roles.ts
+│       └── validators/
+│           └── zodSchemas.ts
+│
+├── prisma/
+│   ├── schema.prisma               # Prisma data models
+│   ├── migrations/
+│   └── seed.ts
+│
+├── public/                         # Static files
+│   ├── icons/
+│   └── manifest.json
+│
+├── tests/
+│   ├── api/
+│   ├── modules/
+│   └── frontend/
+│
+├── .env                            # Environment variables
+├── .gitignore
+├── docker-compose.yml              # For local dev
+├── Dockerfile
+├── render.yaml                     # For Render.com deployment
+├── Procfile
+├── README.md
+└── requirements.txt
+```
+
+---
+
+## 🧠 Optional Submodules by C\&C (Future)
+
+If you want to isolate each **C\&C feature** to its own folder:
+
+```plaintext
+modules/
+├── command_control/
+├── connect_convert/
+├── capture_confirm/
+├── calendar_capacity/
+├── crew_customer/
+├── cost_compensation/
+├── compliance_consistency/
+├── chat_collaboration/
+├── cash_contracts/
+├── cloud_control/
+├── clean_concise/
+├── customer_care/
+```
+
+Each of these can contain:
+
+* `*.service.py`
+* `*.routes.py`
+* `*.models.ts`
+* `*.ui.tsx` (if shared frontend module)
+
+---
+
+## 📦 Package Managers & Stack
+
+| Layer      | Tech                                      |
+| ---------- | ----------------------------------------- |
+| Frontend   | Next.js 14, Tailwind, TypeScript, Zustand |
+| Backend    | FastAPI, Python 3.11                      |
+| ORM        | Prisma (with PostgreSQL)                  |
+| State Sync | WebSockets + API polling                  |
+| Auth       | JWT, role-based middleware                |
+| Storage    | S3 / Cloudinary                           |
+| Deploy     | Docker + Render                           |
+| DB         | PostgreSQL (multi-tenant)                 |
+
+---
+
+## 🔐 Best Practices in Structure
+
+* Strict separation of API vs Business logic
+* Modules are self-contained
+* Prisma is single source of DB truth
+* Role-based access via middleware
+* Shared types ensure frontend/backend alignment
+

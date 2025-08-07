@@ -1,0 +1,158 @@
+Perfect. If you're using **two Cursor AI agents in parallel**, here’s a **synchronized division of labor** to maximize efficiency without file/folder collisions.
+
+---
+
+# 🤖 Dual AI Development Strategy for TruJourney CRM MVP
+
+> ✅ **Two agents coding in parallel**, with zero overlap
+> 🎯 Goal: Full MVP shipped fast, safely and modular
+
+---
+
+## 🧱 Shared Architecture
+
+Before we split, let’s define your **root structure**:
+
+```plaintext
+/apps
+  /api         ← FastAPI backend
+  /frontend    ← Next.js frontend
+/modules       ← Business logic per feature (not direct API)
+/packages
+  /shared      ← Shared types, utils
+/prisma        ← Prisma schema & migrations
+/Dockerfile
+/render.yaml
+/.env
+/README.md
+```
+
+---
+
+# 🤖 AI 1 — "The Backend Architect"
+
+### 🎯 Focus: **All Backend API + Schema logic**
+
+Only touches:
+
+* `/apps/api/`
+* `/modules/`
+* `/prisma/`
+
+---
+
+### ✅ Responsibilities for AI 1:
+
+#### `/apps/api/`
+
+* `main.py`: FastAPI setup
+* `routes/`: One file per module (e.g. `journeys.py`, `dispatch.py`, `media.py`, etc.)
+* `services/`: Business logic delegating to `/modules/`
+
+#### `/modules/`
+
+* `journey_engine.py`: Create, update, track TruckJourney
+* `capture_handler.py`: Media, GPS, tagging
+* `calendar_logic.py`: Crew/truck scheduling logic
+* `cost_engine.py`: Profit/cost computation
+* `crew_scoring.py`: Feedback scoring system
+
+#### `/prisma/`
+
+* `schema.prisma`: All model logic + relations
+* `migrations/`: Run locally, don't overlap file access with AI 2
+
+---
+
+## ✅ API endpoints AI 1 builds:
+
+* `POST /api/journey/start`
+* `PATCH /api/journey/:id/status`
+* `POST /api/media/upload`
+* `GET /api/calendar`
+* `POST /api/crew/feedback`
+* `GET /api/dispatch/today`
+* `GET /api/profit/job/:id`
+
+---
+
+# 🤖 AI 2 — "The Frontend Wizard"
+
+### 🎯 Focus: **All UI/UX + State Logic + PWA**
+
+Only touches:
+
+* `/apps/frontend/`
+* `/packages/shared/` (for TypeScript types only)
+
+---
+
+### ✅ Responsibilities for AI 2:
+
+#### `/apps/frontend/`
+
+* `pages/`: Job View, Calendar, Dispatcher Dashboard, Feedback
+* `components/`: Form sections (photos, signatures, tags, etc.)
+* `hooks/`: `useJourneyState`, `useCrewForm`, `useOfflineSync`
+* `styles/`: Tailwind dark theme
+* `utils/`: Form validators, debounce, storage sync
+* `store/`: Zustand-based state management
+
+#### `/packages/shared/`
+
+* Shared `JobStatus`, `UserRole`, `JourneyStage` enums
+* API response DTOs
+* Zod validation schemas
+
+---
+
+### ✅ UI pages AI 2 builds:
+
+* `/dashboard`: Dispatcher Job View
+* `/journey/:id`: Role-based form
+* `/calendar`: Truck/Crew calendar
+* `/feedback`: Customer view
+* `/auth/login`: (basic login page)
+* `/admin/settings`: (optional)
+
+---
+
+## 🔒 Coordination Rules (No Collisions)
+
+| Folder/File                   | Owner                                      | Notes                         |
+| ----------------------------- | ------------------------------------------ | ----------------------------- |
+| `/apps/api/`                  | AI 1                                       | All backend logic and routing |
+| `/modules/`                   | AI 1                                       | Encapsulated business logic   |
+| `/prisma/`                    | AI 1                                       | Data modeling only            |
+| `/apps/frontend/`             | AI 2                                       | Entire UI/PWA logic           |
+| `/packages/shared/`           | AI 2 only defines TS types — AI 1 may read |                               |
+| `/Dockerfile`, `/render.yaml` | Freeze until backend stabilizes            |                               |
+| `.env`, `README.md`           | Edited by you only                         |                               |
+
+---
+
+## 🧠 Suggested Naming Alignment (Shared Terms)
+
+* `TruckJourney` = the core object
+* `JourneyStage` = enum: `MORNING_PREP`, `EN_ROUTE`, `ONSITE`, `COMPLETED`
+* `UserRole` = `DISPATCHER`, `DRIVER`, `MOVER`, `ADMIN`
+* `MediaType` = `PHOTO`, `VIDEO`, `SIGNATURE`
+* `TagType` = `DAMAGE`, `FEEDBACK`, `ISSUE`
+
+---
+
+## 🚦 Collaboration Sync Tips
+
+| Task               | Tool                                              |
+| ------------------ | ------------------------------------------------- |
+| Schema-to-Frontend | `prisma generate` → share types to TS             |
+| Data Validation    | Zod schema shared in `/shared/`                   |
+| API Testing        | Use Postman or Swagger via FastAPI                |
+| State Sync         | Zustand store connects to WebSocket events (AI 2) |
+
+---
+
+## 📍 Start Here:
+
+* AI 1: Start with `/prisma/schema.prisma`, models: `TruckJourney`, `User`, `Location`, `Media`, `AuditEntry`
+* AI 2: Start with `/frontend/pages/journey/[id].tsx` for dispatcher first view

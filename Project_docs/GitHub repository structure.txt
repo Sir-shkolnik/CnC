@@ -1,0 +1,100 @@
+📦 c-and-c-crm
+├── apps/
+│   ├── api/
+│   │   ├── main.py
+│   │   ├── routes/
+│   │   │   ├── auth.py
+│   │   │   ├── journey.py
+│   │   │   ├── calendar.py
+│   │   │   ├── dispatch.py
+│   │   │   ├── feedback.py
+│   │   │   ├── crew.py
+│   │   │   ├── storage.py
+│   │   │   ├── media.py
+│   │   │   └── audit.py
+│   │   ├── services/
+│   │   │   ├── journey_service.py
+│   │   │   ├── dispatch_service.py
+│   │   │   ├── feedback_service.py
+│   │   │   ├── cost_service.py
+│   │   │   └── auth_service.py
+│   │   └── middleware/
+│   │       ├── auth.py
+│   │       ├── tenant.py
+│   │       └── audit_logger.py
+│   └── frontend/
+│       ├── app/
+│       │   ├── layout.tsx
+│       │   ├── page.tsx
+│       │   ├── dashboard/
+│       │   ├── journey/
+│       │   │   └── [id]/page.tsx
+│       │   ├── calendar/
+│       │   ├── feedback/
+│       │   ├── auth/
+│       │   │   └── login.tsx
+│       │   └── settings/
+│       ├── components/
+│       │   ├── FormSections/
+│       │   ├── CalendarView.tsx
+│       │   ├── JourneyCard.tsx
+│       │   ├── StatusTag.tsx
+│       │   ├── UploadZone.tsx
+│       │   └── PhotoViewer.tsx
+│       ├── store/
+│       │   ├── useJourneyStore.ts
+│       │   ├── useUserStore.ts
+│       │   └── useSyncStore.ts
+│       ├── hooks/
+│       │   ├── useJourneyData.ts
+│       │   └── useOnlineSync.ts
+│       ├── styles/
+│       │   └── globals.css
+│       └── utils/
+│           ├── date.ts
+│           ├── api.ts
+│           ├── auth.ts
+│           └── validators.ts
+│
+├── modules/
+│   ├── journey_engine.py
+│   ├── capture_logic.py
+│   ├── crew_scoring.py
+│   ├── calendar_allocator.py
+│   ├── audit_engine.py
+│   └── cost_estimator.py
+│
+├── packages/
+│   └── shared/
+│       ├── models/
+│       │   ├── enums.ts
+│       │   └── types.ts
+│       ├── constants/
+│       │   ├── status.ts
+│       │   └── roles.ts
+│       └── validators/
+│           └── zodSchemas.ts
+│
+├── prisma/
+│   ├── schema.prisma
+│   ├── migrations/
+│   └── seed.ts
+│
+├── public/
+│   ├── icons/
+│   └── manifest.json
+│
+├── tests/
+│   ├── api/
+│   ├── modules/
+│   └── frontend/
+│
+├── .env
+├── .gitignore
+├── docker-compose.yml
+├── Dockerfile
+├── render.yaml
+├── Procfile
+├── README.md
+├── requirements.txt
+└── LICENSE

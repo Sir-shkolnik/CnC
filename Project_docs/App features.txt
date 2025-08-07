@@ -1,0 +1,242 @@
+Perfect — here’s a full breakdown of the **data logic and model structure** for all 12 `C&C` modules in your **C\&C CRM platform** (no code, just logic). This forms the **master data architecture** for your Prisma + API setup — modular, scalable, and multi-tenant ready.
+
+---
+
+## 🧩 1. **Command & Control**
+
+> Handles daily dispatch logic, `TruckJourney`, and live move tracking.
+
+**Core Models:**
+
+* `TruckJourney`: Date, location, truck, status, audit flags
+* `AssignedCrew`: User + role + truckJourney
+* `MoveJobReference`: External CRM job ID, journey link
+* `StatusUpdate`: Timestamps, location, tags
+
+**Key Logic:**
+
+* Start of day triggers journey creation
+* Live update triggers audit trail
+* Role-based visibility (Driver, Dispatcher, Mover)
+
+---
+
+## 🧩 2. **Connect & Convert**
+
+> Manages leads, quoting, and booking pipeline.
+
+**Core Models:**
+
+* `Lead`: Source, contact info, lead status
+* `Estimate`: Price, inventory, estimated time
+* `Quote`: Finalized amount + digital signature
+* `ConversionScore`: AI/ML estimated close rate
+
+**Key Logic:**
+
+* Lead → Estimate → Quote → Booked Job
+* Fraud check via IP, phone blacklists
+* Connects to pricing engine (manual + AI)
+
+---
+
+## 🧩 3. **Crew & Customer**
+
+> Stores crew profiles and customer feedback for trust scoring.
+
+**Core Models:**
+
+* `CrewMember`: Name, skill tags, trust score
+* `Customer`: Name, phone, email, location
+* `Feedback`: Rating + comment (from customer)
+* `TrustScore`: Weighted rating + performance logs
+
+**Key Logic:**
+
+* Auto-feedback after move
+* Update crew score post-job
+* Alert if feedback < 3 stars in 3 moves
+
+---
+
+## 🧩 4. **Capture & Confirm**
+
+> Manages GPS, photo, and timestamped data for accountability.
+
+**Core Models:**
+
+* `Photo`, `Video`: Filename, GPS, timestamp, uploadedBy
+* `TimeStamp`: Event type, location, time
+* `GeoTag`: Job-tagged location data
+* `Signature`: Customer or crew validation
+
+**Key Logic:**
+
+* Auto-tag photo location
+* Detect if GPS out of range
+* Require digital signature at key stages
+
+---
+
+## 🧩 5. **Calendar & Capacity**
+
+> Scheduling of trucks, crew, and capacity management.
+
+**Core Models:**
+
+* `ShiftBlock`: Time slot for truck/crew
+* `TruckAvailability`: Based on location + workload
+* `CrewAvailability`: Availability per day + time
+* `Booking`: Linked to Job + Truck + Crew
+
+**Key Logic:**
+
+* Warn if booking exceeds capacity
+* Drag-drop interface triggers slot validation
+* Auto-assign backups if no-show flagged
+
+---
+
+## 🧩 6. **Cost & Compensation**
+
+> Financial visibility per move, per crew, per truck.
+
+**Core Models:**
+
+* `MoveCost`: Estimate vs actuals, profitability
+* `CrewPay`: Bonus logic, overtime
+* `MaterialLoss`: Track lost items per job
+* `TruckUtilization`: Daily/hourly revenue %
+
+**Key Logic:**
+
+* Compare quote vs actual → alert on margin gap
+* Auto-calculate pay from hours + audit result
+* Flag underutilized trucks
+
+---
+
+## 🧩 7. **Compliance & Consistency**
+
+> Keeps audit trail and tracks policy/rule enforcement.
+
+**Core Models:**
+
+* `AuditEntry`: Any user or system action
+* `Violation`: What rule was broken, who did it
+* `PolicyRule`: Configurable logic per tenant
+* `DailyAuditLog`: Auto-snapshot of morning checks
+
+**Key Logic:**
+
+* Log every CRUD or view action
+* Create violation if process skipped
+* Daily audit PDF export
+
+---
+
+## 🧩 8. **Chat & Collaboration**
+
+> Internal communication tied to moves and ops.
+
+**Core Models:**
+
+* `ChatThread`: Per job, journey, or team
+* `Message`: Text, media, tag, timestamp
+* `Mention`: @user triggers
+* `TaskComment`: Linked to audit/task/event
+
+**Key Logic:**
+
+* Auto-create chat thread per job
+* Link messages to actions (tag, photo, audit)
+* Role-based read/write access
+
+---
+
+## 🧩 9. **Cash & Contracts**
+
+> Handles financial transactions and legal documents.
+
+**Core Models:**
+
+* `Invoice`: Linked to job, customer, quote
+* `StorageBilling`: Recurring invoice system
+* `Contract`: Digital signature, version history
+* `PaymentLog`: Card, cash, or third-party
+
+**Key Logic:**
+
+* Auto-generate invoice from quote
+* Storage billing = monthly + alert + overdue flag
+* Lock job if payment incomplete
+
+---
+
+## 🧩 10. **Cloud & Control**
+
+> Manages tenancy, roles, access, encryption, backup.
+
+**Core Models:**
+
+* `Company`: Tenant data container
+* `Location`: Sub-org unit
+* `User`: Role, email, permissions
+* `RoleType`: Defines access scope
+* `EncryptionKey`, `BackupLog`
+
+**Key Logic:**
+
+* Role-based field visibility
+* Daily DB backup with audit trail
+* Tenant scoping per query/request
+
+---
+
+## 🧩 11. **Clean & Concise**
+
+> Tag engine, UI hints, and auto-categorization.
+
+**Core Models:**
+
+* `Tag`: Global and job-level tags
+* `PresetTagGroup`: Suggested tag groups
+* `UIConfig`: Hints per role/type
+* `LabelCluster`: AI-generated groups
+
+**Key Logic:**
+
+* Auto-tag jobs by preset logic
+* Reduce clutter via tag clustering
+* UI hints change by role (e.g., dispatcher vs mover)
+
+---
+
+## 🧩 12. **Customer & Care**
+
+> Client-side experience, move visibility, and support.
+
+**Core Models:**
+
+* `CustomerPortalSession`: Secure portal logins
+* `StatusView`: Real-time job stage view
+* `ComplaintLog`: Raised by customer or field
+* `MoveScorecard`: Overall move performance
+
+**Key Logic:**
+
+* Live status syncs with field updates
+* Delay/issue auto-triggers care call
+* Flag high-risk accounts or repeat complaints
+
+---
+
+## 🧠 Cross-Module Concepts
+
+All modules integrate via:
+
+* `company_id`, `location_id`, `user_id` context
+* Full `AuditEntry` + `created_by` / `updated_by`
+* `version` and rollback-ready models
+* Multi-tenant enforcement via middlewares
+
