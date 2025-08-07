@@ -56,13 +56,18 @@ export const MobileLogin: React.FC<MobileLoginProps> = ({ className = '' }) => {
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const [isOnline, setIsOnline] = useState(true); // Default to true to prevent hydration mismatch
   const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // Check connectivity
-    setIsOnline(navigator.onLine);
+    setIsMounted(true);
+    
+    // Check connectivity only after mounting
+    if (typeof navigator !== 'undefined') {
+      setIsOnline(navigator.onLine);
+    }
     
     // Load companies from database
     loadCompanies();
@@ -233,15 +238,17 @@ export const MobileLogin: React.FC<MobileLoginProps> = ({ className = '' }) => {
           </div>
 
           {/* Status Indicator */}
-          <div className="flex items-center justify-center mb-6">
-            <Badge 
-              variant={getStatusColor()} 
-              className="text-xs flex items-center gap-1"
-            >
-              {getStatusIcon()}
-              {getStatusText()}
-            </Badge>
-          </div>
+          {isMounted && (
+            <div className="flex items-center justify-center mb-6">
+              <Badge 
+                variant={getStatusColor()} 
+                className="text-xs flex items-center gap-1"
+              >
+                {getStatusIcon()}
+                {getStatusText()}
+              </Badge>
+            </div>
+          )}
 
           {/* Company Selection */}
           <Card className="bg-surface border-border">
