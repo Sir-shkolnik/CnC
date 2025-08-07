@@ -303,7 +303,7 @@ export const MobileJourneyInterface: React.FC<MobileJourneyInterfaceProps> = ({ 
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold text-text-primary">Journey Progress</h3>
             <Badge variant="primary" className="text-xs">
-              {progress}% Complete
+              {progress?.toString() || '0'}% Complete
             </Badge>
           </div>
           
