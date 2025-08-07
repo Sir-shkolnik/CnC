@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { Quote, QuoteCreate, QuoteUpdate, QuoteAnalytics, SalesPipelineAnalytics, ConversionAnalytics } from '@/types/quote';
-import { api } from '@/lib/api';
+import { apiClient } from '@/lib/api';
 
 interface QuoteState {
   quotes: Quote[];
@@ -66,8 +66,8 @@ export const useQuoteStore = create<QuoteState>((set, get) => ({
       if (params.createdBy) searchParams.append('createdBy', params.createdBy);
       if (params.isTemplate !== undefined) searchParams.append('isTemplate', params.isTemplate.toString());
       
-      const response = await api.get(`/quotes?${searchParams.toString()}`);
-      set({ quotes: response.data, loading: false });
+      const response = await apiClient.request(`/quotes?${searchParams.toString()}`);
+      set({ quotes: response.data || [], loading: false });
     } catch (error: any) {
       set({ 
         error: error.response?.data?.detail || 'Failed to fetch quotes',
@@ -81,7 +81,7 @@ export const useQuoteStore = create<QuoteState>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      const response = await api.get(`/quotes/${id}`);
+      const response = await apiClient.request(`/quotes/${id}`);
       set({ loading: false });
       return response.data;
     } catch (error: any) {
@@ -97,7 +97,10 @@ export const useQuoteStore = create<QuoteState>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      const response = await api.post('/quotes', data);
+      const response = await apiClient.request('/quotes', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
       const newQuote = response.data;
       
       // Add to current list
@@ -120,7 +123,10 @@ export const useQuoteStore = create<QuoteState>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      const response = await api.patch(`/quotes/${id}`, data);
+      const response = await apiClient.request(`/quotes/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data)
+      });
       const updatedQuote = response.data;
       
       // Update in current list
@@ -145,7 +151,9 @@ export const useQuoteStore = create<QuoteState>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      await api.delete(`/quotes/${id}`);
+      await apiClient.request(`/quotes/${id}`, {
+        method: 'DELETE'
+      });
       
       // Remove from current list
       set(state => ({
@@ -165,7 +173,9 @@ export const useQuoteStore = create<QuoteState>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      const response = await api.post(`/quotes/${id}/approve`);
+      const response = await apiClient.request(`/quotes/${id}/approve`, {
+        method: 'POST'
+      });
       const approvedQuote = response.data;
       
       // Update in current list
@@ -190,7 +200,10 @@ export const useQuoteStore = create<QuoteState>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      const response = await api.post(`/quotes/${id}/reject`, { rejection_reason: reason });
+      const response = await apiClient.request(`/quotes/${id}/reject`, {
+        method: 'POST',
+        body: JSON.stringify({ rejection_reason: reason })
+      });
       const rejectedQuote = response.data;
       
       // Update in current list
@@ -215,7 +228,9 @@ export const useQuoteStore = create<QuoteState>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      const response = await api.post(`/quotes/${id}/send`);
+      const response = await apiClient.request(`/quotes/${id}/send`, {
+        method: 'POST'
+      });
       const sentQuote = response.data;
       
       // Update in current list
@@ -240,7 +255,9 @@ export const useQuoteStore = create<QuoteState>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      const response = await api.post(`/quotes/${id}/convert`);
+      const response = await apiClient.request(`/quotes/${id}/convert`, {
+        method: 'POST'
+      });
       const result = response.data;
       
       // Update quote status in current list
@@ -265,7 +282,9 @@ export const useQuoteStore = create<QuoteState>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      const response = await api.post(`/quotes/${id}/duplicate`);
+      const response = await apiClient.request(`/quotes/${id}/duplicate`, {
+        method: 'POST'
+      });
       const duplicatedQuote = response.data;
       
       // Add to current list
@@ -288,7 +307,7 @@ export const useQuoteStore = create<QuoteState>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      const response = await api.get('/quotes/analytics/overview');
+      const response = await apiClient.request('/quotes/analytics/overview');
       set({ analytics: response.data, loading: false });
     } catch (error: any) {
       set({ 
@@ -303,7 +322,7 @@ export const useQuoteStore = create<QuoteState>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      const response = await api.get('/quotes/analytics/pipeline');
+      const response = await apiClient.request('/quotes/analytics/pipeline');
       set({ pipelineAnalytics: response.data, loading: false });
     } catch (error: any) {
       set({ 
@@ -318,7 +337,7 @@ export const useQuoteStore = create<QuoteState>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      const response = await api.get('/quotes/analytics/conversion');
+      const response = await apiClient.request('/quotes/analytics/conversion');
       set({ conversionAnalytics: response.data, loading: false });
     } catch (error: any) {
       set({ 

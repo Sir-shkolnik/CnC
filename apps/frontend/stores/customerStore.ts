@@ -5,44 +5,119 @@ import { Customer, CustomerCreate, CustomerUpdate, CustomerAnalytics } from '@/t
 const apiClient = {
   get: async (url: string) => {
     // Mock response for development
-    return {
-      data: {
-        customers: [
-          {
-            id: 'cust_001',
-            name: 'ABC Corporation',
-            email: 'contact@abccorp.com',
-            phone: '+1-416-555-0123',
-            leadStatus: 'QUALIFIED',
-            assignedTo: 'sarah.johnson@lgm.com',
-            isActive: true,
-            totalRevenue: 15000,
-            lastContact: '2025-01-15T10:30:00Z',
-            createdAt: '2025-01-01T00:00:00Z',
-            updatedAt: '2025-01-15T10:30:00Z'
+    if (url.includes('/customers/') && !url.includes('?')) {
+      // Individual customer request
+      const customerId = url.split('/').pop();
+      return {
+        data: {
+          id: customerId,
+          firstName: 'ABC',
+          lastName: 'Corporation',
+          email: 'contact@abccorp.com',
+          phone: '+1-416-555-0123',
+          address: {
+            street: '123 Business St',
+            city: 'Toronto',
+            province: 'ON',
+            postalCode: 'M5V 2H1',
+            country: 'Canada'
           },
-          {
-            id: 'cust_002',
-            name: 'XYZ Industries',
-            email: 'info@xyzindustries.com',
-            phone: '+1-416-555-0456',
-            leadStatus: 'NEGOTIATION',
-            assignedTo: 'michael.chen@lgm.com',
-            isActive: true,
-            totalRevenue: 8500,
-            lastContact: '2025-01-14T14:20:00Z',
-            createdAt: '2025-01-05T00:00:00Z',
-            updatedAt: '2025-01-14T14:20:00Z'
-          }
-        ]
-      }
-    };
+          leadStatus: 'QUALIFIED',
+          assignedTo: 'sarah.johnson@lgm.com',
+          assignedUserName: 'Sarah Johnson',
+          estimatedValue: 15000,
+          notes: 'Corporate client',
+          tags: ['corporate', 'qualified'],
+          preferences: {},
+          isActive: true,
+          leadCount: 1,
+          activityCount: 3,
+          createdAt: '2025-01-01T00:00:00Z',
+          updatedAt: '2025-01-15T10:30:00Z'
+        }
+      };
+    } else {
+      // List customers request
+      return {
+        data: {
+          customers: [
+            {
+              id: 'cust_001',
+              firstName: 'ABC',
+              lastName: 'Corporation',
+              email: 'contact@abccorp.com',
+              phone: '+1-416-555-0123',
+              address: {
+                street: '123 Business St',
+                city: 'Toronto',
+                province: 'ON',
+                postalCode: 'M5V 2H1',
+                country: 'Canada'
+              },
+              leadStatus: 'QUALIFIED',
+              assignedTo: 'sarah.johnson@lgm.com',
+              assignedUserName: 'Sarah Johnson',
+              estimatedValue: 15000,
+              notes: 'Corporate client',
+              tags: ['corporate', 'qualified'],
+              preferences: {},
+              isActive: true,
+              leadCount: 1,
+              activityCount: 3,
+              createdAt: '2025-01-01T00:00:00Z',
+              updatedAt: '2025-01-15T10:30:00Z'
+            },
+            {
+              id: 'cust_002',
+              firstName: 'XYZ',
+              lastName: 'Industries',
+              email: 'info@xyzindustries.com',
+              phone: '+1-416-555-0456',
+              address: {
+                street: '456 Industry Ave',
+                city: 'Vancouver',
+                province: 'BC',
+                postalCode: 'V6B 1A1',
+                country: 'Canada'
+              },
+              leadStatus: 'NEGOTIATION',
+              assignedTo: 'michael.chen@lgm.com',
+              assignedUserName: 'Michael Chen',
+              estimatedValue: 8500,
+              notes: 'Manufacturing client',
+              tags: ['manufacturing', 'negotiation'],
+              preferences: {},
+              isActive: true,
+              leadCount: 1,
+              activityCount: 2,
+              createdAt: '2025-01-05T00:00:00Z',
+              updatedAt: '2025-01-14T14:20:00Z'
+            }
+          ]
+        }
+      };
+    }
   },
   post: async (url: string, data: any) => {
     return {
       data: {
         id: 'cust_new',
-        ...data,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+        leadSource: data.leadSource,
+        leadStatus: data.leadStatus,
+        assignedTo: data.assignedTo,
+        assignedUserName: data.assignedUserName,
+        estimatedValue: data.estimatedValue,
+        notes: data.notes,
+        tags: data.tags || [],
+        preferences: data.preferences || {},
+        isActive: true,
+        leadCount: 0,
+        activityCount: 0,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }
@@ -51,7 +126,24 @@ const apiClient = {
   put: async (url: string, data: any) => {
     return {
       data: {
-        ...data,
+        id: url.split('/').pop(),
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+        leadSource: data.leadSource,
+        leadStatus: data.leadStatus,
+        assignedTo: data.assignedTo,
+        assignedUserName: data.assignedUserName,
+        estimatedValue: data.estimatedValue,
+        notes: data.notes,
+        tags: data.tags || [],
+        preferences: data.preferences || {},
+        isActive: data.isActive !== undefined ? data.isActive : true,
+        leadCount: 0,
+        activityCount: 0,
+        createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }
     };
@@ -141,7 +233,8 @@ export const useCustomerStore = create<CustomerState>((set, get) => ({
     try {
       const response = await apiClient.get(`/customers/${id}`);
       set({ loading: false });
-      return response.data;
+      // Return the customer data directly since it's already properly typed
+      return response.data as Customer;
     } catch (error: any) {
       set({ 
         error: error.response?.data?.detail || 'Failed to fetch customer',
@@ -179,7 +272,7 @@ export const useCustomerStore = create<CustomerState>((set, get) => ({
     
     try {
       const response = await apiClient.put(`/customers/${id}`, data);
-      const updatedCustomer = response.data;
+      const updatedCustomer = response.data as Customer;
       
       // Update in current list
       set(state => ({

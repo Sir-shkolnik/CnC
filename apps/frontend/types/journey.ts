@@ -17,6 +17,7 @@ export interface Journey {
   moveSourceId?: string;
   startTime?: string; // ISO date string
   endTime?: string; // ISO date string
+  estimatedCompletion?: string; // ISO date string for ETA
   notes?: string;
   createdById: string;
   createdAt: string; // ISO date string

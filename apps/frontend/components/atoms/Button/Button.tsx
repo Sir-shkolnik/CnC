@@ -14,6 +14,7 @@ const buttonVariants = cva(
         danger: 'bg-error text-white hover:bg-error/90',
         success: 'bg-success text-white hover:bg-success/90',
         warning: 'bg-warning text-white hover:bg-warning/90',
+        error: 'bg-error text-white hover:bg-error/90',
       },
       size: {
         sm: 'h-8 px-3 text-sm',
