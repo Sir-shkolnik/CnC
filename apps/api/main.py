@@ -104,7 +104,7 @@ app.add_middleware(
 # Custom middleware for C&C CRM
 app.add_middleware(AuditLoggerMiddleware)  # Log all actions
 app.add_middleware(AuthMiddleware)         # JWT authentication
-app.add_middleware(TenantMiddleware)       # Multi-tenant scoping
+# app.add_middleware(TenantMiddleware)       # Multi-tenant scoping - temporarily disabled
 
 # ===== GLOBAL EXCEPTION HANDLERS =====
 
