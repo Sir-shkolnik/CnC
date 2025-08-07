@@ -10,8 +10,8 @@ services:
     plan: starter
     buildCommand: |
       python -m pip install --upgrade pip
-      pip install -r requirements.txt
-      prisma generate
+      pip install fastapi uvicorn prisma asyncpg python-jose PyJWT passlib python-multipart httpx requests python-dotenv python-dateutil structlog pytest pytest-asyncio black isort flake8 mypy gunicorn psycopg2-binary psutil
+      python -m prisma generate
     startCommand: |
       # Start the API server
       python -m uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT
