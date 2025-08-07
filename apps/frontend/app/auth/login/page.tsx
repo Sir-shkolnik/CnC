@@ -42,6 +42,15 @@ interface User {
   status: string;
 }
 
+interface CompanyUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  locationId: string;
+  status: string;
+}
+
 export default function UnifiedLoginPage() {
   const router = useRouter();
   const { login: authLogin, isLoading: authLoading } = useAuthStore();
@@ -50,8 +59,11 @@ export default function UnifiedLoginPage() {
   const [step, setStep] = useState<'company' | 'login'>('company');
   const [companies, setCompanies] = useState<Company[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
-  const [users, setUsers] = useState<User[]>([]);
+  // State for company users
+  const [companyUsers, setCompanyUsers] = useState<CompanyUser[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<CompanyUser[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loadingUsers, setLoadingUsers] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -66,6 +78,27 @@ export default function UnifiedLoginPage() {
   useEffect(() => {
     loadCompanies();
   }, []);
+
+  // Fetch company users when company is selected
+  useEffect(() => {
+    if (selectedCompany?.id) {
+      fetchCompanyUsers(selectedCompany.id);
+    }
+  }, [selectedCompany]);
+
+  // Filter users based on search term
+  useEffect(() => {
+    if (searchTerm.trim() === '') {
+      setFilteredUsers(companyUsers);
+    } else {
+      const filtered = companyUsers.filter(user =>
+        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.role.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredUsers(filtered);
+    }
+  }, [searchTerm, companyUsers]);
 
   const loadCompanies = async () => {
     try {
@@ -84,28 +117,29 @@ export default function UnifiedLoginPage() {
     }
   };
 
-  const loadCompanyUsers = async (companyId: string) => {
-    setIsLoadingUsers(true);
+  const fetchCompanyUsers = async (companyId: string) => {
+    setLoadingUsers(true);
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/companies/${companyId}/users`);
       if (response.ok) {
         const data = await response.json();
-        if (data.success) {
-          setUsers(data.data);
-        }
+        setCompanyUsers(data.data || []);
+        setFilteredUsers(data.data || []);
       }
     } catch (error) {
-      console.error('Failed to load users:', error);
-      toast.error('Failed to load users');
+      console.error('Failed to fetch company users:', error);
+      // Fallback to empty array
+      setCompanyUsers([]);
+      setFilteredUsers([]);
     } finally {
-      setIsLoadingUsers(false);
+      setLoadingUsers(false);
     }
   };
 
-  const handleCompanySelect = async (company: Company) => {
+  const handleCompanySelect = (company: Company) => {
     setSelectedCompany(company);
-    await loadCompanyUsers(company.id);
-    setStep('login');
+    setFormData(prev => ({ ...prev, email: '', password: '' }));
+    setSearchTerm('');
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -186,12 +220,6 @@ export default function UnifiedLoginPage() {
       toast.error(error instanceof Error ? error.message : 'Login failed');
     }
   };
-
-  const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.role.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role.toUpperCase()) {
@@ -425,7 +453,7 @@ export default function UnifiedLoginPage() {
               </div>
 
               {/* Users List */}
-              {isLoadingUsers ? (
+              {loadingUsers ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="w-6 h-6 animate-spin text-primary" />
                   <span className="ml-2 text-text-secondary">Loading users...</span>
@@ -468,7 +496,7 @@ export default function UnifiedLoginPage() {
               {/* User Count */}
               <div className="mt-4 text-center">
                 <p className="text-xs text-text-secondary">
-                  {filteredUsers.length} of {users.length} users
+                  {filteredUsers.length} of {companyUsers.length} users
                 </p>
               </div>
             </CardContent>
