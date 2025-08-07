@@ -262,7 +262,18 @@ class AuthMiddleware:
             try:
                 token = auth_header.split(" ")[1]
                 payload = verify_token(token)
-                scope["user"] = payload
+                
+                # Map payload to expected user structure
+                user_info = {
+                    "id": payload.get("sub"),
+                    "email": payload.get("email"),
+                    "role": payload.get("role"),
+                    "client_id": payload.get("company_id"),  # Map company_id to client_id
+                    "location_id": payload.get("location_id"),
+                    "status": "ACTIVE"
+                }
+                
+                scope["user"] = user_info
                 await self.app(scope, receive, send)
             except Exception as e:
                 response = {
