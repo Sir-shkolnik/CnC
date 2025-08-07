@@ -39,6 +39,9 @@ except ImportError as e:
     journey_event_broadcaster = None
     notification_service = None
 
+# Import database module
+from .database import initialize_database_pool, close_database_pool
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -55,6 +58,14 @@ async def lifespan(app: FastAPI):
     logger.info("📝 Audit trail system active")
     logger.info("🔌 WebSocket server initialized")
     
+    # Initialize database pool
+    try:
+        await initialize_database_pool()
+        logger.info("🗄️ Database connection pool initialized")
+    except Exception as e:
+        logger.error(f"Failed to initialize database pool: {e}")
+        raise
+    
     # Initialize WebSocket server
     if notification_service:
         notification_service.websocket_server = websocket_server
@@ -64,6 +75,13 @@ async def lifespan(app: FastAPI):
     # Shutdown
     logger.info("🛑 Shutting down C&C CRM API...")
     logger.info("🔌 WebSocket server shutting down...")
+    
+    # Close database pool
+    try:
+        await close_database_pool()
+        logger.info("🗄️ Database connection pool closed")
+    except Exception as e:
+        logger.error(f"Failed to close database pool: {e}")
 
 # ===== FASTAPI APP INITIALIZATION =====
 
