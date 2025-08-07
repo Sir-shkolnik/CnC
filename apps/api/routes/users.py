@@ -60,15 +60,14 @@ async def get_users(
             client_id = None
         else:
             # Regular users can only see users from their location
-            location_id = current_user.get("locationId") or current_user.get("location_id")
-            client_id = current_user.get("clientId") or current_user.get("client_id") or current_user.get("company_id")
-            
-            if not location_id:
+            if not current_user.get("locationId"):
                 return {
                     "success": False,
                     "error": "Missing tenant information",
                     "message": "User must be associated with a client and location"
                 }
+            location_id = current_user.get("locationId")
+            client_id = current_user.get("clientId")
         
         # Query real users from database
         conn = get_db_connection()
@@ -82,7 +81,7 @@ async def get_users(
             if current_user.get("user_type") != "super_admin":
                 # Regular users can only see users from their location
                 query += ' AND "locationId" = %s'
-                params.append(location_id)
+                params.append(current_user.get("locationId"))
             
             if role:
                 query += ' AND role = %s'

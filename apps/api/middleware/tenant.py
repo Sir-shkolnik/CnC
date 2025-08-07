@@ -123,7 +123,7 @@ class TenantMiddleware:
             
             if user_info:
                 # Set tenant context from authenticated user
-                client_id = user_info.get("client_id") or user_info.get("company_id")
+                client_id = user_info.get("client_id")
                 location_id = user_info.get("location_id")
                 user_id = user_info.get("sub")
                 

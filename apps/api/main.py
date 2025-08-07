@@ -103,8 +103,8 @@ app.add_middleware(
 
 # Custom middleware for C&C CRM
 app.add_middleware(AuditLoggerMiddleware)  # Log all actions
+app.add_middleware(TenantMiddleware)       # Multi-tenant scoping
 app.add_middleware(AuthMiddleware)         # JWT authentication
-# app.add_middleware(TenantMiddleware)       # Multi-tenant scoping - temporarily disabled
 
 # ===== GLOBAL EXCEPTION HANDLERS =====
 
@@ -151,7 +151,7 @@ async def health_check() -> Dict[str, Any]:
             "auth": "active",
             "journey": "active", 
             "audit": "active",
-            "multi_tenant": "disabled"
+            "multi_tenant": "active"
         }
     }
 
