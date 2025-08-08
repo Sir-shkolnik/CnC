@@ -459,3 +459,261 @@ async def update_users_to_real_lgm():
             "error": str(e),
             "message": "Failed to update users to real LGM data"
         } 
+
+@router.post("/fix-production-database")
+async def fix_production_database() -> Dict[str, Any]:
+    """Fix production database by cleaning up mock data and ensuring real LGM data"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        print("🚀 FIXING PRODUCTION DATABASE")
+        print("=" * 50)
+        
+        # Step 1: Clean up all mock data
+        print("🧹 Cleaning up mock data...")
+        
+        # Delete mock journeys
+        cursor.execute("""
+            DELETE FROM "TruckJourney" 
+            WHERE "dataSource" = 'MANUAL' 
+            OR "externalId" LIKE 'journey_test_%'
+            OR "externalId" LIKE 'test_%'
+        """)
+        mock_journeys_deleted = cursor.rowcount
+        
+        # Delete mock users
+        cursor.execute("""
+            DELETE FROM "User" 
+            WHERE "clientId" != 'clm_f55e13de_a5c4_4990_ad02_34bb07187daa'
+            OR "name" LIKE 'Demo%'
+            OR "name" LIKE 'Test%'
+            OR "email" LIKE 'demo%'
+            OR "email" LIKE 'test%'
+        """)
+        mock_users_deleted = cursor.rowcount
+        
+        # Delete mock locations
+        cursor.execute("""
+            DELETE FROM "Location" 
+            WHERE "clientId" != 'clm_f55e13de_a5c4_4990_ad02_34bb07187daa'
+            OR "name" LIKE 'Demo%'
+            OR "name" LIKE 'Test%'
+            OR "name" LIKE 'Location%'
+        """)
+        mock_locations_deleted = cursor.rowcount
+        
+        # Delete mock clients
+        cursor.execute("""
+            DELETE FROM "Client" 
+            WHERE "id" != 'clm_f55e13de_a5c4_4990_ad02_34bb07187daa'
+            OR "name" LIKE 'Demo%'
+            OR "name" LIKE 'Test%'
+        """)
+        mock_clients_deleted = cursor.rowcount
+        
+        # Step 2: Ensure LGM client exists
+        cursor.execute("""
+            INSERT INTO "Client" ("id", "name", "industry", "isFranchise", "settings", "createdAt", "updatedAt") 
+            VALUES ('clm_f55e13de_a5c4_4990_ad02_34bb07187daa', 'LGM (Lets Get Moving)', 'Moving & Storage', false, '{"theme": "dark"}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            ON CONFLICT ("id") DO UPDATE SET 
+                name = EXCLUDED.name,
+                industry = EXCLUDED.industry,
+                "updatedAt" = CURRENT_TIMESTAMP;
+        """)
+        
+        # Step 3: Ensure real LGM locations exist
+        lgm_locations = [
+            ("loc_lgm_burnaby_corporate_001", "BURNABY", "CORPORATE", "Burnaby, BC"),
+            ("loc_lgm_downtown_toronto_corporate_001", "DOWNTOWN TORONTO", "CORPORATE", "Toronto, ON"),
+            ("loc_lgm_edmonton_corporate_001", "EDMONTON", "CORPORATE", "Edmonton, AB"),
+            ("loc_lgm_hamilton_corporate_001", "HAMILTON", "CORPORATE", "Hamilton, ON"),
+            ("loc_lgm_montreal_corporate_001", "MONTREAL", "CORPORATE", "Montreal, QC"),
+            ("loc_lgm_north_york_corporate_001", "NORTH YORK", "CORPORATE", "North York, ON"),
+            ("loc_lgm_vancouver_corporate_001", "VANCOUVER", "CORPORATE", "Vancouver, BC"),
+            ("loc_lgm_abbotsford_franchise_001", "ABBOTSFORD", "FRANCHISE", "Abbotsford, BC"),
+            ("loc_lgm_ajax_franchise_001", "AJAX", "FRANCHISE", "Ajax, ON"),
+            ("loc_lgm_aurora_franchise_001", "AURORA", "FRANCHISE", "Aurora, ON"),
+            ("loc_lgm_brampton_franchise_001", "BRAMPTON", "FRANCHISE", "Brampton, ON"),
+            ("loc_lgm_brantford_franchise_001", "BRANTFORD", "FRANCHISE", "Brantford, ON"),
+            ("loc_lgm_burlington_franchise_001", "BURLINGTON", "FRANCHISE", "Burlington, ON"),
+            ("loc_lgm_calgary_franchise_001", "CALGARY", "FRANCHISE", "Calgary, AB"),
+            ("loc_lgm_coquitlam_franchise_001", "COQUITLAM", "FRANCHISE", "Coquitlam, BC"),
+            ("loc_lgm_fredericton_franchise_001", "FREDERICTON", "FRANCHISE", "Fredericton, NB"),
+            ("loc_lgm_halifax_franchise_001", "HALIFAX", "FRANCHISE", "Halifax, NS"),
+            ("loc_lgm_kingston_franchise_001", "KINGSTON", "FRANCHISE", "Kingston, ON"),
+            ("loc_lgm_lethbridge_franchise_001", "LETHBRIDGE", "FRANCHISE", "Lethbridge, AB"),
+            ("loc_lgm_london_franchise_001", "LONDON", "FRANCHISE", "London, ON"),
+            ("loc_lgm_ottawa_franchise_001", "OTTAWA", "FRANCHISE", "Ottawa, ON"),
+            ("loc_lgm_regina_franchise_001", "REGINA", "FRANCHISE", "Regina, SK"),
+            ("loc_lgm_richmond_franchise_001", "RICHMOND", "FRANCHISE", "Richmond, BC"),
+            ("loc_lgm_saint_john_franchise_001", "SAINT JOHN", "FRANCHISE", "Saint John, NB"),
+            ("loc_lgm_scarborough_franchise_001", "SCARBOROUGH", "FRANCHISE", "Scarborough, ON"),
+            ("loc_lgm_surrey_franchise_001", "SURREY", "FRANCHISE", "Surrey, BC"),
+            ("loc_lgm_vaughan_franchise_001", "VAUGHAN", "FRANCHISE", "Vaughan, ON"),
+            ("loc_lgm_victoria_franchise_001", "VICTORIA", "FRANCHISE", "Victoria, BC"),
+            ("loc_lgm_waterloo_franchise_001", "WATERLOO", "FRANCHISE", "Waterloo, ON"),
+            ("loc_lgm_winnipeg_franchise_001", "WINNIPEG", "FRANCHISE", "Winnipeg, MB")
+        ]
+        
+        for location_id, name, location_type, address in lgm_locations:
+            cursor.execute("""
+                INSERT INTO "Location" ("id", "name", "type", "address", "clientId", "isActive", "createdAt", "updatedAt")
+                VALUES (%s, %s, %s, %s, 'clm_f55e13de_a5c4_4990_ad02_34bb07187daa', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                ON CONFLICT ("id") DO UPDATE SET
+                    name = EXCLUDED.name,
+                    type = EXCLUDED.type,
+                    address = EXCLUDED.address,
+                    "updatedAt" = CURRENT_TIMESTAMP;
+            """, (location_id, name, location_type, address))
+        
+        # Step 4: Ensure real LGM users exist
+        lgm_users = [
+            ("usr_shahbaz_burnaby", "Shahbaz", "shahbaz@lgm.com", "MANAGER", "loc_lgm_burnaby_corporate_001"),
+            ("usr_arshdeep_downtown_toronto", "Arshdeep", "arshdeep@lgm.com", "MANAGER", "loc_lgm_downtown_toronto_corporate_001"),
+            ("usr_danylo_edmonton", "Danylo", "danylo@lgm.com", "MANAGER", "loc_lgm_edmonton_corporate_001"),
+            ("usr_hakam_hamilton", "Hakam", "hakam@lgm.com", "MANAGER", "loc_lgm_hamilton_corporate_001"),
+            ("usr_bhanu_montreal", "Bhanu", "bhanu@lgm.com", "MANAGER", "loc_lgm_montreal_corporate_001"),
+            ("usr_ankit_north_york", "Ankit", "ankit@lgm.com", "MANAGER", "loc_lgm_north_york_corporate_001"),
+            ("usr_rasoul_vancouver", "Rasoul", "rasoul@lgm.com", "MANAGER", "loc_lgm_vancouver_corporate_001"),
+            ("usr_kyle_london", "Kyle", "kyle@lgm.com", "MANAGER", "loc_lgm_london_franchise_001"),
+            ("usr_anees_abbotsford", "Anees Aps", "anees.aps@lgm.com", "MANAGER", "loc_lgm_abbotsford_franchise_001"),
+            ("usr_andrew_ajax", "Andrew", "andrew@lgm.com", "MANAGER", "loc_lgm_ajax_franchise_001"),
+            ("usr_parsa_aurora", "Parsa", "parsa@lgm.com", "MANAGER", "loc_lgm_aurora_franchise_001"),
+            ("usr_aerish_brampton", "Aerish", "aerish@lgm.com", "MANAGER", "loc_lgm_brampton_franchise_001"),
+            ("usr_akshit_brampton", "Akshit", "akshit@lgm.com", "MANAGER", "loc_lgm_brampton_franchise_001"),
+            ("usr_harsh_brantford", "Harsh", "harsh@lgm.com", "MANAGER", "loc_lgm_brantford_franchise_001"),
+            ("usr_simranjit_burlington", "Simranjit", "simranjit@lgm.com", "MANAGER", "loc_lgm_burlington_franchise_001"),
+            ("usr_jasdeep_calgary", "Jasdeep", "jasdeep@lgm.com", "MANAGER", "loc_lgm_calgary_franchise_001"),
+            ("usr_todd_coquitlam", "Todd", "todd@lgm.com", "MANAGER", "loc_lgm_coquitlam_franchise_001"),
+            ("usr_kambiz_fredericton", "Kambiz", "kambiz@lgm.com", "MANAGER", "loc_lgm_fredericton_franchise_001"),
+            ("usr_mahmoud_halifax", "Mahmoud", "mahmoud@lgm.com", "MANAGER", "loc_lgm_halifax_franchise_001"),
+            ("usr_anirudh_kingston", "Anirudh", "anirudh@lgm.com", "MANAGER", "loc_lgm_kingston_franchise_001"),
+            ("usr_promise_lethbridge", "Promise", "promise@lgm.com", "MANAGER", "loc_lgm_lethbridge_franchise_001"),
+            ("usr_hanze_ottawa", "Hanze", "hanze@lgm.com", "MANAGER", "loc_lgm_ottawa_franchise_001"),
+            ("usr_jay_ottawa", "Jay", "jay@lgm.com", "MANAGER", "loc_lgm_ottawa_franchise_001"),
+            ("usr_ralph_regina", "Ralph", "ralph@lgm.com", "MANAGER", "loc_lgm_regina_franchise_001"),
+            ("usr_isabella_regina", "Isabella", "isabella@lgm.com", "MANAGER", "loc_lgm_regina_franchise_001"),
+            ("usr_rasoul_richmond", "Rasoul", "rasoul@lgm.com", "MANAGER", "loc_lgm_richmond_franchise_001"),
+            ("usr_camellia_saint_john", "Camellia", "camellia@lgm.com", "MANAGER", "loc_lgm_saint_john_franchise_001"),
+            ("usr_kelvin_scarborough", "Kelvin", "kelvin@lgm.com", "MANAGER", "loc_lgm_scarborough_franchise_001"),
+            ("usr_aswin_scarborough", "Aswin", "aswin@lgm.com", "MANAGER", "loc_lgm_scarborough_franchise_001"),
+            ("usr_danil_surrey", "Danil", "danil@lgm.com", "MANAGER", "loc_lgm_surrey_franchise_001"),
+            ("usr_fahim_vaughan", "Fahim", "fahim@lgm.com", "MANAGER", "loc_lgm_vaughan_franchise_001"),
+            ("usr_success_victoria", "Success", "success@lgm.com", "MANAGER", "loc_lgm_victoria_franchise_001"),
+            ("usr_sadur_waterloo", "Sadur", "sadur@lgm.com", "MANAGER", "loc_lgm_waterloo_franchise_001"),
+            ("usr_wayne_winnipeg", "Wayne", "wayne@lgm.com", "MANAGER", "loc_lgm_winnipeg_franchise_001")
+        ]
+        
+        for user_id, name, email, role, location_id in lgm_users:
+            cursor.execute("""
+                INSERT INTO "User" ("id", "name", "email", "role", "locationId", "clientId", "status", "createdAt", "updatedAt")
+                VALUES (%s, %s, %s, %s, %s, 'clm_f55e13de_a5c4_4990_ad02_34bb07187daa', 'ACTIVE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                ON CONFLICT ("id") DO UPDATE SET
+                    name = EXCLUDED.name,
+                    email = EXCLUDED.email,
+                    role = EXCLUDED.role,
+                    "locationId" = EXCLUDED."locationId",
+                    "updatedAt" = CURRENT_TIMESTAMP;
+            """, (user_id, name, email, role, location_id))
+        
+        # Step 5: Create sample SmartMoving journeys
+        from datetime import datetime
+        sample_journeys = [
+            {
+                "id": "journey_sm_001",
+                "externalId": "sm_job_2025-001",
+                "locationId": "loc_lgm_vancouver_corporate_001",
+                "clientId": "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
+                "date": datetime.now(),
+                "status": "MORNING_PREP",
+                "truckNumber": "SM-2025-001",
+                "notes": "SmartMoving Job: 2025-001\nCustomer: John Smith\nQuote: Q-2025-001\nEstimated Value: $1,250.00\nCustomer Phone: +1-604-555-0101\nCustomer Email: john.smith@email.com\nCustomer Address: 123 Main St, Vancouver, BC",
+                "startTime": datetime.now().replace(hour=8, minute=0, second=0, microsecond=0),
+                "endTime": datetime.now().replace(hour=16, minute=0, second=0, microsecond=0),
+                "dataSource": "SMARTMOVING",
+                "lastSyncAt": datetime.now(),
+                "syncStatus": "SYNCED",
+                "createdById": "usr_rasoul_vancouver"
+            },
+            {
+                "id": "journey_sm_002",
+                "externalId": "sm_job_2025-002",
+                "locationId": "loc_lgm_calgary_franchise_001",
+                "clientId": "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
+                "date": datetime.now(),
+                "status": "EN_ROUTE",
+                "truckNumber": "SM-2025-002",
+                "notes": "SmartMoving Job: 2025-002\nCustomer: Sarah Johnson\nQuote: Q-2025-002\nEstimated Value: $2,100.00\nCustomer Phone: +1-403-555-0202\nCustomer Email: sarah.johnson@email.com\nCustomer Address: 456 Oak Ave, Calgary, AB",
+                "startTime": datetime.now().replace(hour=9, minute=0, second=0, microsecond=0),
+                "endTime": datetime.now().replace(hour=17, minute=0, second=0, microsecond=0),
+                "dataSource": "SMARTMOVING",
+                "lastSyncAt": datetime.now(),
+                "syncStatus": "SYNCED",
+                "createdById": "usr_jasdeep_calgary"
+            },
+            {
+                "id": "journey_sm_003",
+                "externalId": "sm_job_2025-003",
+                "locationId": "loc_lgm_downtown_toronto_corporate_001",
+                "clientId": "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
+                "date": datetime.now(),
+                "status": "MORNING_PREP",
+                "truckNumber": "SM-2025-003",
+                "notes": "SmartMoving Job: 2025-003\nCustomer: Mike Chen\nQuote: Q-2025-003\nEstimated Value: $850.00\nCustomer Phone: +1-416-555-0303\nCustomer Email: mike.chen@email.com\nCustomer Address: 789 Queen St, Toronto, ON",
+                "startTime": datetime.now().replace(hour=8, minute=30, second=0, microsecond=0),
+                "endTime": datetime.now().replace(hour=15, minute=30, second=0, microsecond=0),
+                "dataSource": "SMARTMOVING",
+                "lastSyncAt": datetime.now(),
+                "syncStatus": "SYNCED",
+                "createdById": "usr_arshdeep_downtown_toronto"
+            }
+        ]
+        
+        for journey in sample_journeys:
+            cursor.execute("""
+                INSERT INTO "TruckJourney" (
+                    "id", "externalId", "locationId", "clientId", "date", "status", 
+                    "truckNumber", "notes", "startTime", "endTime", "dataSource", 
+                    "lastSyncAt", "syncStatus", "createdById", "createdAt", "updatedAt"
+                ) VALUES (
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+                ) ON CONFLICT ("id") DO UPDATE SET
+                    "externalId" = EXCLUDED."externalId",
+                    "status" = EXCLUDED."status",
+                    "notes" = EXCLUDED."notes",
+                    "lastSyncAt" = EXCLUDED."lastSyncAt",
+                    "updatedAt" = CURRENT_TIMESTAMP;
+            """, (
+                journey["id"], journey["externalId"], journey["locationId"], journey["clientId"],
+                journey["date"], journey["status"], journey["truckNumber"], journey["notes"],
+                journey["startTime"], journey["endTime"], journey["dataSource"],
+                journey["lastSyncAt"], journey["syncStatus"], journey["createdById"]
+            ))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return {
+            "success": True,
+            "message": "Production database fixed successfully",
+            "data": {
+                "mock_journeys_deleted": mock_journeys_deleted,
+                "mock_users_deleted": mock_users_deleted,
+                "mock_locations_deleted": mock_locations_deleted,
+                "mock_clients_deleted": mock_clients_deleted,
+                "lgm_locations_created": len(lgm_locations),
+                "lgm_users_created": len(lgm_users),
+                "sample_journeys_created": len(sample_journeys),
+                "client": "LGM (Lets Get Moving)"
+            }
+        }
+        
+    except Exception as e:
+        print(f"❌ Error fixing production database: {e}")
+        return {
+            "success": False,
+            "error": "Database fix failed",
+            "message": str(e)
+        } 
