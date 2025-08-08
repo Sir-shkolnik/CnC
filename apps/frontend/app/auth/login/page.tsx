@@ -514,9 +514,10 @@ export default function UnifiedLoginPage() {
         
         // Store the user data and token for authentication
         if (userData.success && userData.user && userData.access_token) {
-          // Store token in localStorage
-          localStorage.setItem('access_token', userData.access_token);
-          localStorage.setItem('user_data', JSON.stringify(userData.user));
+          // Store token securely using SecureTokenManager
+          import('@/lib/security/SecureTokenManager').then(({ default: SecureTokenManager }) => {
+            SecureTokenManager.setSecureToken(userData.access_token, userData.refresh_token || '');
+          });
           
           const role = userData.user?.role || '';
           const userType = userData.user?.user_type || '';

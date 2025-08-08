@@ -97,6 +97,10 @@
 - **[Client Onboarding Guide](11_Planning_and_Strategy/12_client_onboarding_guide.md)** - Onboarding process
 - **[LGM Locations Data](11_Planning_and_Strategy/15_lgm_locations_data.md)** - Location management strategy
 
+### **🔐 [14. Security & IAM](14_Security_and_IAM/)**
+- **[Frontend IAM Security System](14_Security_and_IAM/FRONTEND_IAM_SECURITY_SYSTEM.md)** - CISSP-compliant IAM security system
+- **[Security Implementation Plan](14_Security_and_IAM/SECURITY_IMPLEMENTATION_PLAN.md)** - Immediate security implementation roadmap
+
 ### **📖 [12. Technical Reference](12_Technical_Reference/)**
 - **[Seed Data Summary](12_Technical_Reference/seed_data_summary.md)** - Database seeding
 - **[Pipeline Testing Summary](12_Technical_Reference/COMPREHENSIVE_PIPELINE_TESTING_SUMMARY.md)** - Testing pipeline
@@ -273,6 +277,7 @@
 - **User Experience** - Mobile-first responsive design
 - **Data Integrity** - Real LGM data with proper validation
 - **RBAC Implementation** - Complete role-based access control
+- **🔐 CISSP Security** - Comprehensive IAM system with httpOnly cookies, MFA, and audit logging
 
 ---
 

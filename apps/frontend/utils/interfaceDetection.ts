@@ -266,13 +266,14 @@ export const saveInterfacePreferences = (userId: string, config: InterfaceConfig
     timestamp: new Date().toISOString()
   };
   
-  localStorage.setItem(`interface_preferences_${userId}`, JSON.stringify(preferences));
+  // Use sessionStorage for interface preferences (less sensitive data)
+  sessionStorage.setItem(`interface_preferences_${userId}`, JSON.stringify(preferences));
 };
 
 export const loadInterfacePreferences = (userId: string): InterfaceConfig | null => {
   if (typeof window === 'undefined') return null;
   
-  const stored = localStorage.getItem(`interface_preferences_${userId}`);
+  const stored = sessionStorage.getItem(`interface_preferences_${userId}`);
   if (!stored) return null;
   
   try {
