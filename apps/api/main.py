@@ -23,7 +23,7 @@ from apps.api.routes import auth, journey, calendar, dispatch, feedback, crew, s
 from apps.api.routes import users, mobile, locations, journey_steps, admin, setup, real_time
 from apps.api.routes import customers, quotes
 from apps.api.routes import journey_workflow, super_admin
-from apps.api.routes import smartmoving, smartmoving_integration, company_management
+from apps.api.routes import smartmoving, smartmoving_integration, company_management, test_data
 # Import middleware
 from apps.api.middleware.auth import AuthMiddleware
 from apps.api.middleware.tenant import TenantMiddleware
@@ -324,6 +324,7 @@ app.include_router(setup.router, tags=["Setup"])
 
 # Real-time routes
 app.include_router(real_time.router, prefix="/real-time", tags=["Real-time"])
+app.include_router(test_data.router, prefix="/test", tags=["Test Data"])
 
 # ===== WEBSOCKET ENDPOINTS =====
 
