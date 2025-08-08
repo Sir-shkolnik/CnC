@@ -266,6 +266,18 @@ except Exception as e:
     async def super_admin_test():
         return {"message": "Super Admin test endpoint working"}
 
+# Backup Management routes
+try:
+    from apps.api.routes import backup_management
+    app.include_router(backup_management.router, prefix="/super-admin", tags=["Backup Management"])
+    print("✅ Backup Management routes loaded successfully")
+except Exception as e:
+    print(f"❌ Error loading Backup Management routes: {e}")
+    # Create a simple test endpoint
+    @app.get("/super-admin/backup/test")
+    async def backup_test():
+        return {"message": "Backup Management test endpoint working"}
+
 # SmartMoving Integration routes
 try:
     app.include_router(smartmoving_integration.router, tags=["SmartMoving Integration"])
@@ -276,6 +288,18 @@ except Exception as e:
     @app.get("/smartmoving/test")
     async def smartmoving_test():
         return {"message": "SmartMoving Integration test endpoint working"}
+
+# SmartMoving Jobs routes
+try:
+    from apps.api.routes import smartmoving_jobs
+    app.include_router(smartmoving_jobs.router, tags=["SmartMoving Jobs"])
+    print("✅ SmartMoving Jobs routes loaded successfully")
+except Exception as e:
+    print(f"❌ Error loading SmartMoving Jobs routes: {e}")
+    # Create a simple test endpoint
+    @app.get("/smartmoving-jobs/test")
+    async def smartmoving_jobs_test():
+        return {"message": "SmartMoving Jobs test endpoint working"}
 
 # Company Management routes
 try:
