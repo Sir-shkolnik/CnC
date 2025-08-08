@@ -106,8 +106,8 @@ export default function UnifiedLoginPage() {
       const uniqueLocations = Array.from(
         new Map(
           companyUsers
-            .filter(user => user.locationName && user.locationId)
-            .map(user => [
+            .filter((user: CompanyUser) => user.locationName && user.locationId)
+            .map((user: CompanyUser) => [
               user.locationId,
               {
                 id: user.locationId,
@@ -129,12 +129,12 @@ export default function UnifiedLoginPage() {
     
     // Filter by location first
     if (selectedLocation !== 'ALL') {
-      filtered = filtered.filter(user => user.locationId === selectedLocation);
+      filtered = filtered.filter((user: CompanyUser) => user.locationId === selectedLocation);
     }
     
     // Then filter by search term
     if (searchTerm.trim() !== '') {
-      filtered = filtered.filter(user =>
+      filtered = filtered.filter((user: CompanyUser) =>
         user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -378,7 +378,7 @@ export default function UnifiedLoginPage() {
                 </div>
               ) : (
                 <div className="grid gap-4">
-                  {companies.map((company) => (
+                  {companies.map((company: Company) => (
                     <button
                       key={company.id}
                       onClick={() => handleCompanySelect(company)}
@@ -547,7 +547,7 @@ export default function UnifiedLoginPage() {
                     className="w-full pl-10 pr-4 py-2 bg-surface border border-gray-600 rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   >
                     <option value="ALL">📍 All Locations ({locations.length})</option>
-                    {locations.map((location) => (
+                    {locations.map((location: Location) => (
                       <option key={location.id} value={location.id}>
                         📍 {location.name} ({location.type})
                       </option>
@@ -578,7 +578,7 @@ export default function UnifiedLoginPage() {
                 </div>
               ) : (
                 <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {filteredUsers.map((user) => (
+                  {filteredUsers.map((user: CompanyUser) => (
                     <div
                       key={user.id}
                       className="flex items-center justify-between p-3 bg-surface rounded-lg border border-gray-700 hover:border-primary transition-colors cursor-pointer"
