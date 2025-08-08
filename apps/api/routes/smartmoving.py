@@ -939,6 +939,47 @@ async def populate_test_data() -> Dict[str, Any]:
         
         location_id = location_result[0]
         
+        # Check if TruckJourney table exists
+        cursor.execute("""
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_schema = 'public' 
+                AND table_name = 'TruckJourney'
+            );
+        """)
+        table_exists = cursor.fetchone()[0]
+        
+        if not table_exists:
+            # Create the table if it doesn't exist
+            cursor.execute("""
+                CREATE TABLE "TruckJourney" (
+                    id VARCHAR(255) PRIMARY KEY,
+                    title VARCHAR(255),
+                    description TEXT,
+                    status VARCHAR(50),
+                    "startDate" DATE,
+                    "endDate" DATE,
+                    "originAddress" TEXT,
+                    "destinationAddress" TEXT,
+                    "estimatedCost" DECIMAL(10,2),
+                    "actualCost" DECIMAL(10,2),
+                    "customerName" VARCHAR(255),
+                    "customerPhone" VARCHAR(50),
+                    "customerEmail" VARCHAR(255),
+                    notes TEXT,
+                    tags TEXT,
+                    "externalId" VARCHAR(255),
+                    "externalData" JSONB,
+                    "clientId" VARCHAR(255),
+                    "locationId" VARCHAR(255),
+                    "createdAt" TIMESTAMP,
+                    "updatedAt" TIMESTAMP,
+                    "createdBy" VARCHAR(255),
+                    "updatedBy" VARCHAR(255)
+                );
+            """)
+            conn.commit()
+        
         # Create test journeys
         test_journeys = [
             {
