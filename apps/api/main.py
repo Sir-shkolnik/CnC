@@ -280,14 +280,14 @@ except Exception as e:
 
 # SmartMoving Integration routes
 try:
-    app.include_router(smartmoving_integration.router, tags=["SmartMoving Integration"])
+    app.include_router(smartmoving_integration.router, prefix="/smartmoving", tags=["SmartMoving Integration"])
     print("✅ SmartMoving Integration routes loaded successfully")
 except Exception as e:
     print(f"❌ Error loading SmartMoving Integration routes: {e}")
 
 # SmartMoving Sync routes
 try:
-    app.include_router(smartmoving.router, tags=["SmartMoving Sync"])
+    app.include_router(smartmoving.router, prefix="/smartmoving", tags=["SmartMoving Sync"])
     print("✅ SmartMoving Sync routes loaded successfully")
 except Exception as e:
     print(f"❌ Error loading SmartMoving Sync routes: {e}")
