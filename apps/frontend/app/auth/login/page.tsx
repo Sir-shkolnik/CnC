@@ -158,70 +158,32 @@ export default function UnifiedLoginPage() {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/companies/${companyId}/users`);
       if (response.ok) {
         const data = await response.json();
-        let users = data.data || [];
+        const users = data.data || [];
         
-        // Simplified fallback: Show a few key LGM users
-        if (companyId === "clm_f55e13de_a5c4_4990_ad02_34bb07187daa") {
-          console.log("Loading LGM users");
-          users = [
-            {
-              id: "usr_shahbaz_burnaby",
-              name: "Shahbaz",
-              email: "shahbaz@lgm.com",
-              role: "MANAGER",
-              locationId: "loc_lgm_burnaby_corporate_001",
-              status: "ACTIVE",
-              locationName: "BURNABY",
-              locationType: "CORPORATE"
-            },
-            {
-              id: "usr_arshdeep_downtown_toronto",
-              name: "Arshdeep",
-              email: "arshdeep@lgm.com",
-              role: "MANAGER",
-              locationId: "loc_lgm_downtown_toronto_corporate_001",
-              status: "ACTIVE",
-              locationName: "DOWNTOWN TORONTO",
-              locationType: "CORPORATE"
-            },
-            {
-              id: "usr_danylo_edmonton",
-              name: "Danylo",
-              email: "danylo@lgm.com",
-              role: "MANAGER",
-              locationId: "loc_lgm_edmonton_corporate_001",
-              status: "ACTIVE",
-              locationName: "EDMONTON",
-              locationType: "CORPORATE"
-            },
-            {
-              id: "usr_kyle_london",
-              name: "Kyle",
-              email: "kyle@lgm.com",
-              role: "MANAGER",
-              locationId: "loc_lgm_london_franchise_001",
-              status: "ACTIVE",
-              locationName: "LONDON",
-              locationType: "FRANCHISE"
-            },
-            {
-              id: "usr_hanze_ottawa",
-              name: "Hanze",
-              email: "hanze@lgm.com",
-              role: "MANAGER",
-              locationId: "loc_lgm_ottawa_franchise_001",
-              status: "ACTIVE",
-              locationName: "OTTAWA",
-              locationType: "FRANCHISE"
-            }
-          ];
-        }
+        console.log(`Loaded ${users.length} real LGM users from API`);
         
-        setCompanyUsers(users);
+        // Transform API data to match our interface
+        const transformedUsers = users.map((user: any) => ({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          locationId: user.locationId,
+          status: user.status,
+          locationName: user.location_name,
+          locationType: user.location_type
+        }));
+        
+        setCompanyUsers(transformedUsers);
+      } else {
+        console.error('Failed to fetch users:', response.status, response.statusText);
+        toast.error('Failed to load users');
+        setCompanyUsers([]);
       }
     } catch (error) {
       console.error('Failed to fetch company users:', error);
       toast.error('Failed to load users');
+      setCompanyUsers([]);
     } finally {
       setLoadingUsers(false);
     }
