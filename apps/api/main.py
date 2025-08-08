@@ -22,7 +22,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'modules'))
 from apps.api.routes import auth, journey, calendar, dispatch, feedback, crew, storage, media, audit
 from apps.api.routes import users, mobile, locations, journey_steps, admin, setup, real_time
 from apps.api.routes import customers, quotes
-from apps.api.routes import journey_workflow, super_admin, smartmoving
+from apps.api.routes import journey_workflow, super_admin
+from apps.api.routes import smartmoving_integration
 # Import middleware
 from apps.api.middleware.auth import AuthMiddleware
 from apps.api.middleware.tenant import TenantMiddleware
@@ -248,6 +249,17 @@ except Exception as e:
     async def super_admin_test():
         return {"message": "Super Admin test endpoint working"}
 
+# SmartMoving Integration routes
+try:
+    app.include_router(smartmoving_integration.router, tags=["SmartMoving Integration"])
+    print("✅ SmartMoving Integration routes loaded successfully")
+except Exception as e:
+    print(f"❌ Error loading SmartMoving Integration routes: {e}")
+    # Create a simple test endpoint
+    @app.get("/smartmoving/test")
+    async def smartmoving_test():
+        return {"message": "SmartMoving Integration test endpoint working"}
+
 # Admin routes
 app.include_router(admin.router, tags=["Admin"])
 
@@ -265,9 +277,6 @@ app.include_router(setup.router, tags=["Setup"])
 
 # Real-time routes
 app.include_router(real_time.router, prefix="/real-time", tags=["Real-time"])
-
-# SmartMoving Integration routes
-app.include_router(smartmoving.router, tags=["SmartMoving Integration"])
 
 # ===== WEBSOCKET ENDPOINTS =====
 

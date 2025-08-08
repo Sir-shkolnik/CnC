@@ -1,0 +1,61 @@
+{
+  "test_timestamp": "2025-08-08T00:04:09.779576Z",
+  "api_config": {
+    "base_url": "https://api.smartmoving.com",
+    "api_key": "18584017...",
+    "client_id": "b0db4e2b...",
+    "provider_key": "c_and_c_crm_provider"
+  },
+  "summary": {
+    "total_tests": 6,
+    "passed_tests": 0,
+    "failed_tests": 6,
+    "success_rate": 0.0,
+    "overall_status": "\ud83d\udd34 NOT CONNECTED"
+  },
+  "detailed_results": {
+    "health": {
+      "success": false,
+      "status_code": 0,
+      "error": "UnexpectedError",
+      "message": "Expecting value: line 1 column 1 (char 0)"
+    },
+    "auth": {
+      "success": false,
+      "status_code": 404,
+      "error": "HTTP 404",
+      "message": "",
+      "data": null
+    },
+    "account": {
+      "success": false,
+      "status_code": 404,
+      "error": "HTTP 404",
+      "message": "",
+      "data": null
+    },
+    "leads": {
+      "success": false,
+      "status_code": 404,
+      "error": "HTTP 404",
+      "message": "",
+      "data": null
+    },
+    "webhooks": {
+      "success": false,
+      "status_code": 404,
+      "error": "HTTP 404",
+      "message": "",
+      "data": null
+    },
+    "lead_submission": {
+      "success": false,
+      "status_code": 400,
+      "error": "HTTP 400",
+      "message": "{\"message\":\"Provider not found.\"}",
+      "data": {
+        "message": "Provider not found."
+      }
+    }
+  }
+}
