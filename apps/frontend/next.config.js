@@ -14,8 +14,7 @@ const nextConfig = {
             // Global security headers for all routes
             {
                 source: '/(.*)',
-                headers: [
-                    {
+                headers: [{
                         key: 'X-Frame-Options',
                         value: 'DENY'
                     },
