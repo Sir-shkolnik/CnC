@@ -16,7 +16,7 @@ from prisma.models import (
     CompanyRoomType, CompanyUser, CompanyReferralSource
 )
 from apps.api.services.company_sync_service import CompanySyncService
-from apps.api.middleware.super_admin_auth import get_super_admin_user
+from apps.api.middleware.super_admin_auth import get_current_super_admin
 
 router = APIRouter()
 
@@ -32,7 +32,7 @@ async def get_db():
 @router.get("/companies", response_model=List[Dict[str, Any]])
 async def get_companies(
     db: Prisma = Depends(get_db),
-    super_admin: dict = Depends(get_super_admin_user)
+    super_admin: dict = Depends(get_current_super_admin)
 ):
     """Get all company integrations"""
     companies = await db.companyintegration.find_many(
@@ -61,7 +61,7 @@ async def get_companies(
 async def get_company(
     company_id: str,
     db: Prisma = Depends(get_db),
-    super_admin: dict = Depends(get_super_admin_user)
+    super_admin: dict = Depends(get_current_super_admin)
 ):
     """Get specific company integration details"""
     company = await db.companyintegration.find_unique(
@@ -90,7 +90,7 @@ async def get_company(
 async def create_company(
     company_data: Dict[str, Any],
     db: Prisma = Depends(get_db),
-    super_admin: dict = Depends(get_super_admin_user)
+    super_admin: dict = Depends(get_current_super_admin)
 ):
     """Create a new company integration"""
     try:
@@ -135,7 +135,7 @@ async def update_company(
     company_id: str,
     company_data: Dict[str, Any],
     db: Prisma = Depends(get_db),
-    super_admin: dict = Depends(get_super_admin_user)
+    super_admin: dict = Depends(get_current_super_admin)
 ):
     """Update company integration"""
     try:
@@ -176,7 +176,7 @@ async def update_company(
 async def delete_company(
     company_id: str,
     db: Prisma = Depends(get_db),
-    super_admin: dict = Depends(get_super_admin_user)
+    super_admin: dict = Depends(get_current_super_admin)
 ):
     """Delete company integration"""
     try:
@@ -190,7 +190,7 @@ async def trigger_company_sync(
     company_id: str,
     background_tasks: BackgroundTasks,
     db: Prisma = Depends(get_db),
-    super_admin: dict = Depends(get_super_admin_user)
+    super_admin: dict = Depends(get_current_super_admin)
 ):
     """Trigger manual sync for a company"""
     company = await db.companyintegration.find_unique(where={"id": company_id})
@@ -214,7 +214,7 @@ async def get_company_sync_logs(
     company_id: str,
     limit: int = 50,
     db: Prisma = Depends(get_db),
-    super_admin: dict = Depends(get_super_admin_user)
+    super_admin: dict = Depends(get_current_super_admin)
 ):
     """Get sync logs for a company"""
     logs = await db.companydatasynclog.find_many(
@@ -244,7 +244,7 @@ async def get_company_sync_logs(
 async def get_company_branches(
     company_id: str,
     db: Prisma = Depends(get_db),
-    super_admin: dict = Depends(get_super_admin_user)
+    super_admin: dict = Depends(get_current_super_admin)
 ):
     """Get branches for a company"""
     branches = await db.companybranch.find_many(
@@ -279,7 +279,7 @@ async def get_company_materials(
     company_id: str,
     category: Optional[str] = None,
     db: Prisma = Depends(get_db),
-    super_admin: dict = Depends(get_super_admin_user)
+    super_admin: dict = Depends(get_current_super_admin)
 ):
     """Get materials for a company"""
     where_clause = {"companyIntegrationId": company_id, "isActive": True}
@@ -317,12 +317,12 @@ async def get_company_materials(
 async def get_company_service_types(
     company_id: str,
     db: Prisma = Depends(get_db),
-    super_admin: dict = Depends(get_super_admin_user)
+    super_admin: dict = Depends(get_current_super_admin)
 ):
     """Get service types for a company"""
     service_types = await db.companyservicetype.find_many(
         where={"companyIntegrationId": company_id, "isActive": True},
-        order={"order": "asc"}
+        order={"name": "asc"}
     )
     
     return [
@@ -330,11 +330,8 @@ async def get_company_service_types(
             "id": service_type.id,
             "externalId": service_type.externalId,
             "name": service_type.name,
-            "scalingFactorPercentage": service_type.scalingFactorPercentage,
-            "hasActivityLoading": service_type.hasActivityLoading,
-            "hasActivityFinishedLoading": service_type.hasActivityFinishedLoading,
-            "hasActivityUnloading": service_type.hasActivityUnloading,
-            "order": service_type.order,
+            "description": service_type.description,
+            "category": service_type.category,
             "lastSyncedAt": service_type.lastSyncedAt,
             "createdAt": service_type.createdAt,
             "updatedAt": service_type.updatedAt
@@ -346,12 +343,12 @@ async def get_company_service_types(
 async def get_company_move_sizes(
     company_id: str,
     db: Prisma = Depends(get_db),
-    super_admin: dict = Depends(get_super_admin_user)
+    super_admin: dict = Depends(get_current_super_admin)
 ):
     """Get move sizes for a company"""
     move_sizes = await db.companymovesize.find_many(
         where={"companyIntegrationId": company_id, "isActive": True},
-        order={"volume": "asc"}
+        order={"name": "asc"}
     )
     
     return [
@@ -360,8 +357,7 @@ async def get_company_move_sizes(
             "externalId": move_size.externalId,
             "name": move_size.name,
             "description": move_size.description,
-            "volume": move_size.volume,
-            "weight": move_size.weight,
+            "sizeRange": move_size.sizeRange,
             "lastSyncedAt": move_size.lastSyncedAt,
             "createdAt": move_size.createdAt,
             "updatedAt": move_size.updatedAt
@@ -373,12 +369,12 @@ async def get_company_move_sizes(
 async def get_company_room_types(
     company_id: str,
     db: Prisma = Depends(get_db),
-    super_admin: dict = Depends(get_super_admin_user)
+    super_admin: dict = Depends(get_current_super_admin)
 ):
     """Get room types for a company"""
     room_types = await db.companyroomtype.find_many(
         where={"companyIntegrationId": company_id, "isActive": True},
-        order={"order": "asc"}
+        order={"name": "asc"}
     )
     
     return [
@@ -387,7 +383,7 @@ async def get_company_room_types(
             "externalId": room_type.externalId,
             "name": room_type.name,
             "description": room_type.description,
-            "order": room_type.order,
+            "category": room_type.category,
             "lastSyncedAt": room_type.lastSyncedAt,
             "createdAt": room_type.createdAt,
             "updatedAt": room_type.updatedAt
@@ -399,7 +395,7 @@ async def get_company_room_types(
 async def get_company_users(
     company_id: str,
     db: Prisma = Depends(get_db),
-    super_admin: dict = Depends(get_super_admin_user)
+    super_admin: dict = Depends(get_current_super_admin)
 ):
     """Get users for a company"""
     users = await db.companyuser.find_many(
@@ -412,11 +408,9 @@ async def get_company_users(
             "id": user.id,
             "externalId": user.externalId,
             "name": user.name,
-            "title": user.title,
             "email": user.email,
-            "primaryBranchId": user.primaryBranchId,
-            "roleId": user.roleId,
-            "roleName": user.roleName,
+            "phone": user.phone,
+            "role": user.role,
             "lastSyncedAt": user.lastSyncedAt,
             "createdAt": user.createdAt,
             "updatedAt": user.updatedAt
@@ -428,7 +422,7 @@ async def get_company_users(
 async def get_company_referral_sources(
     company_id: str,
     db: Prisma = Depends(get_db),
-    super_admin: dict = Depends(get_super_admin_user)
+    super_admin: dict = Depends(get_current_super_admin)
 ):
     """Get referral sources for a company"""
     referral_sources = await db.companyreferralsource.find_many(
@@ -441,8 +435,8 @@ async def get_company_referral_sources(
             "id": referral_source.id,
             "externalId": referral_source.externalId,
             "name": referral_source.name,
-            "isLeadProvider": referral_source.isLeadProvider,
-            "isPublic": referral_source.isPublic,
+            "description": referral_source.description,
+            "category": referral_source.category,
             "lastSyncedAt": referral_source.lastSyncedAt,
             "createdAt": referral_source.createdAt,
             "updatedAt": referral_source.updatedAt
@@ -454,7 +448,7 @@ async def get_company_referral_sources(
 async def get_company_stats(
     company_id: str,
     db: Prisma = Depends(get_db),
-    super_admin: dict = Depends(get_super_admin_user)
+    super_admin: dict = Depends(get_current_super_admin)
 ):
     """Get statistics for a company"""
     # Count records
