@@ -33,10 +33,12 @@ This folder contains comprehensive user journey documentation for each RBAC (Rol
 |------|-------------|-------------------|---------------------|---------------|
 | **SUPER_ADMIN** | System-wide across all companies | Super Admin Portal | Multi-company management, system oversight | Company management, cross-company analytics, system settings |
 | **ADMIN** | Company-wide within assigned company | Desktop Management Portal | Company administration, user management | User management, journey oversight, company settings, **Customer Management**, **Sales Pipeline** |
+| **OPERATIONAL_MANAGER** | Cross-company operational oversight | Desktop Management Portal | Operational oversight, performance monitoring | Cross-company analytics, performance metrics, operational reporting |
 | **DISPATCHER** | Assigned locations only | Desktop Management Portal | Journey management, crew coordination | Journey creation, crew assignment, real-time tracking, **Customer Management**, **Sales Pipeline** |
 | **DRIVER** | Own journeys only | Mobile Field Operations Portal | Vehicle operation, journey execution | GPS tracking, media capture, journey steps, mobile-first design |
 | **MOVER** | Own journeys only | Mobile Field Operations Portal | Physical moving operations, customer service | Item documentation, safety procedures, customer interaction |
 | **MANAGER** | Assigned locations with oversight | Desktop Management Portal | Operational oversight, team leadership | Team management, performance analytics, escalation handling, **Customer Management**, **Sales Pipeline** |
+| **DB_ADMIN** | Database administration | Database Management Portal | Database management, system operations | Database backup, restore, migration, monitoring, optimization |
 | **AUDITOR** | Read-only access to all data | Desktop Audit Portal | Compliance monitoring, quality assurance | Audit review, compliance reporting, quality assessment |
 | **STORAGE_MANAGER** | Storage system within locations | Storage Management Portal | Storage unit management, operations | Storage inventory, booking management, billing |
 
@@ -50,10 +52,12 @@ This folder contains comprehensive user journey documentation for each RBAC (Rol
 |------|-----------|------------------|-----|-----------------|
 | **SUPER_ADMIN** | `/super-admin/auth/login` | 8 hours | Optional | Limited |
 | **ADMIN** | `/auth/login` | 8 hours | Optional | Limited |
+| **OPERATIONAL_MANAGER** | `/auth/login` | 8 hours | Required | Limited |
 | **DISPATCHER** | `/auth/login` | 8 hours | Optional | Limited |
 | **DRIVER** | `/mobile` | 12 hours | Optional | Full (Mobile-First) |
 | **MOVER** | `/mobile` | 12 hours | Optional | Full |
 | **MANAGER** | `/auth/login` | 8 hours | Optional | Limited |
+| **DB_ADMIN** | `/auth/login` | 8 hours | Required | Limited |
 | **AUDITOR** | `/auth/login` | 8 hours | Required | Limited |
 | **STORAGE_MANAGER** | `/auth/login` | 8 hours | Optional | Limited |
 
@@ -63,10 +67,12 @@ This folder contains comprehensive user journey documentation for each RBAC (Rol
 |------|------------------|----------------|----------------|-----------------|
 | **SUPER_ADMIN** | Desktop Portal | Responsive | Responsive | Full |
 | **ADMIN** | Desktop Portal | Responsive | Responsive | Full |
+| **OPERATIONAL_MANAGER** | Desktop Portal | Responsive | Responsive | Full |
 | **DISPATCHER** | Desktop Portal | Responsive | Responsive | Full |
 | **DRIVER** | Mobile Portal | Full (No Desktop Menus) | Responsive | Responsive |
 | **MOVER** | Mobile Portal | Full | Responsive | Responsive |
 | **MANAGER** | Desktop Portal | Responsive | Responsive | Full |
+| **DB_ADMIN** | Desktop Portal | Responsive | Responsive | Full |
 | **AUDITOR** | Desktop Portal | Responsive | Responsive | Full |
 | **STORAGE_MANAGER** | Desktop Portal | Responsive | Responsive | Full |
 
@@ -76,10 +82,12 @@ This folder contains comprehensive user journey documentation for each RBAC (Rol
 |------|-------------------|----------------|----------------|------------|
 | **SUPER_ADMIN** | ✅ Full | ✅ Full | PDF, Excel, CSV, JSON | ✅ |
 | **ADMIN** | ✅ Full | ✅ Full | PDF, Excel, CSV, JSON | ✅ |
+| **OPERATIONAL_MANAGER** | ✅ Full | ✅ Full | PDF, Excel, CSV, JSON | ✅ |
 | **DISPATCHER** | ✅ Limited | ✅ Limited | PDF, Excel, CSV | ✅ |
 | **DRIVER** | ✅ Personal | ❌ | ❌ | ❌ |
 | **MOVER** | ✅ Personal | ❌ | ❌ | ❌ |
 | **MANAGER** | ✅ Full | ✅ Full | PDF, Excel, CSV, JSON | ✅ |
+| **DB_ADMIN** | ✅ System | ✅ System | PDF, Excel, CSV, JSON | ✅ |
 | **AUDITOR** | ✅ Full | ✅ Full | PDF, Excel, CSV, JSON | ✅ |
 | **STORAGE_MANAGER** | ✅ Full | ✅ Full | PDF, Excel, CSV, JSON | ✅ |
 
@@ -89,10 +97,12 @@ This folder contains comprehensive user journey documentation for each RBAC (Rol
 |------|-------------------|----------------|---------------|------------------|
 | **SUPER_ADMIN** | ✅ Full | ✅ Full | ✅ Full | ✅ Full |
 | **ADMIN** | ✅ Full | ✅ Full | ✅ Full | ✅ Full |
+| **OPERATIONAL_MANAGER** | ✅ Read-Only | ✅ Read-Only | ✅ Read-Only | ✅ Read-Only |
 | **DISPATCHER** | ✅ Full | ✅ Full | ✅ Full | ✅ Full |
 | **DRIVER** | ❌ | ❌ | ❌ | ❌ |
 | **MOVER** | ❌ | ❌ | ❌ | ❌ |
 | **MANAGER** | ✅ Full | ✅ Full | ✅ Full | ✅ Full |
+| **DB_ADMIN** | ❌ | ❌ | ❌ | ❌ |
 | **AUDITOR** | ✅ Read-Only | ✅ Read-Only | ✅ Read-Only | ✅ Read-Only |
 | **STORAGE_MANAGER** | ❌ | ❌ | ❌ | ❌ |
 
@@ -117,6 +127,15 @@ This folder contains comprehensive user journey documentation for each RBAC (Rol
 - **Crew Management:** Oversee crew assignments and performance
 - **🆕 Customer Management:** Complete customer profiles and lead tracking
 - **🆕 Sales Pipeline:** Quote management and sales analytics
+
+### **📊 OPERATIONAL_MANAGER**
+- **Cross-Company Oversight:** Operational oversight across all companies
+- **Performance Monitoring:** System-wide performance metrics and KPIs
+- **Operational Analytics:** Cross-company operational reporting
+- **Employee Management:** View all employees and dispatchers
+- **Performance Tracking:** Monitor operational efficiency
+- **🆕 Customer Analytics:** Cross-company customer insights
+- **🆕 Sales Analytics:** Cross-company sales performance
 
 ### **🚛 DISPATCHER**
 - **Journey Creation:** Create and manage journeys
@@ -159,6 +178,15 @@ This folder contains comprehensive user journey documentation for each RBAC (Rol
 - **🆕 Customer Audit:** Customer data compliance review
 - **🆕 Sales Audit:** Sales pipeline compliance review
 
+### **🗄️ DB_ADMIN**
+- **Database Management:** Complete database administration
+- **Backup & Restore:** Database backup and restoration
+- **Migration Management:** Database schema migrations
+- **Performance Monitoring:** Database performance optimization
+- **System Operations:** System-level database operations
+- **Security Management:** Database security and access control
+- **Maintenance:** Database maintenance and optimization
+
 ### **📦 STORAGE_MANAGER**
 - **Storage Management:** Manage storage unit inventory
 - **Booking Management:** Handle storage bookings
@@ -176,10 +204,12 @@ This folder contains comprehensive user journey documentation for each RBAC (Rol
 |------|-------------|----------------|---------------|
 | **SUPER_ADMIN** | System uptime, user adoption, revenue growth | Efficiency gains, cost reduction | 99.9% uptime, 90% adoption |
 | **ADMIN** | Company revenue, user adoption, journey performance | Efficiency gains, customer satisfaction | 10% revenue growth, 4.5+ rating |
+| **OPERATIONAL_MANAGER** | Cross-company efficiency, operational performance | Operational excellence, cost optimization | 95% efficiency, 15% cost reduction |
 | **DISPATCHER** | Journey completion rate, on-time performance, crew utilization | Customer satisfaction, crew satisfaction | 95% completion, 90% on-time |
 | **DRIVER** | Journey completion rate, on-time performance, safety score | Customer satisfaction, safety improvements | 95% completion, 95% safety |
 | **MOVER** | Journey completion rate, customer satisfaction, damage rate | Customer satisfaction, safety improvements | 95% completion, <0.5% damage |
 | **MANAGER** | Team performance, customer satisfaction, operational efficiency | Team development, operational excellence | 4.5+ team rating, 90% efficiency |
+| **DB_ADMIN** | Database uptime, performance, backup success | System reliability, data integrity | 99.99% uptime, 100% backup success |
 | **AUDITOR** | Compliance rate, quality score, audit completion | Compliance improvement, quality enhancement | 95% compliance, 4.5+ quality |
 | **STORAGE_MANAGER** | Utilization rate, revenue growth, customer satisfaction | Efficiency gains, revenue growth | 85% utilization, 10% growth |
 
@@ -193,10 +223,12 @@ This folder contains comprehensive user journey documentation for each RBAC (Rol
 |------|---------------------|-----------------|------------|
 | **SUPER_ADMIN** | All systems | All data | Full access |
 | **ADMIN** | Company systems | Company data | Company access |
+| **OPERATIONAL_MANAGER** | Cross-company systems | Cross-company data | Cross-company access |
 | **DISPATCHER** | Journey, crew, communication, **Customer**, **Sales** | Journey data, **Customer data**, **Sales data** | Journey access, **CRM access** |
 | **DRIVER** | GPS, camera, communication | Journey data | Limited access |
 | **MOVER** | Camera, communication | Journey data | Limited access |
 | **MANAGER** | Team, analytics, communication, **Customer**, **Sales** | Team data, **Customer data**, **Sales data** | Team access, **CRM access** |
+| **DB_ADMIN** | Database, system, monitoring | Database data, system data | Database access, system access |
 | **AUDITOR** | Compliance, quality, reporting, **Customer**, **Sales** | Audit data, **Customer data**, **Sales data** | Read-only access |
 | **STORAGE_MANAGER** | Storage, billing, customer | Storage data | Storage access |
 
@@ -210,10 +242,12 @@ This folder contains comprehensive user journey documentation for each RBAC (Rol
 |------|------------------|-----------------|-------------------|----------------|
 | **SUPER_ADMIN** | Responsive | Limited | ✅ | ✅ |
 | **ADMIN** | Responsive | Limited | ✅ | ✅ |
+| **OPERATIONAL_MANAGER** | Responsive | Limited | ✅ | ✅ |
 | **DISPATCHER** | Responsive | Limited | ✅ | ✅ |
 | **DRIVER** | Mobile-First | Full | ✅ | ✅ |
 | **MOVER** | Mobile-First | Full | ✅ | ✅ |
 | **MANAGER** | Responsive | Limited | ✅ | ✅ |
+| **DB_ADMIN** | Responsive | Limited | ✅ | ✅ |
 | **AUDITOR** | Responsive | Limited | ✅ | ✅ |
 | **STORAGE_MANAGER** | Responsive | Limited | ✅ | ✅ |
 
@@ -227,10 +261,12 @@ This folder contains comprehensive user journey documentation for each RBAC (Rol
 |------|-------------|-------------------|------------|------------|
 | **SUPER_ADMIN** | AI-powered analytics, predictive insights | Advanced BI, ML insights | Automated management | Native app |
 | **ADMIN** | AI-powered management, predictive analytics | Advanced reporting, ML insights | Automated operations | Native app |
+| **OPERATIONAL_MANAGER** | AI-powered operational insights, predictive analytics | Cross-company analytics, ML insights | Automated oversight | Native app |
 | **DISPATCHER** | AI-powered routing, predictive scheduling | Advanced analytics, ML insights | Automated dispatch | Native app |
 | **DRIVER** | AI-powered navigation, predictive analytics | Personal analytics, ML insights | Automated tasks | Native app |
 | **MOVER** | AI-powered planning, predictive analytics | Personal analytics, ML insights | Automated tasks | Native app |
 | **MANAGER** | AI-powered management, predictive analytics | Advanced analytics, ML insights | Automated oversight | Native app |
+| **DB_ADMIN** | AI-powered database optimization, predictive maintenance | Database analytics, ML insights | Automated maintenance | Native app |
 | **AUDITOR** | AI-powered auditing, predictive compliance | Advanced analytics, ML insights | Automated auditing | Native app |
 | **STORAGE_MANAGER** | AI-powered analytics, predictive maintenance | Advanced analytics, ML insights | Automated operations | Native app |
 
@@ -244,10 +280,12 @@ This folder contains comprehensive user journey documentation for each RBAC (Rol
 |------|------------|------------------|----------------|-------------------|
 | **SUPER_ADMIN** | ✅ | ✅ | ✅ | ✅ |
 | **ADMIN** | ✅ | ✅ | ✅ | ✅ |
+| **OPERATIONAL_MANAGER** | ✅ | ✅ | ✅ | ✅ |
 | **DISPATCHER** | ✅ | ✅ | ✅ | ✅ |
 | **DRIVER** | ✅ | ✅ | ✅ | ✅ |
 | **MOVER** | ✅ | ✅ | ✅ | ✅ |
 | **MANAGER** | ✅ | ✅ | ✅ | ✅ |
+| **DB_ADMIN** | ✅ | ✅ | ✅ | ✅ |
 | **AUDITOR** | ✅ | ✅ | ✅ | ✅ |
 | **STORAGE_MANAGER** | ✅ | ✅ | ✅ | ✅ |
 
@@ -296,7 +334,9 @@ The C&C CRM system provides **comprehensive user journeys** for each role, ensur
 
 **🎯 Each user journey is designed to maximize efficiency, ensure compliance, and provide an excellent user experience while maintaining the highest standards of security and operational excellence.**
 
-**🆕 The system now includes complete Customer Management and Sales Pipeline functionality, making it a comprehensive CRM solution for moving and logistics companies.** 
+**🆕 The system now includes complete Customer Management and Sales Pipeline functionality, making it a comprehensive CRM solution for moving and logistics companies.**
+
+**🔐 The system now includes 10 complete user roles with 50+ granular permissions, providing comprehensive role-based access control for all user types.** 
 
 I'll analyze the codebase to understand the user roles, journey flows, view options, and logic. Let me start by exploring the relevant files.
 
