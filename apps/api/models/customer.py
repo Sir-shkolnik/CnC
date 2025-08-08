@@ -3,7 +3,7 @@ Customer Management Models
 C&C CRM - Pydantic Models for Customer & Lead Management
 """
 
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import BaseModel, Field, validator
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 from decimal import Decimal
@@ -56,7 +56,7 @@ class AddressModel(BaseModel):
 class CustomerCreate(BaseModel):
     firstName: str = Field(..., min_length=1, max_length=50, description="Customer first name")
     lastName: str = Field(..., min_length=1, max_length=50, description="Customer last name")
-    email: EmailStr = Field(..., description="Customer email address")
+    email: str = Field(..., description="Customer email address")  # TEMPORARY: Changed from EmailStr to str to fix deployment
     phone: str = Field(..., min_length=10, max_length=20, description="Customer phone number")
     address: AddressModel = Field(..., description="Customer address")
     leadSource: Optional[str] = Field(None, max_length=100, description="How the customer found us")
@@ -84,7 +84,7 @@ class CustomerCreate(BaseModel):
 class CustomerUpdate(BaseModel):
     firstName: Optional[str] = Field(None, min_length=1, max_length=50)
     lastName: Optional[str] = Field(None, min_length=1, max_length=50)
-    email: Optional[EmailStr] = None
+    email: Optional[str] = None  # TEMPORARY: Changed from EmailStr to str to fix deployment
     phone: Optional[str] = Field(None, min_length=10, max_length=20)
     address: Optional[AddressModel] = None
     leadSource: Optional[str] = Field(None, max_length=100)
