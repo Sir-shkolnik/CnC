@@ -186,13 +186,34 @@ export const useJourneyStore = create<JourneyStore>()(
       
       clearError: () => set({ error: null }),
       
-      // API Actions (Mock implementations)
+      // API Actions (Real API implementations)
       fetchJourneys: async (params) => {
         set({ isLoading: true, error: null });
         try {
-          // TODO: Replace with real API call
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          set({ journeys: mockJourneys, isLoading: false });
+          const token = localStorage.getItem('access_token');
+          if (!token) {
+            throw new Error('No authentication token found');
+          }
+
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/journey/active`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          
+          if (data.success) {
+            set({ journeys: data.data || [], isLoading: false });
+          } else {
+            throw new Error(data.message || 'Failed to fetch journeys');
+          }
         } catch (error) {
           set({ 
             error: error instanceof Error ? error.message : 'Failed to fetch journeys',
@@ -204,29 +225,36 @@ export const useJourneyStore = create<JourneyStore>()(
       createJourney: async (data) => {
         set({ isLoading: true, error: null });
         try {
-          // TODO: Replace with real API call
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          const token = localStorage.getItem('access_token');
+          if (!token) {
+            throw new Error('No authentication token found');
+          }
+
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/journey/`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const result = await response.json();
           
-          const newJourney: Journey = {
-            id: `journey_${Date.now()}`,
-            locationId: data.locationId,
-            clientId: data.clientId,
-            date: data.date,
-            status: 'MORNING_PREP',
-            truckNumber: data.truckNumber,
-            moveSourceId: data.moveSourceId,
-            notes: data.notes,
-            createdById: 'user1', // TODO: Get from auth
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          };
-          
-          set(state => ({
-            journeys: [...state.journeys, newJourney],
-            isLoading: false
-          }));
-          
-          return newJourney;
+          if (result.success) {
+            const newJourney = result.data;
+            set(state => ({
+              journeys: [...state.journeys, newJourney],
+              isLoading: false
+            }));
+            return newJourney;
+          } else {
+            throw new Error(result.message || 'Failed to create journey');
+          }
         } catch (error) {
           set({ 
             error: error instanceof Error ? error.message : 'Failed to create journey',
@@ -239,15 +267,36 @@ export const useJourneyStore = create<JourneyStore>()(
       updateJourneyStatus: async (id, status) => {
         set({ isLoading: true, error: null });
         try {
-          // TODO: Replace with real API call
-          await new Promise(resolve => setTimeout(resolve, 500));
+          const token = localStorage.getItem('access_token');
+          if (!token) {
+            throw new Error('No authentication token found');
+          }
+
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/journey/${id}/status`, {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const result = await response.json();
           
-          set(state => ({
-            journeys: state.journeys.map(journey =>
-              journey.id === id ? { ...journey, status, updatedAt: new Date().toISOString() } : journey
-            ),
-            isLoading: false
-          }));
+          if (result.success) {
+            set(state => ({
+              journeys: state.journeys.map(journey =>
+                journey.id === id ? { ...journey, status, updatedAt: new Date().toISOString() } : journey
+              ),
+              isLoading: false
+            }));
+          } else {
+            throw new Error(result.message || 'Failed to update journey status');
+          }
         } catch (error) {
           set({ 
             error: error instanceof Error ? error.message : 'Failed to update journey status',

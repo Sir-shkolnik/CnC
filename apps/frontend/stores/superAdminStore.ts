@@ -413,40 +413,36 @@ export const useSuperAdminStore = create<SuperAdminStore>()(
         set({ isLoading: true });
         
         try {
-          // TODO: Replace with actual API call
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          // Mock audit logs based on real LGM data
-          const mockAuditLogs: CompanyAccessLog[] = [
-            {
-              id: 'log-1',
-              superAdminId: defaultSuperAdmin.id,
-              companyId: lgmCompanies[0].id,
-              actionType: 'COMPANY_SWITCH',
-              actionDetails: { companyName: lgmCompanies[0].name },
-              ipAddress: '192.168.1.1',
-              userAgent: 'Mozilla/5.0...',
-              createdAt: new Date().toISOString(),
+          const token = localStorage.getItem('super-admin-token') || localStorage.getItem('access_token');
+          if (!token) {
+            throw new Error('No authentication token found');
+          }
+
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/super-admin/audit-logs`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
             },
-            {
-              id: 'log-2',
-              superAdminId: defaultSuperAdmin.id,
-              companyId: lgmCompanies[1].id,
-              actionType: 'USER_VIEW',
-              actionDetails: { userId: 'user-1' },
-              ipAddress: '192.168.1.1',
-              userAgent: 'Mozilla/5.0...',
-              createdAt: new Date(Date.now() - 3600000).toISOString(),
-            },
-          ];
-          
-          set({
-            auditLogs: mockAuditLogs,
-            isLoading: false,
           });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          
+          if (data.success) {
+            set({
+              auditLogs: data.data.logs || [],
+              isLoading: false,
+            });
+          } else {
+            throw new Error(data.message || 'Failed to load audit logs');
+          }
         } catch (error) {
           set({ 
-            error: 'Failed to load audit logs',
+            error: error instanceof Error ? error.message : 'Failed to load audit logs',
             isLoading: false 
           });
         }

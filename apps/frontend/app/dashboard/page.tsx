@@ -33,18 +33,21 @@ import toast from 'react-hot-toast'
 export default function DashboardPage() {
   const router = useRouter()
   const { isAuthenticated, user } = useAuthStore()
-  const { journeys, isLoading } = useJourneyStore()
+  const { journeys, isLoading, fetchJourneys } = useJourneyStore()
 
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
 
-  // Check authentication on mount
+  // Check authentication on mount and fetch journeys
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/auth/login')
       return
     }
-  }, [isAuthenticated, router])
+    
+    // Fetch real journey data from API
+    fetchJourneys()
+  }, [isAuthenticated, router, fetchJourneys])
 
   // Filter journeys based on search and status
   const filteredJourneys = journeys.filter(journey => {
