@@ -512,11 +512,6 @@ export default function UnifiedLoginPage() {
       const userData = await userResponse.json();
       
       if (userResponse.ok && userData.success && userData.user && userData.access_token) {
-        // Store token securely using SecureTokenManager
-        import('@/lib/security/SecureTokenManager').then(({ default: SecureTokenManager }) => {
-          SecureTokenManager.setSecureToken(userData.access_token, userData.refresh_token || '');
-        });
-        
         const role = userData.user?.role || '';
         const userType = userData.user?.user_type || '';
         
@@ -569,17 +564,23 @@ export default function UnifiedLoginPage() {
     try {
       const userType = await detectUserType(formData.email, formData.password);
       
-      // Authentication is already handled in detectUserType, just redirect based on user type
+      // Handle authentication and redirect based on user type
       switch (userType) {
         case 'super':
+          // Call super admin login to set authentication state
+          await superAdminLogin(formData.email, formData.password);
           router.push('/super-admin/dashboard');
           break;
           
         case 'mobile':
+          // Call regular auth login for mobile users
+          await authLogin(formData.email, formData.password, selectedCompany?.id);
           router.push('/mobile'); // Mobile-specific interface
           break;
           
         case 'web':
+          // Call regular auth login for web users
+          await authLogin(formData.email, formData.password, selectedCompany?.id);
           router.push('/dashboard'); // Web interface
           break;
       }
