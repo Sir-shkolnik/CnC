@@ -175,7 +175,12 @@ export class SecureSessionManager {
    * Log security events
    */
   private static logSecurityEvent(event: string, data: any): void {
-    // Send security event to backend
+    // Log to console for now since backend endpoint doesn't exist yet
+    console.log('🔐 Security Event:', event, data);
+    
+    // TODO: Implement backend security logging endpoint
+    // Send security event to backend when endpoint is available
+    /*
     fetch('/security/log', {
       method: 'POST',
       headers: { 
@@ -193,6 +198,7 @@ export class SecureSessionManager {
     }).catch(() => {
       // Silently fail for security logs
     });
+    */
   }
   
   /**

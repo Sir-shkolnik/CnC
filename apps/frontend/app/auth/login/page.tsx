@@ -509,43 +509,51 @@ export default function UnifiedLoginPage() {
         body: JSON.stringify({ email, password, company_id: selectedCompany?.id })
       });
       
-      if (userResponse.ok) {
-        const userData = await userResponse.json();
-        
-        // Store the user data and token for authentication
-        if (userData.success && userData.user && userData.access_token) {
-          // Store token securely using SecureTokenManager
-          import('@/lib/security/SecureTokenManager').then(({ default: SecureTokenManager }) => {
-            SecureTokenManager.setSecureToken(userData.access_token, userData.refresh_token || '');
-          });
-          
-          const role = userData.user?.role || '';
-          const userType = userData.user?.user_type || '';
-          
-          // Super admin gets super interface
-          if (role.toUpperCase() === 'SUPER_ADMIN' || userType === 'super_admin') {
-            return 'super';
-          }
-          
-          // Mobile roles get mobile interface
-          if (['DRIVER', 'MOVER'].includes(role.toUpperCase())) {
-            return 'mobile';
-          }
-          
-          // Web roles get web interface (MANAGER, ADMIN, DISPATCHER, AUDITOR)
-          return 'web';
-        }
-      }
+      const userData = await userResponse.json();
       
-      throw new Error('Invalid credentials');
+      if (userResponse.ok && userData.success && userData.user && userData.access_token) {
+        // Store token securely using SecureTokenManager
+        import('@/lib/security/SecureTokenManager').then(({ default: SecureTokenManager }) => {
+          SecureTokenManager.setSecureToken(userData.access_token, userData.refresh_token || '');
+        });
+        
+        const role = userData.user?.role || '';
+        const userType = userData.user?.user_type || '';
+        
+        // Super admin gets super interface
+        if (role.toUpperCase() === 'SUPER_ADMIN' || userType === 'super_admin') {
+          return 'super';
+        }
+        
+        // Mobile roles get mobile interface
+        if (['DRIVER', 'MOVER'].includes(role.toUpperCase())) {
+          return 'mobile';
+        }
+        
+        // Web roles get web interface (MANAGER, ADMIN, DISPATCHER, AUDITOR)
+        return 'web';
+      } else {
+        // Handle API error response
+        const errorMessage = userData.error || userData.message || 'Invalid credentials';
+        throw new Error(errorMessage);
+      }
     } catch (error) {
-      // Fallback to email-based detection for development
-      if (email === 'udi.shkolnik@candc.com') return 'super';
+      console.error('Login error:', error);
+      
+      // Fallback to email-based detection for development/testing
+      if (email === 'udi.shkolnik@candc.com' || email === 'admin@test.com') {
+        console.log('Using fallback super admin detection');
+        return 'super';
+      }
       
       const mobileRoles = ['driver', 'mover'];
       const emailLower = email.toLowerCase();
-      if (mobileRoles.some(role => emailLower.includes(role))) return 'mobile';
+      if (mobileRoles.some(role => emailLower.includes(role))) {
+        console.log('Using fallback mobile detection');
+        return 'mobile';
+      }
       
+      console.log('Using fallback web detection');
       return 'web';
     }
   };

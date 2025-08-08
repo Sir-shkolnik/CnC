@@ -1,6 +1,6 @@
 {
-  "test_date": "2025-08-07T11:14:47.415292",
-  "duration": 2.934422,
+  "test_date": "2025-08-07T22:19:26.059503",
+  "duration": 3.222509,
   "summary": {
     "total": 9,
     "passed": 8,
@@ -11,64 +11,64 @@
     {
       "test": "API Health Check",
       "success": true,
-      "timestamp": "2025-08-07T11:14:47.797076",
-      "response_time": 0.3817281723022461,
+      "timestamp": "2025-08-07T22:19:26.239610",
+      "response_time": 0.18004727363586426,
       "details": "Status: operational, Version: 1.0.0"
     },
     {
       "test": "API Documentation",
       "success": true,
-      "timestamp": "2025-08-07T11:14:48.170369",
-      "response_time": 0.37309908866882324,
+      "timestamp": "2025-08-07T22:19:26.379170",
+      "response_time": 0.1393280029296875,
       "details": "Status code: 200"
     },
     {
       "test": "API OpenAPI Schema",
       "success": true,
-      "timestamp": "2025-08-07T11:14:48.364463",
-      "response_time": 0.19325590133666992,
+      "timestamp": "2025-08-07T22:19:27.001946",
+      "response_time": 0.6214818954467773,
       "details": "Title: C&C CRM API, Version: 1.0.0"
     },
     {
       "test": "Frontend Landing Page",
       "success": true,
-      "timestamp": "2025-08-07T11:14:48.777240",
-      "response_time": 0.41254615783691406,
+      "timestamp": "2025-08-07T22:19:27.146421",
+      "response_time": 0.14415216445922852,
       "details": "Status code: 200, Content-Type: text/html; charset=utf-8"
     },
     {
       "test": "Frontend Login Page",
       "success": true,
-      "timestamp": "2025-08-07T11:14:49.042813",
-      "response_time": 0.2654080390930176,
+      "timestamp": "2025-08-07T22:19:27.323890",
+      "response_time": 0.17726683616638184,
       "details": "Status code: 200"
     },
     {
       "test": "Frontend Dashboard",
       "success": false,
-      "timestamp": "2025-08-07T11:14:49.295084",
-      "response_time": 0.2520909309387207,
+      "timestamp": "2025-08-07T22:19:27.471130",
+      "response_time": 0.14697599411010742,
       "details": "Status code: 307"
     },
     {
       "test": "Mobile Portal",
       "success": true,
-      "timestamp": "2025-08-07T11:14:49.448841",
-      "response_time": 0.15351009368896484,
+      "timestamp": "2025-08-07T22:19:27.880141",
+      "response_time": 0.4087862968444824,
       "details": "Status code: 200, Content-Type: text/html; charset=utf-8"
     },
     {
       "test": "Storage System",
       "success": true,
-      "timestamp": "2025-08-07T11:14:49.594368",
-      "response_time": 0.14537620544433594,
+      "timestamp": "2025-08-07T22:19:28.207013",
+      "response_time": 0.3265199661254883,
       "details": "Status code: 200, Content-Type: text/html; charset=utf-8"
     },
     {
       "test": "Super Admin Portal",
       "success": true,
-      "timestamp": "2025-08-07T11:14:49.745805",
-      "response_time": 0.15128087997436523,
+      "timestamp": "2025-08-07T22:19:28.511376",
+      "response_time": 0.3041200637817383,
       "details": "Status code: 200"
     }
   ]
