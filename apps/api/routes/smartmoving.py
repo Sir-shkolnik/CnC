@@ -1312,3 +1312,50 @@ async def create_test_data() -> Dict[str, Any]:
             "success": False,
             "message": f"Failed to create test data: {str(e)}"
         }
+
+@router.get("/test-journeys")
+async def get_test_journeys() -> Dict[str, Any]:
+    """Get test journeys directly from database (bypasses Prisma)"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        # Get all journeys
+        cursor.execute('SELECT * FROM "TruckJourney" ORDER BY "createdAt" DESC')
+        journeys = cursor.fetchall()
+        
+        # Convert to list of dicts
+        journey_list = []
+        for journey in journeys:
+            journey_dict = dict(journey)
+            # Convert datetime objects to strings
+            if journey_dict.get("startDate"):
+                journey_dict["startDate"] = journey_dict["startDate"].isoformat()
+            if journey_dict.get("endDate"):
+                journey_dict["endDate"] = journey_dict["endDate"].isoformat()
+            if journey_dict.get("createdAt"):
+                journey_dict["createdAt"] = journey_dict["createdAt"].isoformat()
+            if journey_dict.get("updatedAt"):
+                journey_dict["updatedAt"] = journey_dict["updatedAt"].isoformat()
+            journey_list.append(journey_dict)
+        
+        cursor.close()
+        conn.close()
+        
+        return {
+            "success": True,
+            "data": {
+                "journeys": journey_list,
+                "total": len(journey_list),
+                "active": len([j for j in journey_list if j["status"] == "ACTIVE"]),
+                "completed": len([j for j in journey_list if j["status"] == "COMPLETED"]),
+                "revenue": sum(float(j.get("actualCost", 0)) for j in journey_list)
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting test journeys: {e}")
+        return {
+            "success": False,
+            "message": f"Failed to get test journeys: {str(e)}"
+        }
