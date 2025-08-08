@@ -392,3 +392,29 @@ async def test_smartmoving_connection() -> Dict[str, Any]:
             "timestamp": "2025-08-08T00:00:00Z"
         }
     }
+
+# Add a test endpoint for debugging
+@router.get("/test/sync")
+async def test_smartmoving_sync() -> Dict[str, Any]:
+    """Test SmartMoving sync without authentication (for debugging)"""
+    try:
+        logger.info("Starting SmartMoving sync test...")
+        
+        async with SmartMovingSyncService() as sync_service:
+            result = await sync_service.sync_today_and_tomorrow_jobs()
+            
+            logger.info(f"SmartMoving sync test completed: {result}")
+            
+            return {
+                "success": True,
+                "data": result,
+                "message": "SmartMoving sync test completed"
+            }
+            
+    except Exception as e:
+        logger.error(f"Error in SmartMoving sync test: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "SmartMoving sync test failed"
+        }

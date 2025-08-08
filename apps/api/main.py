@@ -23,7 +23,7 @@ from apps.api.routes import auth, journey, calendar, dispatch, feedback, crew, s
 from apps.api.routes import users, mobile, locations, journey_steps, admin, setup, real_time
 from apps.api.routes import customers, quotes
 from apps.api.routes import journey_workflow, super_admin
-from apps.api.routes import smartmoving_integration, company_management
+from apps.api.routes import smartmoving, smartmoving_integration, company_management
 # Import middleware
 from apps.api.middleware.auth import AuthMiddleware
 from apps.api.middleware.tenant import TenantMiddleware
@@ -284,10 +284,17 @@ try:
     print("✅ SmartMoving Integration routes loaded successfully")
 except Exception as e:
     print(f"❌ Error loading SmartMoving Integration routes: {e}")
+
+# SmartMoving Sync routes
+try:
+    app.include_router(smartmoving.router, tags=["SmartMoving Sync"])
+    print("✅ SmartMoving Sync routes loaded successfully")
+except Exception as e:
+    print(f"❌ Error loading SmartMoving Sync routes: {e}")
     # Create a simple test endpoint
     @app.get("/smartmoving/test")
     async def smartmoving_test():
-        return {"message": "SmartMoving Integration test endpoint working"}
+        return {"message": "SmartMoving Sync test endpoint working"}
 
 # Company Management routes
 try:
