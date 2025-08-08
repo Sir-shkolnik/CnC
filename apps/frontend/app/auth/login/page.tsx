@@ -537,7 +537,7 @@ export default function UnifiedLoginPage() {
       
       // Fallback to email-based detection for development/testing
       if (email === 'udi.shkolnik@candc.com' || email === 'admin@test.com') {
-        console.log('🔍 Using fallback super admin detection for:', email);
+        console.log('Using fallback super admin detection');
         return 'super';
       }
       
@@ -564,17 +564,12 @@ export default function UnifiedLoginPage() {
     try {
       const userType = await detectUserType(formData.email, formData.password);
       
-      console.log('🔍 User type detected:', userType);
-      
       // Handle authentication and redirect based on user type
       switch (userType) {
         case 'super':
-          console.log('🔍 Super admin login initiated...');
           // Call super admin login to set authentication state
           await superAdminLogin(formData.email, formData.password);
-          console.log('🔍 Super admin login completed, redirecting to dashboard...');
           router.push('/super-admin/dashboard');
-          console.log('🔍 Router.push called for /super-admin/dashboard');
           break;
           
         case 'mobile':

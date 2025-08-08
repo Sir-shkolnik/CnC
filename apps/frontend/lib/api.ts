@@ -146,16 +146,16 @@ class ApiClient {
     return this.request('/smartmoving/sync/status');
   }
 
-  async getSmartMovingLocations() {
-    return this.request('/smartmoving/locations');
-  }
-
   async getSmartMovingTodayJobs() {
     return this.request('/smartmoving/jobs/today');
   }
 
   async getSmartMovingTomorrowJobs() {
     return this.request('/smartmoving/jobs/tomorrow');
+  }
+
+  async getSmartMovingLocations() {
+    return this.request('/smartmoving/locations');
   }
 
   async syncSmartMovingJobs() {
