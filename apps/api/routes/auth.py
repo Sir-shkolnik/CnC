@@ -52,8 +52,19 @@ class LoginResponse(BaseModel):
     user: Dict[str, Any]
 
 def get_db_connection():
-    """Get database connection"""
-    return psycopg2.connect(**DB_CONFIG)
+    """Get database connection using DATABASE_URL or individual env vars"""
+    database_url = os.getenv("DATABASE_URL")
+    if database_url:
+        return psycopg2.connect(database_url)
+    else:
+        # Fallback to individual environment variables
+        return psycopg2.connect(
+            host=os.getenv("DB_HOST", "localhost"),
+            port=os.getenv("DB_PORT", "5432"),
+            database=os.getenv("DB_NAME", "c_and_c_crm"),
+            user=os.getenv("DB_USER", "c_and_c_user"),
+            password=os.getenv("DB_PASSWORD", "c_and_c_password")
+        )
 
 def hash_password(password: str) -> str:
     """Hash password using bcrypt"""
@@ -119,32 +130,84 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) 
 async def login(request: LoginRequest) -> Dict[str, Any]:
     """Unified login endpoint for all user types"""
     try:
-        # First, try to connect to database
+        # Try to authenticate against database first
         try:
             conn = get_db_connection()
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             
-            # Check if User table exists
+            # Check for regular users in database (without password field)
             cursor.execute("""
-                SELECT EXISTS (
-                    SELECT FROM information_schema.tables 
-                    WHERE table_name = 'User'
-                );
-            """)
+                SELECT u.id, u.name, u.email, u.role, u."clientId", u."locationId", u.status,
+                       c.name as company_name,
+                       l.name as location_name
+                FROM "User" u
+                LEFT JOIN "Client" c ON u."clientId" = c.id
+                LEFT JOIN "Location" l ON u."locationId" = l.id
+                WHERE u.email = %s AND u.status = 'ACTIVE'
+            """, (request.email,))
             
-            table_exists = cursor.fetchone()[0]
+            user = cursor.fetchone()
+            
+            # If user not found, try to find by email pattern for LGM users
+            if not user and request.email.endswith("@lgm.com"):
+                cursor.execute("""
+                    SELECT u.id, u.name, u.email, u.role, u."clientId", u."locationId", u.status,
+                           c.name as company_name,
+                           l.name as location_name
+                    FROM "User" u
+                    LEFT JOIN "Client" c ON u."clientId" = c.id
+                    LEFT JOIN "Location" l ON u."locationId" = l.id
+                    WHERE u.email LIKE %s AND u.status = 'ACTIVE'
+                """, (f"%{request.email.split('@')[0]}%",))
+                
+                user = cursor.fetchone()
+            
             cursor.close()
             conn.close()
             
+            if user:
+                # Since we don't have password field, accept any password for demo
+                # In production, this should be properly implemented with password verification
+                if request.password == "1234":  # Demo password
+                    
+                    access_token_expires = datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+                    access_token = create_access_token(
+                        data={
+                            "sub": str(user["id"]),
+                            "user_type": "regular",
+                            "email": user["email"],
+                            "role": user["role"],
+                            "company_id": user["clientId"],
+                            "location_id": user["locationId"]
+                        },
+                        expires_delta=access_token_expires
+                    )
+                    
+                    return {
+                        "success": True,
+                        "access_token": access_token,
+                        "token_type": "bearer",
+                        "user": {
+                            "id": str(user["id"]),
+                            "name": user["name"],
+                            "email": user["email"],
+                            "role": user["role"],
+                            "company_id": user["clientId"],
+                            "company_name": user["company_name"],
+                            "location_id": user["locationId"],
+                            "location_name": user["location_name"],
+                            "user_type": "regular"
+                        }
+                    }
+                else:
+                    raise HTTPException(status_code=401, detail="Invalid email or password")
+            
         except Exception as db_error:
-            # If database connection fails, use fallback authentication
-            print(f"Database connection failed: {db_error}")
-            table_exists = False
+            print(f"Database authentication failed: {db_error}")
+            # Continue to fallback authentication
         
-        # If table doesn't exist or database connection failed, use fallback authentication
-        if not table_exists:
-            # Fallback authentication for LGM users
-            if request.email.endswith("@lgm.com") and request.password == "1234":
+        # Fallback authentication for LGM users
+        if request.email.endswith("@lgm.com") and request.password == "1234":
                 lgm_user_id = f"usr_{request.email.split('@')[0]}_temp"
                 
                 access_token_expires = datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
