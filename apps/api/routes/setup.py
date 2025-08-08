@@ -114,13 +114,12 @@ async def setup_database():
             );
         """)
         
-        # Create User table with password field
+        # Create User table (without password field to match existing schema)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS "User" (
                 "id" TEXT NOT NULL,
                 "name" TEXT NOT NULL,
                 "email" TEXT NOT NULL,
-                "password" TEXT NOT NULL DEFAULT '1234',
                 "role" "UserRole" NOT NULL,
                 "locationId" TEXT NOT NULL,
                 "clientId" TEXT NOT NULL,
@@ -226,8 +225,8 @@ async def setup_database():
         
         for user_id, user_name, user_email, user_role, location_id in users_data:
             cursor.execute("""
-                INSERT INTO "User" ("id", "name", "email", "password", "role", "locationId", "clientId", "status", "createdAt", "updatedAt") 
-                VALUES (%s, %s, %s, '1234', %s, %s, 'clm_f55e13de_a5c4_4990_ad02_34bb07187daa', 'ACTIVE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                INSERT INTO "User" ("id", "name", "email", "role", "locationId", "clientId", "status", "createdAt", "updatedAt") 
+                VALUES (%s, %s, %s, %s, %s, 'clm_f55e13de_a5c4_4990_ad02_34bb07187daa', 'ACTIVE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                 ON CONFLICT ("id") DO NOTHING;
             """, (user_id, user_name, user_email, user_role, location_id))
         
