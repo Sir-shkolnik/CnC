@@ -57,7 +57,7 @@ interface JourneyActions {
   setError: (error: string | null) => void;
   clearError: () => void;
   
-  // API Actions (Mock implementations for now)
+  // API Actions (Real implementations)
   fetchJourneys: (params?: GetJourneysRequest) => Promise<void>;
   createJourney: (data: CreateJourneyRequest) => Promise<Journey>;
   updateJourneyStatus: (id: string, status: Journey['status']) => Promise<void>;
@@ -67,57 +67,26 @@ interface JourneyActions {
 
 type JourneyStore = JourneyState & JourneyActions;
 
-// Mock data for development
-const mockJourneys: Journey[] = [
-  {
-    id: '1',
-    locationId: 'loc1',
-    clientId: 'client1',
-    date: '2024-01-15T08:00:00Z',
-    status: 'MORNING_PREP',
-    truckNumber: 'T-001',
-    moveSourceId: 'move1',
-    startTime: '2024-01-15T08:30:00Z',
-    endTime: '2024-01-15T16:00:00Z',
-    notes: 'Residential move - 3 bedroom house',
-    createdById: 'user1',
-    createdAt: '2024-01-14T10:00:00Z',
-    updatedAt: '2024-01-15T16:00:00Z'
-  },
-  {
-    id: '2',
-    locationId: 'loc1',
-    clientId: 'client1',
-    date: '2024-01-16T09:00:00Z',
-    status: 'EN_ROUTE',
-    truckNumber: 'T-002',
-    moveSourceId: 'move2',
-    startTime: '2024-01-16T09:15:00Z',
-    notes: 'Office relocation - downtown',
-    createdById: 'user1',
-    createdAt: '2024-01-15T14:00:00Z',
-    updatedAt: '2024-01-16T09:15:00Z'
-  }
-];
-
-const mockStats: JourneyStats = {
-  total: 2,
-  active: 1,
-  completed: 1,
-  onTime: 1,
-  revenue: 2500
+// Real API data - no mock data
+const initialJourneys: Journey[] = [];
+const initialStats: JourneyStats = {
+  total: 0,
+  active: 0,
+  completed: 0,
+  onTime: 0,
+  revenue: 0
 };
 
 export const useJourneyStore = create<JourneyStore>()(
   persist(
     (set, get) => ({
       // State
-      journeys: mockJourneys,
+      journeys: initialJourneys,
       currentJourney: null,
       journeyEntries: [],
       journeyMedia: [],
       assignedCrew: [],
-      stats: mockStats,
+      stats: initialStats,
       timeline: [],
       isLoading: false,
       error: null,
@@ -190,7 +159,7 @@ export const useJourneyStore = create<JourneyStore>()(
       fetchJourneys: async (params) => {
         set({ isLoading: true, error: null });
         try {
-          const token = localStorage.getItem('access_token');
+          const token = localStorage.getItem('auth-token') || document.cookie.split('auth-token=')[1]?.split(';')[0];
           if (!token) {
             throw new Error('No authentication token found');
           }
@@ -225,7 +194,7 @@ export const useJourneyStore = create<JourneyStore>()(
       createJourney: async (data) => {
         set({ isLoading: true, error: null });
         try {
-          const token = localStorage.getItem('access_token');
+          const token = localStorage.getItem('auth-token') || document.cookie.split('auth-token=')[1]?.split(';')[0];
           if (!token) {
             throw new Error('No authentication token found');
           }
@@ -267,7 +236,7 @@ export const useJourneyStore = create<JourneyStore>()(
       updateJourneyStatus: async (id, status) => {
         set({ isLoading: true, error: null });
         try {
-          const token = localStorage.getItem('access_token');
+          const token = localStorage.getItem('auth-token') || document.cookie.split('auth-token=')[1]?.split(';')[0];
           if (!token) {
             throw new Error('No authentication token found');
           }
