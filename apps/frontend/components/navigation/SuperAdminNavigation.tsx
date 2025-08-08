@@ -46,7 +46,7 @@ export const SuperAdminNavigation: React.FC<SuperAdminNavigationProps> = ({ chil
 
   useEffect(() => {
     setMounted(true);
-    setIsOnline(navigator.onLine);
+    setIsOnline(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);

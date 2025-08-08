@@ -30,7 +30,7 @@ export const useMenuItems = () => {
       updateUserContext({
         role: user.role as UserRole,
         deviceType,
-        isOnline: navigator.onLine,
+        isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
         hasActiveJourney: journeys.some(j => j.status !== 'COMPLETED'),
         location: {},
         permissions: []

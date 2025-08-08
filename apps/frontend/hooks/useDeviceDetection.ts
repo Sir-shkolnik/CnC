@@ -34,7 +34,7 @@ export const useDeviceDetection = (): DeviceInfo => {
       const width = window.innerWidth;
       const height = window.innerHeight;
       const pixelRatio = window.devicePixelRatio || 1;
-      const userAgent = navigator.userAgent;
+      const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '';
 
       // Determine device type based on screen width
       let deviceType: DeviceType = 'desktop';
@@ -102,7 +102,7 @@ export const getBreakpoint = (width: number): string => {
 
 export const isTouchDevice = (): boolean => {
   if (typeof window === 'undefined') return false;
-  return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  return 'ontouchstart' in window || (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0);
 };
 
 export const isPWA = (): boolean => {
@@ -115,11 +115,11 @@ export const getDeviceCapabilities = () => {
   if (typeof window === 'undefined') return {};
 
   return {
-    hasGPS: 'geolocation' in navigator,
-    hasCamera: 'mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices,
+    hasGPS: typeof navigator !== 'undefined' && 'geolocation' in navigator,
+    hasCamera: typeof navigator !== 'undefined' && 'mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices,
     hasTouch: isTouchDevice(),
     hasPWA: isPWA(),
-    hasOffline: 'serviceWorker' in navigator,
+    hasOffline: typeof navigator !== 'undefined' && 'serviceWorker' in navigator,
     hasPushNotifications: 'PushManager' in window,
     hasWebGL: !!window.WebGLRenderingContext,
     hasWebAudio: !!window.AudioContext || !!(window as any).webkitAudioContext

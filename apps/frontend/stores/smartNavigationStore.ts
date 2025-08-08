@@ -117,7 +117,7 @@ export const useSmartNavigationStore = create<SmartNavigationState>()(
       previousRoute: '/',
       navigationHistory: [],
       userPreferences: defaultUserPreferences,
-      isOnline: navigator.onLine,
+      isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
       hasActiveJourney: false,
       location: {},
 
@@ -224,7 +224,7 @@ export const useSmartNavigationStore = create<SmartNavigationState>()(
         const context: UserContext = {
           role: userRole,
           deviceType,
-          isOnline: navigator.onLine,
+          isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
           hasActiveJourney: false,
           location: {},
           permissions: []

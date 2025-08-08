@@ -48,7 +48,7 @@ export const MainNavigation: React.FC<MainNavigationProps> = ({ children }) => {
   // Handle online/offline state after mount to prevent hydration errors
   useEffect(() => {
     setMounted(true);
-    setIsOnline(navigator.onLine);
+    setIsOnline(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);

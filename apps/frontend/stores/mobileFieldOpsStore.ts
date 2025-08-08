@@ -738,7 +738,7 @@ export const useMobileFieldOpsStore = create<MobileFieldOpsStore>()(
       },
 
       checkConnectivity: () => {
-        const isOnline = navigator.onLine;
+        const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
         set({ 
           isOnline,
           syncStatus: { ...get().syncStatus, isOnline }
