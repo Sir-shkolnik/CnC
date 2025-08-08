@@ -80,6 +80,26 @@ const initialStats: JourneyStats = {
 export const useJourneyStore = create<JourneyStore>()(
   persist(
     (set, get) => ({
+      // Clear any existing mock data on initialization
+      clearMockData: () => {
+        set({
+          journeys: [],
+          currentJourney: null,
+          journeyEntries: [],
+          journeyMedia: [],
+          assignedCrew: [],
+          stats: {
+            total: 0,
+            active: 0,
+            completed: 0,
+            onTime: 0,
+            revenue: 0
+          },
+          timeline: [],
+          isLoading: false,
+          error: null
+        });
+      },
       // State
       journeys: initialJourneys,
       currentJourney: null,
