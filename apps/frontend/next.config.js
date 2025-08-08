@@ -80,9 +80,9 @@ const nextConfig = {
 
     // Environment variables
     env: {
-        NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
-        NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-        NEXT_PUBLIC_ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT || 'development'
+        NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com',
+        NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'https://c-and-c-crm-frontend.onrender.com',
+        NEXT_PUBLIC_ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT || 'production'
     }
 };
 
