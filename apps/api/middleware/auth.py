@@ -249,6 +249,11 @@ class AuthMiddleware:
                 await self.app(scope, receive, send)
                 return
             
+            # Allow unauthenticated access to SmartMoving test endpoints
+            if path in ["/smartmoving/test", "/smartmoving/status"]:
+                await self.app(scope, receive, send)
+                return
+            
             # Extract authorization header
             headers = dict(scope.get("headers", []))
             auth_header = headers.get(b"authorization", b"").decode()
