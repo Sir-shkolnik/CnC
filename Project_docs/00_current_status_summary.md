@@ -80,6 +80,18 @@ C&C CRM (Command & Control CRM) is a comprehensive mobile-first operations manag
 
 ## 🔧 **RECENT FIXES (August 8, 2025)**
 
+### ✅ **Automated SmartMoving Sync System Implemented**
+- **Issue**: Users not seeing journey data after login
+- **Root Cause**: Frontend trying to call non-existent `/journey/user-journeys` endpoint
+- **Solution**: Implemented automated SmartMoving sync system with database storage
+- **Features**:
+  - Background sync every 2 hours for all locations
+  - Data normalization and storage in our database
+  - New journey endpoints: `/smartmoving/journeys/active`, `/smartmoving/journeys/today`, `/smartmoving/journeys/tomorrow`
+  - Frontend updated to use database-stored journey data
+- **Status**: ✅ **IMPLEMENTED AND DEPLOYED**
+- **Result**: Users now see journey data from our database instead of direct API calls
+
 ### ✅ **Login Page Fixed**
 - **Issue**: Login page not displaying LGM users and branches
 - **Root Cause**: Frontend interface mismatch with API response structure
@@ -91,6 +103,36 @@ C&C CRM (Command & Control CRM) is a comprehensive mobile-first operations manag
 - **Issue**: Duplicate route definition in FrontendRBAC.ts causing build failure
 - **Solution**: Removed duplicate `/audit` route definition
 - **Status**: ✅ **FIXED AND DEPLOYED**
+
+## 🔄 **SMARTMOVING SYNC ARCHITECTURE**
+
+### **Automated Background Sync System**
+- **Sync Frequency**: Every 2 hours
+- **Data Source**: SmartMoving API
+- **Storage**: PostgreSQL database with normalized structure
+- **Coverage**: All active locations (30 LGM locations)
+- **Data Range**: Today + Tomorrow (48-hour visibility)
+
+### **Data Flow**
+1. **Background Service**: `BackgroundSmartMovingSync` runs continuously
+2. **API Integration**: Pulls data from SmartMoving API for all locations
+3. **Data Normalization**: Converts SmartMoving format to TruckJourney model
+4. **Database Storage**: Stores in our PostgreSQL database
+5. **Frontend Access**: Users see data from our database, not direct API calls
+
+### **New API Endpoints**
+- `GET /smartmoving/journeys/active` - All active journeys
+- `GET /smartmoving/journeys/today` - Today's journeys
+- `GET /smartmoving/journeys/tomorrow` - Tomorrow's journeys
+- `POST /smartmoving/sync/automated/trigger` - Manual sync trigger
+- `GET /smartmoving/sync/automated/status` - Sync status
+
+### **Benefits**
+- ✅ **Performance**: No direct API calls from frontend
+- ✅ **Reliability**: Data cached in our database
+- ✅ **Scalability**: Background processing doesn't block user requests
+- ✅ **Consistency**: Normalized data structure across all locations
+- ✅ **48-hour Visibility**: Users see today and tomorrow's jobs
 
 ## 🎯 **COMPANY MANAGEMENT SYSTEM - HIGHLIGHTS**
 
