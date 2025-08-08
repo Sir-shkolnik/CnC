@@ -241,7 +241,7 @@ export default function UnifiedLoginPage() {
 
   const detectUserType = async (email: string, password: string): Promise<{ type: 'web' | 'mobile' | 'super', userData: any }> => {
     try {
-      const userResponse = await fetch('/auth/login', {
+      const userResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, company_id: selectedCompany?.id })
