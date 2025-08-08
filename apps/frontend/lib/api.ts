@@ -136,6 +136,31 @@ class ApiClient {
   async getSuperAdminJourneys() {
     return this.request('/super-admin/journeys');
   }
+
+  // SmartMoving Integration endpoints
+  async getSmartMovingHealth() {
+    return this.request('/smartmoving/health');
+  }
+
+  async getSmartMovingSyncStatus() {
+    return this.request('/smartmoving/sync/status');
+  }
+
+  async getSmartMovingLocations() {
+    return this.request('/smartmoving/locations');
+  }
+
+  async getSmartMovingTodayJobs() {
+    return this.request('/smartmoving/jobs/today');
+  }
+
+  async getSmartMovingTomorrowJobs() {
+    return this.request('/smartmoving/jobs/tomorrow');
+  }
+
+  async syncSmartMovingJobs() {
+    return this.request('/smartmoving/jobs/sync');
+  }
 }
 
 export const apiClient = new ApiClient();

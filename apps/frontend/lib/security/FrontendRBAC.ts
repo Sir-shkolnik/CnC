@@ -47,7 +47,16 @@ export type Permission =
   | 'backup:read' | 'backup:write' | 'backup:delete' | 'backup:verify'
   
   // System management permissions
-  | 'system:manage' | 'system:configure';
+  | 'system:manage' | 'system:configure'
+  
+  // Database management permissions
+  | 'database:read' | 'database:write' | 'database:delete' | 'database:backup' | 'database:restore' | 'database:migrate' | 'database:monitor' | 'database:optimize'
+  
+  // Operational management permissions
+  | 'operational:oversight' | 'performance:read' | 'employee:read' | 'dispatcher:read'
+  
+  // Analytics permissions
+  | 'analytics:read' | 'analytics:write';
 
 export type UserRole = 
   | 'SUPER_ADMIN'
@@ -57,7 +66,9 @@ export type UserRole =
   | 'DRIVER'
   | 'MOVER'
   | 'AUDITOR'
-  | 'STORAGE_MANAGER';
+  | 'STORAGE_MANAGER'
+  | 'DB_ADMIN'
+  | 'OPERATIONAL_MANAGER';
 
 export class FrontendRBAC {
   private static readonly ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
@@ -76,7 +87,9 @@ export class FrontendRBAC {
       'storage:read', 'storage:write', 'storage:delete',
       'booking:read', 'booking:write', 'booking:delete',
       'backup:read', 'backup:write', 'backup:delete', 'backup:verify',
-      'system:manage', 'system:configure'
+      'system:manage', 'system:configure',
+      'database:read', 'database:write', 'database:delete', 'database:backup', 'database:restore', 'database:migrate', 'database:monitor', 'database:optimize',
+      'operational:oversight', 'performance:read', 'employee:read', 'dispatcher:read'
     ],
     ADMIN: [
       'user:read', 'user:write',
@@ -130,6 +143,19 @@ export class FrontendRBAC {
       'storage:read', 'storage:write', 'storage:delete',
       'booking:read', 'booking:write', 'booking:delete',
       'reports:read'
+    ],
+    DB_ADMIN: [
+      'database:read', 'database:write', 'database:delete', 'database:backup', 'database:restore', 'database:migrate', 'database:monitor', 'database:optimize',
+      'system:read', 'system:write',
+      'audit:read'
+    ],
+    OPERATIONAL_MANAGER: [
+      'company:read',
+      'operational:oversight', 'performance:read', 'employee:read', 'dispatcher:read',
+      'journey:read',
+      'reports:read', 'reports:write',
+      'audit:read',
+      'analytics:read'
     ]
   };
 
@@ -237,8 +263,10 @@ export class FrontendRBAC {
       'DISPATCHER': 5,
       'AUDITOR': 4,
       'STORAGE_MANAGER': 3,
-      'DRIVER': 2,
-      'MOVER': 1
+      'DB_ADMIN': 2,
+      'OPERATIONAL_MANAGER': 1,
+      'DRIVER': 0,
+      'MOVER': -1
     };
 
     return hierarchy[role] || 0;
@@ -315,7 +343,21 @@ export class FrontendRBAC {
       'backup:delete': 'Delete backup files',
       'backup:verify': 'Verify backup integrity',
       'system:manage': 'Manage system operations',
-      'system:configure': 'Configure system settings'
+      'system:configure': 'Configure system settings',
+      'database:read': 'View database information',
+      'database:write': 'Manage database',
+      'database:delete': 'Delete database data',
+      'database:backup': 'Create database backups',
+      'database:restore': 'Restore database',
+      'database:migrate': 'Migrate database',
+      'database:monitor': 'Monitor database performance',
+      'database:optimize': 'Optimize database',
+      'operational:oversight': 'Oversee operational activities',
+      'performance:read': 'View performance metrics',
+      'employee:read': 'View employee information',
+      'dispatcher:read': 'View dispatcher information',
+      'analytics:read': 'View analytics and reports',
+      'analytics:write': 'Create and modify analytics'
     };
 
     return descriptions[permission] || 'Unknown permission';

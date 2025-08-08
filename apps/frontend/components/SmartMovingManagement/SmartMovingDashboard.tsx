@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/atoms/Card';
 import { Button } from '@/components/atoms/Button';
 import { Badge } from '@/components/atoms/Badge';
-import { api } from '@/lib/api';
+import { apiClient } from '@/lib/api';
 
 interface SmartMovingStats {
   totalJobs: number;
@@ -63,7 +63,7 @@ export default function SmartMovingDashboard() {
       setLoading(true);
       
       // Load sync status
-      const statusResponse = await api.get('/smartmoving/sync/status');
+      const statusResponse = await apiClient.getSmartMovingSyncStatus();
       if (statusResponse.success) {
         setStats({
           totalJobs: statusResponse.data.totalJobs || 0,
@@ -77,19 +77,19 @@ export default function SmartMovingDashboard() {
       }
 
       // Load today's jobs
-      const todayResponse = await api.get('/smartmoving/jobs/today');
+      const todayResponse = await apiClient.getSmartMovingTodayJobs();
       if (todayResponse.success) {
         setTodayJobs(todayResponse.data.jobs || []);
       }
 
       // Load tomorrow's jobs
-      const tomorrowResponse = await api.get('/smartmoving/jobs/tomorrow');
+      const tomorrowResponse = await apiClient.getSmartMovingTomorrowJobs();
       if (tomorrowResponse.success) {
         setTomorrowJobs(tomorrowResponse.data.jobs || []);
       }
 
       // Load locations
-      const locationsResponse = await api.get('/smartmoving/locations');
+      const locationsResponse = await apiClient.getSmartMovingLocations();
       if (locationsResponse.success) {
         setLocations(locationsResponse.data.locations || []);
       }
