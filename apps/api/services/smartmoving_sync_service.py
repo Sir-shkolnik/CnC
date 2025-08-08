@@ -80,22 +80,23 @@ class SmartMovingSyncService:
                 "status_code": 500
             }
     
-    async def sync_today_and_tomorrow_jobs(self) -> Dict[str, Any]:
-        """Sync today's and tomorrow's jobs from SmartMoving"""
-        logger.info("Starting SmartMoving job sync for today and tomorrow")
+    async def sync_today_and_tomorrow_jobs(self, location_id: str = None) -> Dict[str, Any]:
+        """Sync today's and tomorrow's jobs from SmartMoving for a specific location or all locations"""
+        logger.info(f"Starting SmartMoving job sync for today and tomorrow (location_id: {location_id})")
         
         today = datetime.now()
         tomorrow = today + timedelta(days=1)
         
         sync_results = {
-            "today": await self.sync_jobs_for_date(today),
-            "tomorrow": await self.sync_jobs_for_date(tomorrow),
+            "today": await self.sync_jobs_for_date(today, location_id),
+            "tomorrow": await self.sync_jobs_for_date(tomorrow, location_id),
             "summary": {
                 "totalProcessed": 0,
                 "totalCreated": 0,
                 "totalUpdated": 0,
                 "totalFailed": 0,
-                "syncTime": datetime.now().isoformat()
+                "syncTime": datetime.now().isoformat(),
+                "location_id": location_id
             }
         }
         
@@ -120,10 +121,10 @@ class SmartMovingSyncService:
         logger.info(f"SmartMoving sync completed: {sync_results['summary']}")
         return sync_results
     
-    async def sync_jobs_for_date(self, date: datetime) -> Dict[str, Any]:
-        """Sync jobs for a specific date"""
+    async def sync_jobs_for_date(self, date: datetime, location_id: str = None) -> Dict[str, Any]:
+        """Sync jobs for a specific date and optionally for a specific location"""
         date_str = date.strftime("%Y-%m-%d")
-        logger.info(f"Syncing SmartMoving jobs for date: {date_str}")
+        logger.info(f"Syncing SmartMoving jobs for date: {date_str} (location_id: {location_id})")
         
         try:
             # Pull SmartMoving jobs for date
@@ -140,6 +141,11 @@ class SmartMovingSyncService:
             
             # Normalize SmartMoving data to C&C CRM format
             normalized_jobs = self.normalize_smartmoving_jobs(smartmoving_jobs["data"])
+            
+            # Filter by location if specified
+            if location_id:
+                normalized_jobs = [job for job in normalized_jobs if job.get('locationId') == location_id]
+                logger.info(f"Filtered to {len(normalized_jobs)} jobs for location {location_id}")
             
             # Sync to C&C CRM database
             sync_result = await self.sync_to_crm_database(normalized_jobs, date_str)
@@ -203,7 +209,7 @@ class SmartMovingSyncService:
             }
     
     def normalize_smartmoving_jobs(self, smartmoving_jobs: List[Dict]) -> List[Dict]:
-        """Normalize SmartMoving job data to C&C CRM format"""
+        """Normalize SmartMoving job data to C&C CRM TruckJourney format"""
         normalized_jobs = []
         
         for job in smartmoving_jobs:
@@ -241,7 +247,31 @@ class SmartMovingSyncService:
                 else:
                     scheduled_date = self.convert_smartmoving_date(job_date)
                 
+                # Map to TruckJourney model structure
                 normalized_job = {
+                    # Core journey data
+                    "date": scheduled_date,
+                    "status": "MORNING_PREP",  # Default status
+                    "truckNumber": job.get("truckNumber", ""),
+                    
+                    # Timing
+                    "startTime": scheduled_date,
+                    "estimatedDuration": job.get("estimatedDuration", 480),  # 8 hours default
+                    
+                    # Notes and priority
+                    "notes": f"SmartMoving Job #{job.get('jobNumber', '')} - {customer_name}",
+                    "priority": "NORMAL",
+                    "tags": [job.get("serviceType", ""), "SmartMoving"],
+                    
+                    # Financial data
+                    "estimatedCost": float(estimated_value) if estimated_value else None,
+                    "billingStatus": "PENDING",
+                    
+                    # Location data
+                    "startLocation": {"address": origin_address} if origin_address else None,
+                    "endLocation": {"address": destination_address} if destination_address else None,
+                    
+                    # SmartMoving specific data
                     "externalId": f"sm_job_{job.get('jobNumber', 'unknown')}",
                     "externalData": job,
                     "smartmovingJobNumber": job.get("jobNumber", ""),
@@ -249,12 +279,8 @@ class SmartMovingSyncService:
                     "customerName": customer_name,
                     "customerPhone": customer_phone,
                     "customerEmail": customer_email,
-                    "estimatedValue": estimated_value,
                     "serviceType": job.get("serviceType", ""),
                     "moveSize": job.get("moveSize", ""),
-                    "originAddress": origin_address,
-                    "destinationAddress": destination_address,
-                    "scheduledDate": scheduled_date,
                     "confirmed": job.get("confirmed", False),
                     "dataSource": "SMARTMOVING",
                     "lastSyncAt": datetime.now(),
@@ -267,7 +293,7 @@ class SmartMovingSyncService:
                 logger.error(f"Error normalizing job {job.get('jobNumber', 'unknown')}: {str(e)}")
                 continue
         
-        logger.info(f"Normalized {len(normalized_jobs)} jobs")
+        logger.info(f"Normalized {len(normalized_jobs)} jobs to TruckJourney format")
         return normalized_jobs
     
     def convert_smartmoving_date(self, date_str: str) -> datetime:
@@ -283,7 +309,7 @@ class SmartMovingSyncService:
             return datetime.now()
     
     async def sync_to_crm_database(self, normalized_jobs: List[Dict], date_str: str) -> Dict[str, Any]:
-        """Sync normalized jobs to C&C CRM database"""
+        """Sync normalized jobs to C&C CRM TruckJourney database"""
         created_count = 0
         updated_count = 0
         failed_count = 0
@@ -293,51 +319,76 @@ class SmartMovingSyncService:
                 # Check if job already exists
                 existing_job = await self.db.truckjourney.find_first(
                     where={
-                        "externalId": job_data["externalId"],
-                        "dataSource": "SMARTMOVING"
+                        "externalId": job_data["externalId"]
                     }
                 )
                 
                 if existing_job:
-                    # Update existing job
+                    # Update existing job with new data
+                    update_data = {
+                        "externalData": job_data["externalData"],
+                        "lastSyncAt": job_data["lastSyncAt"],
+                        "syncStatus": job_data["syncStatus"],
+                        "updatedAt": datetime.now(),
+                        "updatedBy": await self.get_default_user_id()
+                    }
+                    
+                    # Update core fields if they've changed
+                    if job_data.get("date"):
+                        update_data["date"] = job_data["date"]
+                    if job_data.get("startTime"):
+                        update_data["startTime"] = job_data["startTime"]
+                    if job_data.get("estimatedDuration"):
+                        update_data["estimatedDuration"] = job_data["estimatedDuration"]
+                    if job_data.get("notes"):
+                        update_data["notes"] = job_data["notes"]
+                    if job_data.get("estimatedCost"):
+                        update_data["estimatedCost"] = job_data["estimatedCost"]
+                    if job_data.get("startLocation"):
+                        update_data["startLocation"] = job_data["startLocation"]
+                    if job_data.get("endLocation"):
+                        update_data["endLocation"] = job_data["endLocation"]
+                    
                     await self.db.truckjourney.update(
                         where={"id": existing_job.id},
-                        data={
-                            "externalData": job_data["externalData"],
-                            "lastSyncAt": job_data["lastSyncAt"],
-                            "syncStatus": job_data["syncStatus"],
-                            "updatedAt": datetime.now()
-                        }
+                        data=update_data
                     )
                     updated_count += 1
-                    logger.debug(f"Updated job: {job_data['externalId']}")
+                    logger.debug(f"Updated journey: {job_data['externalId']}")
                     
                 else:
-                    # Create new job
+                    # Create new journey
                     # First, find or create a location for this job
                     location = await self.find_or_create_location_for_job(job_data)
                     
+                    # Prepare journey data
+                    journey_data = {
+                        "locationId": location.id,
+                        "clientId": location.clientId,
+                        "date": job_data["date"],
+                        "status": job_data["status"],
+                        "truckNumber": job_data.get("truckNumber"),
+                        "startTime": job_data.get("startTime"),
+                        "estimatedDuration": job_data.get("estimatedDuration"),
+                        "notes": job_data["notes"],
+                        "priority": job_data["priority"],
+                        "tags": job_data["tags"],
+                        "estimatedCost": job_data.get("estimatedCost"),
+                        "billingStatus": job_data["billingStatus"],
+                        "startLocation": job_data.get("startLocation"),
+                        "endLocation": job_data.get("endLocation"),
+                        "externalId": job_data["externalId"],
+                        "externalData": job_data["externalData"],
+                        "createdBy": await self.get_default_user_id()
+                    }
+                    
                     # Create the journey
-                    await self.db.truckjourney.create(
-                        data={
-                            "externalId": job_data["externalId"],
-                            "externalData": job_data["externalData"],
-                            "dataSource": job_data["dataSource"],
-                            "lastSyncAt": job_data["lastSyncAt"],
-                            "syncStatus": job_data["syncStatus"],
-                            "locationId": location.id,
-                            "clientId": location.clientId,
-                            "date": job_data["scheduledDate"],
-                            "status": "MORNING_PREP",
-                            "notes": f"SmartMoving Job: {job_data['smartmovingJobNumber']}",
-                            "createdById": await self.get_default_user_id()
-                        }
-                    )
+                    await self.db.truckjourney.create(data=journey_data)
                     created_count += 1
-                    logger.debug(f"Created job: {job_data['externalId']}")
+                    logger.debug(f"Created journey: {job_data['externalId']}")
                     
             except Exception as e:
-                logger.error(f"Error syncing job {job_data.get('externalId', 'unknown')}: {str(e)}")
+                logger.error(f"Error syncing journey {job_data.get('externalId', 'unknown')}: {str(e)}")
                 failed_count += 1
                 continue
         

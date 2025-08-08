@@ -13,6 +13,7 @@ from psycopg2.extras import RealDictCursor
 from urllib.parse import urlparse
 import logging
 import asyncio
+from datetime import datetime, timedelta
 
 # Import SmartMoving sync service
 from ..services.smartmoving_sync_service import SmartMovingSyncService
@@ -418,3 +419,212 @@ async def test_smartmoving_sync() -> Dict[str, Any]:
             "error": str(e),
             "message": "SmartMoving sync test failed"
         }
+
+# Add automated sync endpoints
+@router.post("/sync/automated/start")
+async def start_automated_sync() -> Dict[str, Any]:
+    """Start the automated SmartMoving sync service"""
+    try:
+        from apps.api.background_sync import BackgroundSmartMovingSync
+        
+        # Start the background sync service
+        sync_service = BackgroundSmartMovingSync()
+        await sync_service.run_sync_cycle()
+        
+        return {
+            "success": True,
+            "message": "Automated sync started successfully",
+            "sync_time": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error starting automated sync: {e}")
+        return {
+            "success": False,
+            "message": f"Failed to start automated sync: {str(e)}"
+        }
+
+@router.get("/sync/automated/status")
+async def get_automated_sync_status() -> Dict[str, Any]:
+    """Get the status of the automated SmartMoving sync service"""
+    try:
+        from apps.api.background_sync import BackgroundSmartMovingSync
+        
+        async with BackgroundSmartMovingSync() as sync_service:
+            status = await sync_service.get_status()
+            
+        return {
+            "success": True,
+            "data": status
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting sync status: {e}")
+        return {
+            "success": False,
+            "message": f"Failed to get sync status: {str(e)}"
+        }
+
+@router.post("/sync/automated/trigger")
+async def trigger_automated_sync() -> Dict[str, Any]:
+    """Trigger a manual sync cycle"""
+    try:
+        from apps.api.background_sync import BackgroundSmartMovingSync
+        
+        async with BackgroundSmartMovingSync() as sync_service:
+            result = await sync_service.sync_all_locations()
+            
+        return {
+            "success": True,
+            "data": result
+        }
+        
+    except Exception as e:
+        logger.error(f"Error triggering automated sync: {e}")
+        return {
+            "success": False,
+            "message": f"Failed to trigger automated sync: {str(e)}"
+        }
+
+# Add journey data endpoints
+@router.get("/journeys/active")
+async def get_active_journeys(
+    location_id: str = None,
+    client_id: str = None,
+    date_from: str = None,
+    date_to: str = None
+) -> Dict[str, Any]:
+    """Get active journeys from our database (not SmartMoving API)"""
+    try:
+        from prisma import Prisma
+        db = Prisma()
+        await db.connect()
+        
+        # Build query filters
+        where_conditions = {
+            "status": {
+                "in": ["MORNING_PREP", "IN_PROGRESS", "COMPLETED"]
+            }
+        }
+        
+        if location_id:
+            where_conditions["locationId"] = location_id
+        if client_id:
+            where_conditions["clientId"] = client_id
+        if date_from:
+            where_conditions["date"] = {
+                "gte": datetime.fromisoformat(date_from)
+            }
+        if date_to:
+            if "date" in where_conditions:
+                where_conditions["date"]["lte"] = datetime.fromisoformat(date_to)
+            else:
+                where_conditions["date"] = {
+                    "lte": datetime.fromisoformat(date_to)
+                }
+        
+        # Get journeys from our database
+        journeys = await db.truckjourney.find_many(
+            where=where_conditions,
+            include={
+                "location": True,
+                "client": True,
+                "assignedCrew": {
+                    "include": {
+                        "user": True
+                    }
+                }
+            },
+            order={
+                "date": "asc"
+            }
+        )
+        
+        await db.disconnect()
+        
+        # Format the response
+        formatted_journeys = []
+        for journey in journeys:
+            formatted_journey = {
+                "id": journey.id,
+                "date": journey.date.isoformat(),
+                "status": journey.status,
+                "truckNumber": journey.truckNumber,
+                "notes": journey.notes,
+                "priority": journey.priority,
+                "estimatedCost": float(journey.estimatedCost) if journey.estimatedCost else None,
+                "startTime": journey.startTime.isoformat() if journey.startTime else None,
+                "endTime": journey.endTime.isoformat() if journey.endTime else None,
+                "estimatedDuration": journey.estimatedDuration,
+                "startLocation": journey.startLocation,
+                "endLocation": journey.endLocation,
+                "location": {
+                    "id": journey.location.id,
+                    "name": journey.location.name,
+                    "type": journey.location.type
+                } if journey.location else None,
+                "client": {
+                    "id": journey.client.id,
+                    "name": journey.client.name
+                } if journey.client else None,
+                "assignedCrew": [
+                    {
+                        "id": crew.id,
+                        "user": {
+                            "id": crew.user.id,
+                            "name": crew.user.name,
+                            "role": crew.user.role
+                        } if crew.user else None,
+                        "status": crew.status
+                    } for crew in journey.assignedCrew
+                ],
+                "externalId": journey.externalId,
+                "dataSource": journey.externalData.get("dataSource") if journey.externalData else None,
+                "smartmovingJobNumber": journey.externalData.get("smartmovingJobNumber") if journey.externalData else None
+            }
+            formatted_journeys.append(formatted_journey)
+        
+        return {
+            "success": True,
+            "data": formatted_journeys,
+            "count": len(formatted_journeys),
+            "filters": {
+                "location_id": location_id,
+                "client_id": client_id,
+                "date_from": date_from,
+                "date_to": date_to
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting active journeys: {e}")
+        return {
+            "success": False,
+            "message": f"Failed to get active journeys: {str(e)}"
+        }
+
+@router.get("/journeys/today")
+async def get_today_journeys(location_id: str = None) -> Dict[str, Any]:
+    """Get today's journeys from our database"""
+    today = datetime.now().date()
+    date_from = datetime.combine(today, datetime.min.time()).isoformat()
+    date_to = datetime.combine(today, datetime.max.time()).isoformat()
+    
+    return await get_active_journeys(
+        location_id=location_id,
+        date_from=date_from,
+        date_to=date_to
+    )
+
+@router.get("/journeys/tomorrow")
+async def get_tomorrow_journeys(location_id: str = None) -> Dict[str, Any]:
+    """Get tomorrow's journeys from our database"""
+    tomorrow = datetime.now().date() + timedelta(days=1)
+    date_from = datetime.combine(tomorrow, datetime.min.time()).isoformat()
+    date_to = datetime.combine(tomorrow, datetime.max.time()).isoformat()
+    
+    return await get_active_journeys(
+        location_id=location_id,
+        date_from=date_from,
+        date_to=date_to
+    )

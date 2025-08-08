@@ -59,6 +59,9 @@ interface JourneyActions {
   
   // API Actions (Real implementations)
   fetchJourneys: (params?: GetJourneysRequest) => Promise<void>;
+  fetchTodayJourneys: (location_id?: string) => Promise<void>;
+  fetchTomorrowJourneys: (location_id?: string) => Promise<void>;
+  triggerSmartMovingSync: () => Promise<void>;
   createJourney: (data: CreateJourneyRequest) => Promise<Journey>;
   updateJourneyStatus: (id: string, status: Journey['status']) => Promise<void>;
   addJourneyEntry: (data: CreateJourneyEntryRequest) => Promise<JourneyEntry>;
@@ -164,7 +167,8 @@ export const useJourneyStore = create<JourneyStore>()(
             throw new Error('No authentication token found');
           }
 
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/journey/active`, {
+          // Use our new SmartMoving journey endpoints that pull from our database
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/smartmoving/journeys/active`, {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -331,6 +335,124 @@ export const useJourneyStore = create<JourneyStore>()(
             isLoading: false 
           });
           throw error;
+        }
+      },
+
+      // SmartMoving specific functions
+      fetchTodayJourneys: async (location_id?: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          const token = localStorage.getItem('auth-token') || document.cookie.split('auth-token=')[1]?.split(';')[0];
+          if (!token) {
+            throw new Error('No authentication token found');
+          }
+
+          const url = new URL(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/smartmoving/journeys/today`);
+          if (location_id) {
+            url.searchParams.append('location_id', location_id);
+          }
+
+          const response = await fetch(url.toString(), {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          
+          if (data.success) {
+            set({ journeys: data.data || [], isLoading: false });
+          } else {
+            throw new Error(data.message || 'Failed to fetch today\'s journeys');
+          }
+        } catch (error) {
+          set({ 
+            error: error instanceof Error ? error.message : 'Failed to fetch today\'s journeys',
+            isLoading: false 
+          });
+        }
+      },
+
+      fetchTomorrowJourneys: async (location_id?: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          const token = localStorage.getItem('auth-token') || document.cookie.split('auth-token=')[1]?.split(';')[0];
+          if (!token) {
+            throw new Error('No authentication token found');
+          }
+
+          const url = new URL(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/smartmoving/journeys/tomorrow`);
+          if (location_id) {
+            url.searchParams.append('location_id', location_id);
+          }
+
+          const response = await fetch(url.toString(), {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          
+          if (data.success) {
+            set({ journeys: data.data || [], isLoading: false });
+          } else {
+            throw new Error(data.message || 'Failed to fetch tomorrow\'s journeys');
+          }
+        } catch (error) {
+          set({ 
+            error: error instanceof Error ? error.message : 'Failed to fetch tomorrow\'s journeys',
+            isLoading: false 
+          });
+        }
+      },
+
+      triggerSmartMovingSync: async () => {
+        set({ isLoading: true, error: null });
+        try {
+          const token = localStorage.getItem('auth-token') || document.cookie.split('auth-token=')[1]?.split(';')[0];
+          if (!token) {
+            throw new Error('No authentication token found');
+          }
+
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/smartmoving/sync/automated/trigger`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          
+          if (data.success) {
+            set({ isLoading: false });
+            // Optionally refresh journeys after sync
+            get().fetchJourneys();
+          } else {
+            throw new Error(data.message || 'Failed to trigger SmartMoving sync');
+          }
+        } catch (error) {
+          set({ 
+            error: error instanceof Error ? error.message : 'Failed to trigger SmartMoving sync',
+            isLoading: false 
+          });
         }
       }
     }),
