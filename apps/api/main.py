@@ -23,7 +23,7 @@ from apps.api.routes import auth, journey, calendar, dispatch, feedback, crew, s
 from apps.api.routes import users, mobile, locations, journey_steps, admin, setup, real_time
 from apps.api.routes import customers, quotes
 from apps.api.routes import journey_workflow, super_admin
-from apps.api.routes import smartmoving_integration, company_management, smartmoving
+from apps.api.routes import smartmoving_integration, company_management
 # Import middleware
 from apps.api.middleware.auth import AuthMiddleware
 from apps.api.middleware.tenant import TenantMiddleware
@@ -288,17 +288,6 @@ except Exception as e:
     @app.get("/smartmoving/test")
     async def smartmoving_test():
         return {"message": "SmartMoving Integration test endpoint working"}
-
-# SmartMoving API routes
-try:
-    app.include_router(smartmoving.router, tags=["SmartMoving API"])
-    print("✅ SmartMoving API routes loaded successfully")
-except Exception as e:
-    print(f"❌ Error loading SmartMoving API routes: {e}")
-    # Create a simple test endpoint
-    @app.get("/smartmoving-api/test")
-    async def smartmoving_api_test():
-        return {"message": "SmartMoving API test endpoint working"}
 
 # Company Management routes
 try:
