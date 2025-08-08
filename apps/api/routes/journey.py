@@ -1205,6 +1205,7 @@ async def test_real_journey_data():
             SELECT * FROM "TruckJourney" 
             WHERE "clientId" = 'clm_f55e13de_a5c4_4990_ad02_34bb07187daa'
             ORDER BY "createdAt" DESC
+            LIMIT 10
         """)
         
         real_journeys = cursor.fetchall()
