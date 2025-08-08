@@ -268,7 +268,7 @@ export default function SuperAdminBackupPage() {
       return;
     }
 
-    if (!hasPermission('MANAGE_SYSTEM_SETTINGS')) {
+    if (!hasPermission('system:manage')) {
       router.push('/super-admin/dashboard');
       toast.error('Insufficient permissions to access backup management');
       return;
@@ -295,7 +295,7 @@ export default function SuperAdminBackupPage() {
   // ===== BACKUP ACTIONS =====
 
   const handleManualBackup = async () => {
-    if (!hasPermission('MANAGE_SYSTEM_SETTINGS')) {
+    if (!hasPermission('backup:write')) {
       toast.error('Insufficient permissions to perform backup');
       return;
     }
@@ -318,7 +318,7 @@ export default function SuperAdminBackupPage() {
   };
 
   const handleToggleAutomation = async () => {
-    if (!hasPermission('MANAGE_SYSTEM_SETTINGS')) {
+    if (!hasPermission('system:configure')) {
       toast.error('Insufficient permissions to modify backup automation');
       return;
     }
@@ -348,7 +348,7 @@ export default function SuperAdminBackupPage() {
   };
 
   const handleDeleteBackup = async (backupId: string) => {
-    if (!hasPermission('MANAGE_SYSTEM_SETTINGS')) {
+    if (!hasPermission('backup:delete')) {
       toast.error('Insufficient permissions to delete backups');
       return;
     }
@@ -373,7 +373,7 @@ export default function SuperAdminBackupPage() {
   };
 
   const handleVerifyBackup = async (backupId: string) => {
-    if (!hasPermission('VIEW_AUDIT_LOGS')) {
+    if (!hasPermission('backup:verify')) {
       toast.error('Insufficient permissions to verify backups');
       return;
     }
@@ -493,7 +493,7 @@ export default function SuperAdminBackupPage() {
           </div>
           
           <div className="flex items-center space-x-2 flex-shrink-0">
-            <RBACProtected permission="MANAGE_SYSTEM_SETTINGS">
+            <RBACProtected permission="backup:write">
               <Button 
                 onClick={handleManualBackup} 
                 size="sm" 
@@ -505,7 +505,7 @@ export default function SuperAdminBackupPage() {
               </Button>
             </RBACProtected>
             
-            <RBACProtected permission="MANAGE_SYSTEM_SETTINGS">
+            <RBACProtected permission="system:configure">
               <Button 
                 onClick={handleToggleAutomation} 
                 variant={backupSettings.automationEnabled ? "outline" : "default"}
@@ -749,7 +749,7 @@ export default function SuperAdminBackupPage() {
                             {backup.status.toUpperCase()}
                           </Badge>
                           
-                          <RBACProtected permission="VIEW_AUDIT_LOGS">
+                          <RBACProtected permission="backup:verify">
                             <Button
                               variant="ghost"
                               size="sm"
@@ -760,7 +760,7 @@ export default function SuperAdminBackupPage() {
                             </Button>
                           </RBACProtected>
                           
-                          <RBACProtected permission="MANAGE_SYSTEM_SETTINGS">
+                          <RBACProtected permission="backup:delete">
                             <Button
                               variant="ghost"
                               size="sm"
@@ -780,7 +780,7 @@ export default function SuperAdminBackupPage() {
           )}
 
           {activeTab === 'logs' && (
-            <RBACProtected permission="VIEW_AUDIT_LOGS">
+            <RBACProtected permission="audit:read">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
@@ -811,7 +811,7 @@ export default function SuperAdminBackupPage() {
           )}
 
           {activeTab === 'settings' && (
-            <RBACProtected permission="MANAGE_SYSTEM_SETTINGS">
+            <RBACProtected permission="system:configure">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
@@ -877,7 +877,7 @@ export default function SuperAdminBackupPage() {
           )}
 
           {activeTab === 'restore' && (
-            <RBACProtected permission="MANAGE_SYSTEM_SETTINGS">
+            <RBACProtected permission="backup:write">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">

@@ -45,11 +45,6 @@ model User {
   approvedSteps         JourneyStep[] @relation("StepApprover")
   createdActivities     StepActivity[] @relation("ActivityCreator")
 
-  // CRM relations
-  assignedCustomers Customer[] @relation("CustomerAssignment")
-  assignedLeads     Lead[]     @relation("LeadAssignment")
-  createdQuotes     Quote[]    @relation("QuoteCreator")
-
   @@index([clientId, locationId])
   @@index([email])
   @@index([role])
@@ -70,9 +65,6 @@ model Client {
   truckJourneys TruckJourney[]
   moveSources   MoveSource[]
   auditEntries  AuditEntry[]
-  customers     Customer[]
-  leads         Lead[]
-  quotes        Quote[]
 
   @@index([name])
 }
@@ -96,116 +88,6 @@ model Location {
   @@index([clientId])
 }
 
-// ===== CRM MODELS =====
-
-model Customer {
-  id            String     @id @default(cuid())
-  clientId      String
-  externalId    String?    // SmartMoving customer ID
-  firstName     String
-  lastName      String
-  email         String?
-  phone         String?
-  address       Json?      // Full address structure
-  leadSource    String?    // How customer found us
-  leadStatus    LeadStatus @default(NEW)
-  assignedTo    String?    // Sales rep user ID
-  estimatedValue Decimal?  @db.Decimal(10, 2)
-  notes         String?
-  tags          String[]
-  preferences   Json?      // Customer preferences
-  isActive      Boolean    @default(true)
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  createdBy     String?
-  updatedBy     String?
-
-  // Relations
-  client        Client     @relation(fields: [clientId], references: [id])
-  assignedUser  User?      @relation("CustomerAssignment", fields: [assignedTo], references: [id])
-  leads         Lead[]
-  quotes        Quote[]
-  truckJourneys TruckJourney[]
-
-  @@index([clientId, leadStatus])
-  @@index([clientId, isActive])
-  @@index([email, clientId])
-  @@index([assignedTo, leadStatus])
-  @@index([externalId])
-  @@unique([email, clientId])
-  @@unique([phone, clientId])
-}
-
-model Lead {
-  id            String     @id @default(cuid())
-  clientId      String
-  customerId    String
-  externalId    String?    // SmartMoving opportunity ID
-  quoteNumber   String?    // SmartMoving quote number
-  status        LeadStatus @default(NEW)
-  serviceDate   DateTime?  // SmartMoving service date
-  estimatedValue Decimal?  @db.Decimal(10, 2)
-  moveSize      String?    // SmartMoving move size
-  serviceType   String?    // SmartMoving service type
-  pickupAddress String?
-  deliveryAddress String?
-  notes         String?
-  tags          String[]
-  assignedTo    String?    // Sales rep user ID
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  createdBy     String?
-  updatedBy     String?
-
-  // Relations
-  client        Client     @relation(fields: [clientId], references: [id])
-  customer      Customer   @relation(fields: [customerId], references: [id])
-  assignedUser  User?      @relation("LeadAssignment", fields: [assignedTo], references: [id])
-  quotes        Quote[]
-  truckJourneys TruckJourney[]
-
-  @@index([clientId, status])
-  @@index([customerId])
-  @@index([assignedTo, status])
-  @@index([serviceDate])
-  @@index([externalId])
-}
-
-model Quote {
-  id            String     @id @default(cuid())
-  clientId      String
-  customerId    String
-  leadId        String?
-  externalId    String?    // SmartMoving quote ID
-  quoteNumber   String     // Quote reference number
-  status        QuoteStatus @default(DRAFT)
-  totalAmount   Decimal    @db.Decimal(10, 2)
-  taxAmount     Decimal?   @db.Decimal(10, 2)
-  discountAmount Decimal?  @db.Decimal(10, 2)
-  finalAmount   Decimal    @db.Decimal(10, 2)
-  validUntil    DateTime?
-  notes         String?
-  terms         String?
-  createdBy     String
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  updatedBy     String?
-
-  // Relations
-  client        Client     @relation(fields: [clientId], references: [id])
-  customer      Customer   @relation(fields: [customerId], references: [id])
-  lead          Lead?      @relation(fields: [leadId], references: [id])
-  creator       User       @relation("QuoteCreator", fields: [createdBy], references: [id])
-  truckJourneys TruckJourney[]
-
-  @@index([clientId, status])
-  @@index([customerId])
-  @@index([leadId])
-  @@index([createdBy])
-  @@index([externalId])
-  @@unique([quoteNumber, clientId])
-}
-
 model TruckJourney {
   id           String       @id @default(cuid())
   locationId   String
@@ -217,19 +99,6 @@ model TruckJourney {
   startTime    DateTime?
   endTime      DateTime?
   notes        String?
-  
-  // SmartMoving Integration Fields
-  externalId   String?      // SmartMoving job ID
-  jobNumber    String?      // SmartMoving job number
-  quoteNumber  String?      // SmartMoving quote number
-  customerId   String?      // Link to Customer
-  leadId       String?      // Link to Lead
-  quoteId      String?      // Link to Quote
-  estimatedTotal Decimal?   @db.Decimal(10, 2) // SmartMoving estimated total
-  jobType      Int?         // SmartMoving job type
-  confirmed    Boolean?     // SmartMoving confirmed status
-  jobAddresses String[]     // SmartMoving job addresses
-  
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
@@ -244,19 +113,10 @@ model TruckJourney {
   mobileUpdates   MobileJourneyUpdate[]
   mobileMedia     MobileMediaItem[]
   journeySteps    JourneyStep[]
-  
-  // CRM Relations
-  customer        Customer?       @relation(fields: [customerId], references: [id])
-  lead            Lead?           @relation(fields: [leadId], references: [id])
-  quote           Quote?          @relation(fields: [quoteId], references: [id])
 
   @@index([clientId, locationId])
   @@index([status])
   @@index([date])
-  @@index([externalId])
-  @@index([customerId])
-  @@index([leadId])
-  @@index([quoteId])
 }
 
 model JourneyStep {
@@ -596,26 +456,6 @@ enum ActivityType {
   APPROVAL
   NOTE
   SIGNATURE
-}
-
-enum LeadStatus {
-  NEW
-  CONTACTED
-  QUALIFIED
-  PROPOSAL_SENT
-  NEGOTIATION
-  WON
-  LOST
-  CANCELLED
-}
-
-enum QuoteStatus {
-  DRAFT
-  SENT
-  ACCEPTED
-  REJECTED
-  EXPIRED
-  CANCELLED
 }
 
 // Company Management System Models

@@ -289,18 +289,6 @@ except Exception as e:
     async def smartmoving_test():
         return {"message": "SmartMoving Integration test endpoint working"}
 
-# SmartMoving Jobs routes
-try:
-    from apps.api.routes import smartmoving_jobs
-    app.include_router(smartmoving_jobs.router, tags=["SmartMoving Jobs"])
-    print("✅ SmartMoving Jobs routes loaded successfully")
-except Exception as e:
-    print(f"❌ Error loading SmartMoving Jobs routes: {e}")
-    # Create a simple test endpoint
-    @app.get("/smartmoving-jobs/test")
-    async def smartmoving_jobs_test():
-        return {"message": "SmartMoving Jobs test endpoint working"}
-
 # Company Management routes
 try:
     app.include_router(company_management.router, prefix="/company-management", tags=["Company Management"])

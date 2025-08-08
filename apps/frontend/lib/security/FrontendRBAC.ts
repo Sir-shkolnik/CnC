@@ -41,7 +41,13 @@ export type Permission =
   | 'storage:read' | 'storage:write' | 'storage:delete'
   
   // Booking permissions
-  | 'booking:read' | 'booking:write' | 'booking:delete';
+  | 'booking:read' | 'booking:write' | 'booking:delete'
+  
+  // Backup management permissions
+  | 'backup:read' | 'backup:write' | 'backup:delete' | 'backup:verify'
+  
+  // System management permissions
+  | 'system:manage' | 'system:configure';
 
 export type UserRole = 
   | 'SUPER_ADMIN'
@@ -68,7 +74,9 @@ export class FrontendRBAC {
       'media:read', 'media:write', 'media:delete',
       'gps:read', 'gps:write',
       'storage:read', 'storage:write', 'storage:delete',
-      'booking:read', 'booking:write', 'booking:delete'
+      'booking:read', 'booking:write', 'booking:delete',
+      'backup:read', 'backup:write', 'backup:delete', 'backup:verify',
+      'system:manage', 'system:configure'
     ],
     ADMIN: [
       'user:read', 'user:write',
