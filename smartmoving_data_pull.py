@@ -120,7 +120,8 @@ async def get_customers_for_date(date_str: str):
     result = await test_endpoint("/api/customers", params)
     
     if result["success"]:
-        customers = result["data"]
+        customers_data = result["data"]
+        customers = customers_data.get('pageResults', [])
         print(f"✅ Found {len(customers)} customers for {date_str}")
         
         # Show first customer with opportunities

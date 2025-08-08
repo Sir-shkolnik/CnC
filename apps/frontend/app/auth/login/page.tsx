@@ -511,21 +511,29 @@ export default function UnifiedLoginPage() {
       
       if (userResponse.ok) {
         const userData = await userResponse.json();
-        const role = userData.data?.user?.role || '';
-        const userType = userData.data?.user?.user_type || '';
         
-        // Super admin gets super interface
-        if (role.toUpperCase() === 'SUPER_ADMIN' || userType === 'super_admin') {
-          return 'super';
+        // Store the user data and token for authentication
+        if (userData.success && userData.user && userData.access_token) {
+          // Store token in localStorage
+          localStorage.setItem('access_token', userData.access_token);
+          localStorage.setItem('user_data', JSON.stringify(userData.user));
+          
+          const role = userData.user?.role || '';
+          const userType = userData.user?.user_type || '';
+          
+          // Super admin gets super interface
+          if (role.toUpperCase() === 'SUPER_ADMIN' || userType === 'super_admin') {
+            return 'super';
+          }
+          
+          // Mobile roles get mobile interface
+          if (['DRIVER', 'MOVER'].includes(role.toUpperCase())) {
+            return 'mobile';
+          }
+          
+          // Web roles get web interface (MANAGER, ADMIN, DISPATCHER, AUDITOR)
+          return 'web';
         }
-        
-        // Mobile roles get mobile interface
-        if (['DRIVER', 'MOVER'].includes(role.toUpperCase())) {
-          return 'mobile';
-        }
-        
-        // Web roles get web interface
-        return 'web';
       }
       
       throw new Error('Invalid credentials');
@@ -552,19 +560,17 @@ export default function UnifiedLoginPage() {
     try {
       const userType = await detectUserType(formData.email, formData.password);
       
+      // Authentication is already handled in detectUserType, just redirect based on user type
       switch (userType) {
         case 'super':
-          await superAdminLogin(formData.email, formData.password);
           router.push('/super-admin/dashboard');
           break;
           
         case 'mobile':
-          await authLogin(formData.email, formData.password, selectedCompany?.id);
           router.push('/mobile'); // Mobile-specific interface
           break;
           
         case 'web':
-          await authLogin(formData.email, formData.password, selectedCompany?.id);
           router.push('/dashboard'); // Web interface
           break;
       }
