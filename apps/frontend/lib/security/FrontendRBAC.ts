@@ -309,7 +309,13 @@ export class FrontendRBAC {
       'storage:delete': 'Delete storage data',
       'booking:read': 'View bookings',
       'booking:write': 'Create and edit bookings',
-      'booking:delete': 'Delete bookings'
+      'booking:delete': 'Delete bookings',
+      'backup:read': 'View backup files and status',
+      'backup:write': 'Create and manage backups',
+      'backup:delete': 'Delete backup files',
+      'backup:verify': 'Verify backup integrity',
+      'system:manage': 'Manage system operations',
+      'system:configure': 'Configure system settings'
     };
 
     return descriptions[permission] || 'Unknown permission';

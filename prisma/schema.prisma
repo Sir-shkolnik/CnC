@@ -99,6 +99,14 @@ model TruckJourney {
   startTime    DateTime?
   endTime      DateTime?
   notes        String?
+  
+  // SmartMoving Integration Fields
+  externalId   String?      // SmartMoving job ID
+  externalData Json?        // Raw SmartMoving data
+  dataSource   String       @default("MANUAL") // "SMARTMOVING" or "MANUAL"
+  lastSyncAt   DateTime?
+  syncStatus   String       @default("SYNCED") // "SYNCED", "PENDING", "FAILED"
+  
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
