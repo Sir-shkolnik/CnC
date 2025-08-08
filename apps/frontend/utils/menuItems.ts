@@ -66,7 +66,7 @@ const adminMenuItems: MenuItem[] = [
     href: '/audit',
     badge: null,
     children: [
-      { id: 'audit-logs', label: 'Audit Logs', href: '/audit/logs' },
+      { id: 'audit-logs', label: 'Audit Logs', href: '/audit' },
       { id: 'compliance', label: 'Compliance', href: '/audit/compliance' },
       { id: 'reports', label: 'Reports', href: '/audit/reports' }
     ]
@@ -422,7 +422,7 @@ const managerMenuItems: MenuItem[] = [
     badge: 'pending-audits',
     children: [
       { id: 'audit-verify', label: 'Verify Journeys', href: '/audit/verify' },
-      { id: 'audit-logs', label: 'Audit Logs', href: '/audit/logs' }
+      { id: 'audit-logs', label: 'Audit Logs', href: '/audit' }
     ]
   },
   {
@@ -467,7 +467,7 @@ const auditorMenuItems: MenuItem[] = [
     href: '/audit',
     badge: 'pending-audits',
     children: [
-      { id: 'audit-logs', label: 'Audit Logs', href: '/audit/logs' },
+      { id: 'audit-logs', label: 'Audit Logs', href: '/audit' },
       { id: 'audit-verify', label: 'Verify Journeys', href: '/audit/verify' },
       { id: 'audit-reports', label: 'Audit Reports', href: '/audit/reports' }
     ]

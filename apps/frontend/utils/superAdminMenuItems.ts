@@ -207,7 +207,7 @@ export const superAdminMenuItems: SuperAdminMenuItem[] = [
       { 
         id: 'audit-logs', 
         label: 'Audit Logs', 
-        href: '/super-admin/audit/logs',
+        href: '/super-admin/audit-logs',
         badge: null,
         children: [],
         permission: 'VIEW_AUDIT_LOGS',
