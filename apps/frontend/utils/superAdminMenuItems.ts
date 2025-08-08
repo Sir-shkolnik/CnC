@@ -168,7 +168,7 @@ export const superAdminMenuItems: SuperAdminMenuItem[] = [
         href: '/super-admin/backup',
         badge: null,
         children: [],
-        permission: 'system:manage',
+        permission: 'MANAGE_SYSTEM_SETTINGS',
       },
       { 
         id: 'backup-logs', 
@@ -176,7 +176,7 @@ export const superAdminMenuItems: SuperAdminMenuItem[] = [
         href: '/super-admin/backup/logs',
         badge: null,
         children: [],
-        permission: 'audit:read',
+        permission: 'VIEW_AUDIT_LOGS',
       },
       { 
         id: 'backup-settings', 
@@ -184,7 +184,7 @@ export const superAdminMenuItems: SuperAdminMenuItem[] = [
         href: '/super-admin/backup/settings',
         badge: null,
         children: [],
-        permission: 'system:configure',
+        permission: 'MANAGE_SYSTEM_SETTINGS',
       },
       { 
         id: 'backup-restore', 
@@ -192,10 +192,10 @@ export const superAdminMenuItems: SuperAdminMenuItem[] = [
         href: '/super-admin/backup/restore',
         badge: null,
         children: [],
-        permission: 'backup:write',
+        permission: 'MANAGE_SYSTEM_SETTINGS',
       },
     ],
-    permission: 'system:manage',
+    permission: 'MANAGE_SYSTEM_SETTINGS',
   },
   {
     id: 'audit',
