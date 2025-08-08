@@ -228,7 +228,6 @@ export class FrontendRBAC {
       '/crew/[id]/edit': ['crew:write'],
       '/crew/[id]/delete': ['crew:delete'],
       '/audit': ['audit:read'],
-      '/audit': ['audit:read'],
       '/audit/create': ['audit:write'],
       '/settings': ['settings:read'],
       '/settings/general': ['settings:write'],
