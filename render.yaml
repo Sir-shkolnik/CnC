@@ -63,9 +63,8 @@ services:
     env: node
     plan: starter
     buildCommand: |
-      cd apps/frontend
-      npm install
-      npm run build
+      npm ci
+      npm run build --workspace=apps/frontend
     startCommand: |
       cd apps/frontend
       next start -p $PORT
@@ -87,9 +86,8 @@ services:
     env: node
     plan: starter
     buildCommand: |
-      cd apps/frontend
-      npm install
-      npm run build
+      npm ci
+      npm run build --workspace=apps/frontend
     startCommand: |
       cd apps/frontend
       next start -p $PORT
@@ -113,9 +111,8 @@ services:
     env: node
     plan: starter
     buildCommand: |
-      cd apps/frontend
-      npm install
-      npm run build
+      npm ci
+      npm run build --workspace=apps/frontend
     startCommand: |
       cd apps/frontend
       next start -p $PORT
