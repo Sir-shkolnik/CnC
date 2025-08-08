@@ -508,7 +508,7 @@ export default function SuperAdminBackupPage() {
             <RBACProtected permission="system:configure">
               <Button 
                 onClick={handleToggleAutomation} 
-                variant={backupSettings.automationEnabled ? "outline" : "default"}
+                variant={backupSettings.automationEnabled ? "secondary" : "primary"}
                 size="sm" 
                 className="h-9"
                 disabled={isPerformingAction}
