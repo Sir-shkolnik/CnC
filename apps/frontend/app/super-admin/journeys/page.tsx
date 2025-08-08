@@ -56,15 +56,14 @@ interface MockJourney {
   updatedAt: string;
 }
 
-const [realJourneys, setRealJourneys] = useState<MockJourney[]>([]);
-const [isLoadingJourneys, setIsLoadingJourneys] = useState(false);
-
 export default function SuperAdminJourneysPage() {
   const router = useRouter();
   const superAdmin = useSuperAdmin();
   const isLoading = useSuperAdminLoading();
   const error = useSuperAdminError();
 
+  const [realJourneys, setRealJourneys] = useState<MockJourney[]>([]);
+  const [isLoadingJourneys, setIsLoadingJourneys] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCompany, setFilterCompany] = useState<string>('ALL');
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
