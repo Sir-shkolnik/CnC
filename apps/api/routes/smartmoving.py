@@ -324,7 +324,7 @@ async def get_smartmoving_materials() -> Dict[str, Any]:
 
 @router.get("/test")
 async def test_smartmoving_connection() -> Dict[str, Any]:
-    """Test SmartMoving integration"""
+    """Test SmartMoving integration - No authentication required for testing"""
     return {
         "success": True,
         "message": "SmartMoving integration is working",
@@ -335,7 +335,10 @@ async def test_smartmoving_connection() -> Dict[str, Any]:
                 "/smartmoving/status",
                 "/smartmoving/sync",
                 "/smartmoving/branches",
-                "/smartmoving/materials"
-            ]
+                "/smartmoving/materials",
+                "/smartmoving/test"
+            ],
+            "database_connection": "checking...",
+            "timestamp": "2025-08-08T00:00:00Z"
         }
     }
