@@ -136,3 +136,9 @@ test-results-*.log
 
 # Local development
 .local/
+
+# Backup files (should not be in Git)
+backups/
+*.enc
+*.tar.gz
+*.sql

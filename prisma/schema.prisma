@@ -533,7 +533,6 @@ model CompanyBranch {
 
   // Relations
   companyIntegration  CompanyIntegration @relation(fields: [companyIntegrationId], references: [id], onDelete: Cascade)
-  jobs                Job[]
 
   // Unique constraints
   @@unique([companyIntegrationId, externalId])
@@ -648,8 +647,6 @@ model CompanyUser {
 
   // Relations
   companyIntegration  CompanyIntegration @relation(fields: [companyIntegrationId], references: [id], onDelete: Cascade)
-  jobAssignments      JobAssignment[]
-  availability        UserAvailability[]
 
   // Unique constraints
   @@unique([companyIntegrationId, externalId])
@@ -795,4 +792,14 @@ model UserAvailability {
   @@index([userId, date])
 }
 
+// Update existing models to include relations
+model CompanyBranch {
+  // ... existing fields ...
+  jobs Job[]
+}
 
+model CompanyUser {
+  // ... existing fields ...
+  jobAssignments JobAssignment[]
+  availability   UserAvailability[]
+}
