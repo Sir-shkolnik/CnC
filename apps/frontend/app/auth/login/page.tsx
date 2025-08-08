@@ -177,12 +177,12 @@ export default function UnifiedLoginPage() {
         setFilteredUsers(users);
         
         // Extract unique locations for filtering
-        const uniqueLocations = Array.from(new Set(users.map(user => user.location_name)))
+        const uniqueLocations = Array.from(new Set(users.map((user: CompanyUser) => user.location_name)))
           .filter(Boolean)
           .map(locationName => ({
             id: locationName,
             name: locationName,
-            type: users.find(u => u.location_name === locationName)?.location_type || 'FRANCHISE'
+            type: users.find((u: CompanyUser) => u.location_name === locationName)?.location_type || 'FRANCHISE'
           }));
         
         setLocations(uniqueLocations);
