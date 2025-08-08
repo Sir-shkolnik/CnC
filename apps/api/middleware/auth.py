@@ -250,7 +250,7 @@ class AuthMiddleware:
                 return
             
             # Allow unauthenticated access to SmartMoving test endpoints
-            if path in ["/smartmoving/test", "/smartmoving/status"]:
+            if path in ["/smartmoving/test", "/smartmoving/status", "/smartmoving/test/sync"]:
                 await self.app(scope, receive, send)
                 return
             
