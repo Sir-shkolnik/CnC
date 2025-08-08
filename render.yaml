@@ -67,7 +67,7 @@ services:
       npm run build --workspace=apps/frontend
     startCommand: |
       cd apps/frontend
-      next start -p $PORT
+      npx next start -p $PORT
     envVars:
       - key: NEXT_PUBLIC_API_URL
         value: https://c-and-c-crm-api.onrender.com
@@ -90,7 +90,7 @@ services:
       npm run build --workspace=apps/frontend
     startCommand: |
       cd apps/frontend
-      next start -p $PORT
+      npx next start -p $PORT
     envVars:
       - key: NEXT_PUBLIC_API_URL
         value: https://c-and-c-crm-api.onrender.com
@@ -115,7 +115,7 @@ services:
       npm run build --workspace=apps/frontend
     startCommand: |
       cd apps/frontend
-      next start -p $PORT
+      npx next start -p $PORT
     envVars:
       - key: NEXT_PUBLIC_API_URL
         value: https://c-and-c-crm-api.onrender.com
