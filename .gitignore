@@ -142,3 +142,5 @@ backups/
 *.enc
 *.tar.gz
 *.sql
+backups/*.tar.gz.enc
+backups/*.sql.enc
