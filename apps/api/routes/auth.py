@@ -113,53 +113,7 @@ async def login(request: LoginRequest) -> Dict[str, Any]:
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
-        # First, check if it's a super admin user
-        cursor.execute(
-            """
-            SELECT id, username, email, role, permissions, status
-            FROM super_admin_users 
-            WHERE (username = %s OR email = %s) AND status = 'ACTIVE'
-            """,
-            (request.email, request.email)
-        )
-        
-        super_admin = cursor.fetchone()
-        
-        if super_admin:
-            # Check super admin password (for demo purposes, accept specific password)
-            if request.password == "Id200633048!":
-                # Create super admin token
-                access_token_expires = datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-                access_token = create_access_token(
-                    data={
-                        "sub": str(super_admin["id"]),
-                        "user_type": "super_admin",
-                        "email": super_admin["email"],
-                        "role": super_admin["role"],
-                        "company_id": None,
-                        "location_id": None
-                    },
-                    expires_delta=access_token_expires
-                )
-                
-                return {
-                    "success": True,
-                    "access_token": access_token,
-                    "token_type": "bearer",
-                    "user": {
-                        "id": super_admin["id"],
-                        "name": super_admin["username"],
-                        "email": super_admin["email"],
-                        "role": super_admin["role"],
-                        "company_id": None,
-                        "company_name": None,
-                        "location_id": None,
-                        "location_name": None,
-                        "user_type": "super_admin"
-                    }
-                }
-        
-        # Check for regular users
+        # Check for regular users (removed super_admin_users check since table doesn't exist)
         cursor.execute("""
             SELECT u.id, u.name, u.email, u.role, u."clientId", u."locationId", u.status,
                    c.name as company_name,
