@@ -533,6 +533,7 @@ model CompanyBranch {
 
   // Relations
   companyIntegration  CompanyIntegration @relation(fields: [companyIntegrationId], references: [id], onDelete: Cascade)
+  jobs                Job[]
 
   // Unique constraints
   @@unique([companyIntegrationId, externalId])
@@ -647,6 +648,8 @@ model CompanyUser {
 
   // Relations
   companyIntegration  CompanyIntegration @relation(fields: [companyIntegrationId], references: [id], onDelete: Cascade)
+  jobAssignments      JobAssignment[]
+  availability        UserAvailability[]
 
   // Unique constraints
   @@unique([companyIntegrationId, externalId])
@@ -673,3 +676,123 @@ model CompanyReferralSource {
   @@unique([companyIntegrationId, externalId])
   @@map("CompanyReferralSource")
 }
+
+// Job Management System Models
+model Job {
+  id                String   @id @default(cuid())
+  externalId        String?
+  branchId          String
+  customerId        String?
+  customerName      String
+  customerPhone     String?
+  customerEmail     String?
+  pickupAddress     String
+  deliveryAddress   String
+  scheduledDate     DateTime
+  estimatedDuration Int?
+  moveSize          String?
+  serviceType       String?
+  status            String   @default("Scheduled")
+  crewSize          Int      @default(2)
+  specialRequirements String?
+  notes             String?
+  priority          String   @default("Medium")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  createdBy         String?
+  updatedBy         String?
+  auditData         Json?
+
+  // Relations
+  branch            CompanyBranch     @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  assignments       JobAssignment[]
+  tags              JobTag[]
+  statusHistory     JobStatusHistory[]
+  jobNotes          JobNote[]
+
+  @@unique([externalId, branchId])
+  @@index([branchId, scheduledDate])
+  @@index([status])
+}
+
+model JobAssignment {
+  id         String   @id @default(cuid())
+  jobId      String
+  userId     String
+  role       String
+  assignedAt DateTime @default(now())
+  assignedBy String?
+  isActive   Boolean  @default(true)
+  notes      String?
+  auditData  Json?
+
+  // Relations
+  job        Job        @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  user       CompanyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, userId, role])
+  @@index([jobId])
+  @@index([userId])
+}
+
+model JobTag {
+  id       String   @id @default(cuid())
+  jobId    String
+  tagType  String
+  tagValue String
+  createdAt DateTime @default(now())
+  auditData Json?
+
+  // Relations
+  job      Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, tagType, tagValue])
+  @@index([jobId])
+  @@index([tagType, tagValue])
+}
+
+model JobStatusHistory {
+  id        String   @id @default(cuid())
+  jobId     String
+  status    String
+  changedBy String?
+  changedAt DateTime @default(now())
+  notes     String?
+
+  // Relations
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+}
+
+model JobNote {
+  id       String   @id @default(cuid())
+  jobId    String
+  note     String
+  noteType String   @default("General")
+  createdBy String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  job      Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}
+
+model UserAvailability {
+  id          String    @id @default(cuid())
+  userId      String
+  date        DateTime  @db.Date
+  startTime   DateTime? @db.Time
+  endTime     DateTime? @db.Time
+  isAvailable Boolean   @default(true)
+  reason      String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  user        CompanyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
+

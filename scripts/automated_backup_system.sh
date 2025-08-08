@@ -113,8 +113,19 @@ create_git_backup() {
     # Change to project directory
     cd "$PROJECT_ROOT"
     
-    # Create git archive (excludes node_modules, .git, etc.)
-    git archive --format=tar.gz --output="$temp_file" HEAD
+    # Create targeted backup of essential code files only
+    tar -czf "$temp_file" \
+        apps/ \
+        prisma/ \
+        scripts/ \
+        package.json \
+        package-lock.json \
+        requirements.txt \
+        render.yaml \
+        render_optimized.yaml \
+        .gitignore \
+        README.md \
+        2>/dev/null || true
     
     # Encrypt backup
     encrypt_backup "$temp_file" "$final_file"
@@ -171,6 +182,7 @@ create_config_backup() {
         apps/api/main.py \
         scripts/ \
         Project_docs/ \
+        .gitignore \
         2>/dev/null || true
     
     # Encrypt backup
