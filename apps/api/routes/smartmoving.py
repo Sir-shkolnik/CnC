@@ -467,23 +467,47 @@ async def get_automated_sync_status() -> Dict[str, Any]:
 
 @router.post("/sync/automated/trigger")
 async def trigger_automated_sync() -> Dict[str, Any]:
-    """Trigger a manual sync cycle"""
+    """Trigger comprehensive 48-hour sync for all branches"""
     try:
-        from apps.api.background_sync import BackgroundSmartMovingSync
+        logger.info("Triggering comprehensive 48-hour SmartMoving sync for all branches")
         
-        async with BackgroundSmartMovingSync() as sync_service:
-            result = await sync_service.sync_all_locations()
+        # Use SmartMoving sync service directly for comprehensive data
+        async with SmartMovingSyncService() as sync_service:
+            # Sync today and tomorrow for all locations
+            result = await sync_service.sync_today_and_tomorrow_jobs()
             
-        return {
-            "success": True,
-            "data": result
-        }
+            # Get detailed statistics
+            today_stats = result.get('today', {})
+            tomorrow_stats = result.get('tomorrow', {})
+            summary = result.get('summary', {})
+            
+            logger.info(f"Comprehensive sync completed:")
+            logger.info(f"  Today: {today_stats.get('processed', 0)} jobs processed")
+            logger.info(f"  Tomorrow: {tomorrow_stats.get('processed', 0)} jobs processed")
+            logger.info(f"  Total Created: {summary.get('totalCreated', 0)} new journeys")
+            logger.info(f"  Total Updated: {summary.get('totalUpdated', 0)} existing journeys")
+            
+            return {
+                "success": True,
+                "message": "Comprehensive 48-hour sync completed successfully",
+                "data": {
+                    "today_jobs_processed": today_stats.get('processed', 0),
+                    "tomorrow_jobs_processed": tomorrow_stats.get('processed', 0),
+                    "total_created": summary.get('totalCreated', 0),
+                    "total_updated": summary.get('totalUpdated', 0),
+                    "total_failed": summary.get('totalFailed', 0),
+                    "sync_time": datetime.now().isoformat(),
+                    "coverage": "48 hours (today + tomorrow)",
+                    "branches": "All active LGM branches"
+                },
+                "timestamp": datetime.now().isoformat()
+            }
         
     except Exception as e:
-        logger.error(f"Error triggering automated sync: {e}")
+        logger.error(f"Error triggering comprehensive sync: {e}")
         return {
             "success": False,
-            "message": f"Failed to trigger automated sync: {str(e)}"
+            "message": f"Failed to trigger comprehensive sync: {str(e)}"
         }
 
 # Add journey data endpoints

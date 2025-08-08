@@ -165,41 +165,64 @@ class SmartMovingSyncService:
     async def pull_smartmoving_jobs(self, date_str: str) -> Dict[str, Any]:
         """Pull jobs from SmartMoving API for a specific date"""
         try:
-            # Get customers from SmartMoving API (jobs are nested in customers)
-            params = {
-                "PageSize": 100,
-                "PageNumber": 1
-            }
+            # Convert date string to SmartMoving format (YYYYMMDD)
+            date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+            smartmoving_date = date_obj.strftime("%Y%m%d")
             
-            response = await self.make_smartmoving_request("GET", "/api/customers", params)
+            logger.info(f"Pulling SmartMoving jobs for date: {date_str} (SmartMoving format: {smartmoving_date})")
             
-            if response["success"]:
-                customers_data = response["data"]
-                customers = customers_data.get("pageResults", [])
-                logger.info(f"Pulled {len(customers)} customers from SmartMoving")
-                
-                # Extract jobs from customers
-                all_jobs = []
-                for customer in customers:
-                    opportunities = customer.get("opportunities")
-                    if opportunities:
-                        for opportunity in opportunities:
-                            jobs = opportunity.get("jobs")
-                            if jobs:
-                                for job in jobs:
-                                    # Add customer and opportunity info to job
-                                    job["customer"] = customer
-                                    job["opportunity"] = opportunity
-                                    all_jobs.append(job)
-                
-                logger.info(f"Extracted {len(all_jobs)} jobs from {len(customers)} customers")
-                return {
-                    "success": True,
-                    "data": all_jobs,
-                    "customers_processed": len(customers)
+            all_customers = []
+            page = 1
+            total_pages = 1
+            
+            # Pull all customers for the specific date with pagination
+            while page <= total_pages:
+                params = {
+                    "FromServiceDate": int(smartmoving_date),
+                    "ToServiceDate": int(smartmoving_date),
+                    "IncludeOpportunityInfo": True,
+                    "Page": page,
+                    "PageSize": 100
                 }
-            else:
-                return response
+                
+                response = await self.make_smartmoving_request("GET", "/api/customers", params)
+                
+                if response["success"]:
+                    customers_data = response["data"]
+                    customers = customers_data.get("pageResults", [])
+                    total_pages = customers_data.get("totalPages", 1)
+                    
+                    logger.info(f"Page {page}/{total_pages}: Found {len(customers)} customers")
+                    all_customers.extend(customers)
+                    
+                    page += 1
+                else:
+                    logger.error(f"Failed to get customers for page {page}: {response['message']}")
+                    break
+            
+            logger.info(f"Total customers pulled for {date_str}: {len(all_customers)}")
+            
+            # Extract all jobs from customers
+            all_jobs = []
+            for customer in all_customers:
+                opportunities = customer.get("opportunities", [])
+                for opportunity in opportunities:
+                    jobs = opportunity.get("jobs", [])
+                    for job in jobs:
+                        # Add customer and opportunity info to job
+                        job["customer"] = customer
+                        job["opportunity"] = opportunity
+                        all_jobs.append(job)
+            
+            logger.info(f"Total jobs extracted for {date_str}: {len(all_jobs)}")
+            
+            return {
+                "success": True,
+                "data": all_jobs,
+                "customers_count": len(all_customers),
+                "jobs_count": len(all_jobs),
+                "date": date_str
+            }
                 
         except Exception as e:
             logger.error(f"Error pulling SmartMoving jobs: {str(e)}")

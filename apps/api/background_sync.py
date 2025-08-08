@@ -57,20 +57,33 @@ class BackgroundSmartMovingSync:
             return []
     
     async def sync_location_jobs(self, location: Dict[str, Any]) -> Dict[str, Any]:
-        """Sync jobs for a specific location"""
+        """Sync comprehensive 48-hour jobs for a specific location"""
         try:
-            logger.info(f"Syncing jobs for location: {location.get('name', 'Unknown')}")
+            location_name = location.get('name', 'Unknown')
+            logger.info(f"Syncing comprehensive 48-hour jobs for location: {location_name}")
             
             async with SmartMovingSyncService() as sync_service:
-                # Sync today and tomorrow for this location
+                # Sync today and tomorrow for this location with full data
                 result = await sync_service.sync_today_and_tomorrow_jobs()
                 
-                logger.info(f"Location {location.get('name')} sync completed: {result}")
+                # Log detailed results
+                today_stats = result.get('today', {})
+                tomorrow_stats = result.get('tomorrow', {})
+                summary = result.get('summary', {})
+                
+                logger.info(f"Location {location_name} sync completed:")
+                logger.info(f"  Today: {today_stats.get('processed', 0)} processed, {today_stats.get('created', 0)} created")
+                logger.info(f"  Tomorrow: {tomorrow_stats.get('processed', 0)} processed, {tomorrow_stats.get('created', 0)} created")
+                logger.info(f"  Total: {summary.get('totalProcessed', 0)} processed, {summary.get('totalCreated', 0)} created")
+                
                 return {
                     "location_id": location.get('id'),
-                    "location_name": location.get('name'),
+                    "location_name": location_name,
                     "success": True,
-                    "result": result
+                    "result": result,
+                    "today_jobs": today_stats.get('processed', 0),
+                    "tomorrow_jobs": tomorrow_stats.get('processed', 0),
+                    "total_created": summary.get('totalCreated', 0)
                 }
                 
         except Exception as e:
@@ -83,8 +96,8 @@ class BackgroundSmartMovingSync:
             }
     
     async def sync_all_locations(self) -> Dict[str, Any]:
-        """Sync jobs for all locations"""
-        logger.info("Starting automated sync for all locations")
+        """Sync jobs for all locations with comprehensive 48-hour data"""
+        logger.info("Starting comprehensive 48-hour sync for all locations")
         
         start_time = datetime.now()
         locations = await self.get_all_locations()
@@ -97,7 +110,9 @@ class BackgroundSmartMovingSync:
                 "sync_time": start_time.isoformat()
             }
         
-        # Sync each location
+        logger.info(f"Found {len(locations)} active locations for sync")
+        
+        # Sync each location with comprehensive data
         sync_results = []
         for location in locations:
             result = await self.sync_location_jobs(location)
