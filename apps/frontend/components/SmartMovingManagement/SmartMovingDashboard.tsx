@@ -104,7 +104,7 @@ export default function SmartMovingDashboard() {
   const handleSyncJobs = async () => {
     try {
       setSyncing(true);
-      const response = await api.get('/smartmoving/jobs/sync');
+      const response = await apiClient.syncSmartMovingJobs();
       if (response.success) {
         // Reload data after sync
         await loadSmartMovingData();
@@ -172,7 +172,7 @@ export default function SmartMovingDashboard() {
           </Button>
           <Button 
             onClick={loadSmartMovingData}
-            variant="outline"
+            variant="secondary"
           >
             Refresh
           </Button>

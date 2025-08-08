@@ -146,16 +146,16 @@ export default function SmartMovingJobCard({
         {/* Action Buttons */}
         <div className="border-t pt-3">
           <div className="flex space-x-2">
-            {onViewDetails && (
-              <Button
-                onClick={() => onViewDetails(job.externalId)}
-                variant="outline"
-                size="sm"
-                className="flex-1"
-              >
-                View Details
-              </Button>
-            )}
+                         {onViewDetails && (
+               <Button
+                 onClick={() => onViewDetails(job.externalId)}
+                 variant="secondary"
+                 size="sm"
+                 className="flex-1"
+               >
+                 View Details
+               </Button>
+             )}
             {onAssignCrew && (
               <Button
                 onClick={() => onAssignCrew(job.externalId)}
@@ -165,16 +165,16 @@ export default function SmartMovingJobCard({
                 Assign Crew
               </Button>
             )}
-            {onEditJob && (
-              <Button
-                onClick={() => onEditJob(job.externalId)}
-                variant="outline"
-                size="sm"
-                className="flex-1"
-              >
-                Edit Job
-              </Button>
-            )}
+                         {onEditJob && (
+               <Button
+                 onClick={() => onEditJob(job.externalId)}
+                 variant="secondary"
+                 size="sm"
+                 className="flex-1"
+               >
+                 Edit Job
+               </Button>
+             )}
           </div>
         </div>
       </CardContent>
