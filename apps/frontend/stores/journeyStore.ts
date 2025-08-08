@@ -164,7 +164,8 @@ export const useJourneyStore = create<JourneyStore>()(
             throw new Error('No authentication token found');
           }
 
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/journey/active`, {
+          // Use the new user-specific journeys endpoint
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/journey/user-journeys`, {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -179,6 +180,7 @@ export const useJourneyStore = create<JourneyStore>()(
           const data = await response.json();
           
           if (data.success) {
+            console.log(`Loaded ${data.data.length} user journeys from SmartMoving API`);
             set({ journeys: data.data || [], isLoading: false });
           } else {
             throw new Error(data.message || 'Failed to fetch journeys');
