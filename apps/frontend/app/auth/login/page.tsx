@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { useSuperAdminStore } from '@/stores/superAdminStore';
+import { useMobileFieldOpsStore } from '@/stores/mobileFieldOpsStore';
 import toast from 'react-hot-toast';
 
 interface Company {
@@ -500,7 +501,7 @@ export default function UnifiedLoginPage() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const detectUserType = async (email: string, password: string): Promise<'web' | 'mobile' | 'super'> => {
+  const detectUserType = async (email: string, password: string): Promise<{ type: 'web' | 'mobile' | 'super', userData: any }> => {
     try {
       // Use unified login endpoint for all users
       const userResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/login`, {
@@ -515,18 +516,29 @@ export default function UnifiedLoginPage() {
         const role = userData.user?.role || '';
         const userType = userData.user?.user_type || '';
         
+        // Store authentication data
+        localStorage.setItem('access_token', userData.access_token);
+        localStorage.setItem('user_data', JSON.stringify(userData.user));
+        
+        // Set appropriate cookie for middleware
+        if (role.toUpperCase() === 'SUPER_ADMIN' || userType === 'super_admin') {
+          document.cookie = `super-admin-token=${userData.access_token}; path=/; max-age=86400; secure; samesite=strict`;
+        } else {
+          document.cookie = `auth-token=${userData.access_token}; path=/; max-age=86400; secure; samesite=strict`;
+        }
+        
         // Super admin gets super interface
         if (role.toUpperCase() === 'SUPER_ADMIN' || userType === 'super_admin') {
-          return 'super';
+          return { type: 'super', userData };
         }
         
         // Mobile roles get mobile interface
         if (['DRIVER', 'MOVER'].includes(role.toUpperCase())) {
-          return 'mobile';
+          return { type: 'mobile', userData };
         }
         
         // Web roles get web interface (MANAGER, ADMIN, DISPATCHER, AUDITOR)
-        return 'web';
+        return { type: 'web', userData };
       } else {
         // Handle API error response
         const errorMessage = userData.error || userData.message || 'Invalid credentials';
@@ -538,18 +550,18 @@ export default function UnifiedLoginPage() {
       // Fallback to email-based detection for development/testing
       if (email === 'udi.shkolnik@candc.com' || email === 'admin@test.com') {
         console.log('Using fallback super admin detection');
-        return 'super';
+        return { type: 'super', userData: null };
       }
       
       const mobileRoles = ['driver', 'mover'];
       const emailLower = email.toLowerCase();
       if (mobileRoles.some(role => emailLower.includes(role))) {
         console.log('Using fallback mobile detection');
-        return 'mobile';
+        return { type: 'mobile', userData: null };
       }
       
       console.log('Using fallback web detection');
-      return 'web';
+      return { type: 'web', userData: null };
     }
   };
 
@@ -562,25 +574,42 @@ export default function UnifiedLoginPage() {
     }
 
     try {
-      const userType = await detectUserType(formData.email, formData.password);
+      const result = await detectUserType(formData.email, formData.password);
       
       // Handle authentication and redirect based on user type
-      switch (userType) {
+      switch (result.type) {
         case 'super':
-          // Call super admin login to set authentication state
-          await superAdminLogin(formData.email, formData.password);
+          // For super admin, we already have the data, just set the store state
+          if (result.userData) {
+            // Set super admin store state
+            const { login } = useSuperAdminStore.getState();
+            await login(formData.email, formData.password);
+          }
           router.push('/super-admin/dashboard');
           break;
           
         case 'mobile':
-          // Call regular auth login for mobile users
-          await authLogin(formData.email, formData.password, selectedCompany?.id);
+          // For mobile users, we already have the data, just set the store state
+          if (result.userData) {
+            // Set mobile store state
+            const { login } = useMobileFieldOpsStore.getState();
+            await login({
+              username: formData.email,
+              password: formData.password,
+              deviceId: 'web-device',
+              locationId: result.userData.user.location_id || 'default-location'
+            });
+          }
           router.push('/mobile'); // Mobile-specific interface
           break;
           
         case 'web':
-          // Call regular auth login for web users
-          await authLogin(formData.email, formData.password, selectedCompany?.id);
+          // For web users, we already have the data, just set the store state
+          if (result.userData) {
+            // Set auth store state
+            const { login } = useAuthStore.getState();
+            await login(formData.email, formData.password, selectedCompany?.id);
+          }
           router.push('/dashboard'); // Web interface
           break;
       }
