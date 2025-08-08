@@ -3,32 +3,17 @@ from typing import Dict, Any
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
-from urllib.parse import urlparse
 
 router = APIRouter(tags=["Setup"])
 
 def get_db_connection():
-    """Get database connection using DATABASE_URL or fallback to individual env vars"""
-    database_url = os.getenv("DATABASE_URL")
-    if database_url:
-        # Parse DATABASE_URL for psycopg2
-        parsed = urlparse(database_url)
-        return psycopg2.connect(
-            host=parsed.hostname,
-            port=parsed.port or 5432,
-            database=parsed.path[1:],  # Remove leading slash
-            user=parsed.username,
-            password=parsed.password
-        )
-    else:
-        # Fallback to individual environment variables
-        return psycopg2.connect(
-            host=os.getenv("DB_HOST", "localhost"),
-            port=os.getenv("DB_PORT", "5432"),
-            database=os.getenv("DB_NAME", "c_and_c_crm"),
-            user=os.getenv("DB_USER", "c_and_c_user"),
-            password=os.getenv("DB_PASSWORD", "c_and_c_password")
-        )
+    return psycopg2.connect(
+        host=os.getenv("DB_HOST", "localhost"),
+        port=os.getenv("DB_PORT", "5432"),
+        database=os.getenv("DB_NAME", "c_and_c_crm"),
+        user=os.getenv("DB_USER", "c_and_c_user"),
+        password=os.getenv("DB_PASSWORD", "c_and_c_password")
+    )
 
 @router.post("/setup/database")
 async def setup_database():
@@ -114,7 +99,7 @@ async def setup_database():
             );
         """)
         
-        # Create User table (without password field to match existing schema)
+        # Create User table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS "User" (
                 "id" TEXT NOT NULL,
@@ -473,84 +458,4 @@ async def update_users_to_real_lgm():
             "success": False,
             "error": str(e),
             "message": "Failed to update users to real LGM data"
-        } 
-
-@router.post("/setup/add-real-users")
-async def add_real_users_endpoint():
-    """Add real LGM users to database without password field issues"""
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        # Real LGM users data
-        users_data = [
-            ('usr_shahbaz_burnaby', 'Shahbaz', 'shahbaz@lgm.com', 'MANAGER', 'loc_lgm_burnaby_corporate_001'),
-            ('usr_arshdeep_downtown_toronto', 'Arshdeep', 'arshdeep@lgm.com', 'MANAGER', 'loc_lgm_downtown_toronto_corporate_001'),
-            ('usr_danylo_edmonton', 'Danylo', 'danylo@lgm.com', 'MANAGER', 'loc_lgm_edmonton_corporate_001'),
-            ('usr_hakam_hamilton', 'Hakam', 'hakam@lgm.com', 'MANAGER', 'loc_lgm_hamilton_corporate_001'),
-            ('usr_bhanu_montreal', 'Bhanu', 'bhanu@lgm.com', 'MANAGER', 'loc_lgm_montreal_corporate_001'),
-            ('usr_ankit_north_york', 'Ankit', 'ankit@lgm.com', 'MANAGER', 'loc_lgm_north_york_corporate_001'),
-            ('usr_rasoul_vancouver', 'Rasoul', 'rasoul@lgm.com', 'MANAGER', 'loc_lgm_vancouver_corporate_001'),
-            ('usr_kyle_london', 'Kyle', 'kyle@lgm.com', 'MANAGER', 'loc_lgm_london_franchise_001'),
-            ('usr_mike_chen', 'Mike Chen', 'mike.chen@lgm.com', 'DRIVER', 'loc_lgm_vancouver_corporate_001'),
-            ('usr_sarah_johnson', 'Sarah Johnson', 'sarah.johnson@lgm.com', 'ADMIN', 'loc_lgm_vancouver_corporate_001'),
-        ]
-        
-        # Insert users
-        for user_id, user_name, user_email, user_role, location_id in users_data:
-            cursor.execute("""
-                INSERT INTO "User" ("id", "name", "email", "role", "locationId", "clientId", "status", "createdAt", "updatedAt") 
-                VALUES (%s, %s, %s, %s, %s, 'clm_f55e13de_a5c4_4990_ad02_34bb07187daa', 'ACTIVE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                ON CONFLICT ("id") DO NOTHING;
-            """, (user_id, user_name, user_email, user_role, location_id))
-        
-        # Also ensure we have the basic locations
-        locations_data = [
-            ('loc_lgm_burnaby_corporate_001', 'BURNABY', 'BURNABY CORPORATE Office'),
-            ('loc_lgm_downtown_toronto_corporate_001', 'DOWNTOWN TORONTO', 'DOWNTOWN TORONTO CORPORATE Office'),
-            ('loc_lgm_edmonton_corporate_001', 'EDMONTON', 'EDMONTON CORPORATE Office'),
-            ('loc_lgm_hamilton_corporate_001', 'HAMILTON', 'HAMILTON CORPORATE Office'),
-            ('loc_lgm_montreal_corporate_001', 'MONTREAL', 'MONTREAL CORPORATE Office'),
-            ('loc_lgm_north_york_corporate_001', 'NORTH YORK', 'NORTH YORK CORPORATE Office'),
-            ('loc_lgm_vancouver_corporate_001', 'VANCOUVER', 'VANCOUVER CORPORATE Office'),
-            ('loc_lgm_london_franchise_001', 'LONDON', 'LONDON FRANCHISE Office'),
-        ]
-        
-        for location_id, location_name, address in locations_data:
-            cursor.execute("""
-                INSERT INTO "Location" ("id", "clientId", "name", "timezone", "address", "createdAt", "updatedAt") 
-                VALUES (%s, 'clm_f55e13de_a5c4_4990_ad02_34bb07187daa', %s, 'America/Toronto', %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                ON CONFLICT ("id") DO NOTHING;
-            """, (location_id, location_name, address))
-        
-        # Ensure we have the client
-        cursor.execute("""
-            INSERT INTO "Client" ("id", "name", "industry", "isFranchise", "settings", "createdAt", "updatedAt") 
-            VALUES ('clm_f55e13de_a5c4_4990_ad02_34bb07187daa', 'Lets Get Moving', 'Moving & Storage', false, '{"theme": "dark"}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-            ON CONFLICT ("id") DO NOTHING;
-        """)
-        
-        conn.commit()
-        cursor.close()
-        conn.close()
-        
-        return {
-            "success": True,
-            "message": "Real LGM users added successfully",
-            "data": {
-                "users_created": len(users_data),
-                "locations_created": len(locations_data),
-                "login_credentials": {
-                    "shahbaz@lgm.com": "1234",
-                    "kyle@lgm.com": "1234", 
-                    "sarah.johnson@lgm.com": "1234"
-                }
-            }
-        }
-        
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e),
-            "message": "Failed to add real users"
         } 

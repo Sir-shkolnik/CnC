@@ -19,7 +19,8 @@ import {
   Search,
   Users,
   MapPin,
-  Smartphone
+  Smartphone,
+  Filter
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { useSuperAdminStore } from '@/stores/superAdminStore';
@@ -54,6 +55,12 @@ interface CompanyUser {
   locationType?: 'CORPORATE' | 'FRANCHISE';
 }
 
+interface Location {
+  id: string;
+  name: string;
+  type: 'CORPORATE' | 'FRANCHISE';
+}
+
 export default function UnifiedLoginPage() {
   const router = useRouter();
   const { login: authLogin, isLoading: authLoading } = useAuthStore();
@@ -74,6 +81,10 @@ export default function UnifiedLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  
+  // New state for location filtering
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState<string>('ALL');
 
   const isLoading = authLoading || superAdminLoading;
 
@@ -89,19 +100,50 @@ export default function UnifiedLoginPage() {
     }
   }, [selectedCompany]);
 
-  // Filter users based on search term
+  // Extract unique locations from users and update location filter
   useEffect(() => {
-    if (searchTerm.trim() === '') {
-      setFilteredUsers(companyUsers);
-    } else {
-      const filtered = companyUsers.filter(user =>
+    if (companyUsers.length > 0) {
+      const uniqueLocations = Array.from(
+        new Map(
+          companyUsers
+            .filter(user => user.locationName && user.locationId)
+            .map(user => [
+              user.locationId,
+              {
+                id: user.locationId,
+                name: user.locationName!,
+                type: user.locationType || 'CORPORATE'
+              }
+            ])
+        ).values()
+      ).sort((a, b) => a.name.localeCompare(b.name));
+      
+      setLocations(uniqueLocations);
+      setSelectedLocation('ALL'); // Reset location filter when users change
+    }
+  }, [companyUsers]);
+
+  // Filter users based on search term and selected location
+  useEffect(() => {
+    let filtered = companyUsers;
+    
+    // Filter by location first
+    if (selectedLocation !== 'ALL') {
+      filtered = filtered.filter(user => user.locationId === selectedLocation);
+    }
+    
+    // Then filter by search term
+    if (searchTerm.trim() !== '') {
+      filtered = filtered.filter(user =>
         user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.role.toLowerCase().includes(searchTerm.toLowerCase())
+        user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (user.locationName && user.locationName.toLowerCase().includes(searchTerm.toLowerCase()))
       );
-      setFilteredUsers(filtered);
     }
-  }, [searchTerm, companyUsers]);
+    
+    setFilteredUsers(filtered);
+  }, [searchTerm, companyUsers, selectedLocation]);
 
   const loadCompanies = async () => {
     try {
@@ -149,7 +191,7 @@ export default function UnifiedLoginPage() {
               name: "Arshdeep",
               email: "arshdeep@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_downtown_toronto_corporate_002",
+              locationId: "loc_lgm_downtown_toronto_corporate_001",
               status: "ACTIVE",
               locationName: "DOWNTOWN TORONTO",
               locationType: "CORPORATE"
@@ -159,7 +201,7 @@ export default function UnifiedLoginPage() {
               name: "Danylo",
               email: "danylo@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_edmonton_corporate_003",
+              locationId: "loc_lgm_edmonton_corporate_001",
               status: "ACTIVE",
               locationName: "EDMONTON",
               locationType: "CORPORATE"
@@ -169,7 +211,7 @@ export default function UnifiedLoginPage() {
               name: "Hakam",
               email: "hakam@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_hamilton_corporate_004",
+              locationId: "loc_lgm_hamilton_corporate_001",
               status: "ACTIVE",
               locationName: "HAMILTON",
               locationType: "CORPORATE"
@@ -179,7 +221,7 @@ export default function UnifiedLoginPage() {
               name: "Bhanu",
               email: "bhanu@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_montreal_corporate_006",
+              locationId: "loc_lgm_montreal_corporate_001",
               status: "ACTIVE",
               locationName: "MONTREAL",
               locationType: "CORPORATE"
@@ -189,7 +231,7 @@ export default function UnifiedLoginPage() {
               name: "Ankit",
               email: "ankit@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_north_york_corporate_007",
+              locationId: "loc_lgm_north_york_corporate_001",
               status: "ACTIVE",
               locationName: "NORTH YORK",
               locationType: "CORPORATE"
@@ -199,17 +241,47 @@ export default function UnifiedLoginPage() {
               name: "Rasoul",
               email: "rasoul@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_vancouver_corporate_008",
+              locationId: "loc_lgm_vancouver_corporate_001",
               status: "ACTIVE",
               locationName: "VANCOUVER",
               locationType: "CORPORATE"
             },
             {
-              id: "usr_anees_aps_abbotsford",
+              id: "usr_kyle_london",
+              name: "Kyle",
+              email: "kyle@lgm.com",
+              role: "MANAGER",
+              locationId: "loc_lgm_london_franchise_001",
+              status: "ACTIVE",
+              locationName: "LONDON",
+              locationType: "FRANCHISE"
+            },
+            {
+              id: "usr_mike_chen",
+              name: "Mike Chen",
+              email: "mike.chen@lgm.com",
+              role: "DRIVER",
+              locationId: "loc_lgm_vancouver_corporate_001",
+              status: "ACTIVE",
+              locationName: "VANCOUVER",
+              locationType: "CORPORATE"
+            },
+            {
+              id: "usr_sarah_johnson",
+              name: "Sarah Johnson",
+              email: "sarah.johnson@lgm.com",
+              role: "ADMIN",
+              locationId: "loc_lgm_vancouver_corporate_001",
+              status: "ACTIVE",
+              locationName: "VANCOUVER",
+              locationType: "CORPORATE"
+            },
+            {
+              id: "usr_anees_abbotsford",
               name: "Anees Aps",
               email: "anees.aps@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_abbotsford_franchise_009",
+              locationId: "loc_lgm_abbotsford_franchise_001",
               status: "ACTIVE",
               locationName: "ABBOTSFORD",
               locationType: "FRANCHISE"
@@ -219,7 +291,7 @@ export default function UnifiedLoginPage() {
               name: "Andrew",
               email: "andrew@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_ajax_franchise_010",
+              locationId: "loc_lgm_ajax_franchise_001",
               status: "ACTIVE",
               locationName: "AJAX",
               locationType: "FRANCHISE"
@@ -229,7 +301,7 @@ export default function UnifiedLoginPage() {
               name: "Parsa",
               email: "parsa@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_aurora_franchise_011",
+              locationId: "loc_lgm_aurora_franchise_001",
               status: "ACTIVE",
               locationName: "AURORA",
               locationType: "FRANCHISE"
@@ -239,7 +311,7 @@ export default function UnifiedLoginPage() {
               name: "Aerish",
               email: "aerish@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_brampton_franchise_012",
+              locationId: "loc_lgm_brampton_franchise_001",
               status: "ACTIVE",
               locationName: "BRAMPTON",
               locationType: "FRANCHISE"
@@ -249,7 +321,7 @@ export default function UnifiedLoginPage() {
               name: "Akshit",
               email: "akshit@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_brampton_franchise_012",
+              locationId: "loc_lgm_brampton_franchise_001",
               status: "ACTIVE",
               locationName: "BRAMPTON",
               locationType: "FRANCHISE"
@@ -259,7 +331,7 @@ export default function UnifiedLoginPage() {
               name: "Harsh",
               email: "harsh@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_brantford_franchise_013",
+              locationId: "loc_lgm_brantford_franchise_001",
               status: "ACTIVE",
               locationName: "BRANTFORD",
               locationType: "FRANCHISE"
@@ -269,7 +341,7 @@ export default function UnifiedLoginPage() {
               name: "Simranjit",
               email: "simranjit@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_burlington_franchise_014",
+              locationId: "loc_lgm_burlington_franchise_001",
               status: "ACTIVE",
               locationName: "BURLINGTON",
               locationType: "FRANCHISE"
@@ -279,7 +351,7 @@ export default function UnifiedLoginPage() {
               name: "Jasdeep",
               email: "jasdeep@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_calgary_franchise_015",
+              locationId: "loc_lgm_calgary_franchise_001",
               status: "ACTIVE",
               locationName: "CALGARY",
               locationType: "FRANCHISE"
@@ -289,7 +361,7 @@ export default function UnifiedLoginPage() {
               name: "Todd",
               email: "todd@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_coquitlam_franchise_016",
+              locationId: "loc_lgm_coquitlam_franchise_001",
               status: "ACTIVE",
               locationName: "COQUITLAM",
               locationType: "FRANCHISE"
@@ -299,7 +371,7 @@ export default function UnifiedLoginPage() {
               name: "Kambiz",
               email: "kambiz@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_fredericton_franchise_017",
+              locationId: "loc_lgm_fredericton_franchise_001",
               status: "ACTIVE",
               locationName: "FREDERICTON",
               locationType: "FRANCHISE"
@@ -309,7 +381,7 @@ export default function UnifiedLoginPage() {
               name: "Mahmoud",
               email: "mahmoud@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_halifax_franchise_018",
+              locationId: "loc_lgm_halifax_franchise_001",
               status: "ACTIVE",
               locationName: "HALIFAX",
               locationType: "FRANCHISE"
@@ -319,7 +391,7 @@ export default function UnifiedLoginPage() {
               name: "Anirudh",
               email: "anirudh@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_kingston_franchise_019",
+              locationId: "loc_lgm_kingston_franchise_001",
               status: "ACTIVE",
               locationName: "KINGSTON",
               locationType: "FRANCHISE"
@@ -329,19 +401,9 @@ export default function UnifiedLoginPage() {
               name: "Promise",
               email: "promise@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_lethbridge_franchise_020",
+              locationId: "loc_lgm_lethbridge_franchise_001",
               status: "ACTIVE",
               locationName: "LETHBRIDGE",
-              locationType: "FRANCHISE"
-            },
-            {
-              id: "usr_kyle_london",
-              name: "Kyle",
-              email: "kyle@lgm.com",
-              role: "MANAGER",
-              locationId: "loc_lgm_london_franchise_021",
-              status: "ACTIVE",
-              locationName: "LONDON",
               locationType: "FRANCHISE"
             },
             {
@@ -349,7 +411,7 @@ export default function UnifiedLoginPage() {
               name: "Hanze",
               email: "hanze@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_ottawa_franchise_022",
+              locationId: "loc_lgm_ottawa_franchise_001",
               status: "ACTIVE",
               locationName: "OTTAWA",
               locationType: "FRANCHISE"
@@ -359,7 +421,7 @@ export default function UnifiedLoginPage() {
               name: "Jay",
               email: "jay@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_ottawa_franchise_022",
+              locationId: "loc_lgm_ottawa_franchise_001",
               status: "ACTIVE",
               locationName: "OTTAWA",
               locationType: "FRANCHISE"
@@ -369,7 +431,7 @@ export default function UnifiedLoginPage() {
               name: "Ralph",
               email: "ralph@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_regina_franchise_023",
+              locationId: "loc_lgm_regina_franchise_001",
               status: "ACTIVE",
               locationName: "REGINA",
               locationType: "FRANCHISE"
@@ -379,7 +441,7 @@ export default function UnifiedLoginPage() {
               name: "Isabella",
               email: "isabella@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_regina_franchise_023",
+              locationId: "loc_lgm_regina_franchise_001",
               status: "ACTIVE",
               locationName: "REGINA",
               locationType: "FRANCHISE"
@@ -389,7 +451,7 @@ export default function UnifiedLoginPage() {
               name: "Rasoul",
               email: "rasoul@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_richmond_franchise_024",
+              locationId: "loc_lgm_richmond_franchise_001",
               status: "ACTIVE",
               locationName: "RICHMOND",
               locationType: "FRANCHISE"
@@ -399,7 +461,7 @@ export default function UnifiedLoginPage() {
               name: "Camellia",
               email: "camellia@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_saint_john_franchise_025",
+              locationId: "loc_lgm_saint_john_franchise_001",
               status: "ACTIVE",
               locationName: "SAINT JOHN",
               locationType: "FRANCHISE"
@@ -409,7 +471,7 @@ export default function UnifiedLoginPage() {
               name: "Kelvin",
               email: "kelvin@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_scarborough_franchise_026",
+              locationId: "loc_lgm_scarborough_franchise_001",
               status: "ACTIVE",
               locationName: "SCARBOROUGH",
               locationType: "FRANCHISE"
@@ -419,7 +481,7 @@ export default function UnifiedLoginPage() {
               name: "Aswin",
               email: "aswin@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_scarborough_franchise_026",
+              locationId: "loc_lgm_scarborough_franchise_001",
               status: "ACTIVE",
               locationName: "SCARBOROUGH",
               locationType: "FRANCHISE"
@@ -429,7 +491,7 @@ export default function UnifiedLoginPage() {
               name: "Danil",
               email: "danil@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_surrey_franchise_027",
+              locationId: "loc_lgm_surrey_franchise_001",
               status: "ACTIVE",
               locationName: "SURREY",
               locationType: "FRANCHISE"
@@ -439,7 +501,7 @@ export default function UnifiedLoginPage() {
               name: "Fahim",
               email: "fahim@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_vaughan_franchise_028",
+              locationId: "loc_lgm_vaughan_franchise_001",
               status: "ACTIVE",
               locationName: "VAUGHAN",
               locationType: "FRANCHISE"
@@ -449,7 +511,7 @@ export default function UnifiedLoginPage() {
               name: "Success",
               email: "success@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_victoria_franchise_029",
+              locationId: "loc_lgm_victoria_franchise_001",
               status: "ACTIVE",
               locationName: "VICTORIA",
               locationType: "FRANCHISE"
@@ -459,7 +521,7 @@ export default function UnifiedLoginPage() {
               name: "Sadur",
               email: "sadur@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_waterloo_franchise_030",
+              locationId: "loc_lgm_waterloo_franchise_001",
               status: "ACTIVE",
               locationName: "WATERLOO",
               locationType: "FRANCHISE"
@@ -469,7 +531,7 @@ export default function UnifiedLoginPage() {
               name: "Wayne",
               email: "wayne@lgm.com",
               role: "MANAGER",
-              locationId: "loc_lgm_winnipeg_franchise_031",
+              locationId: "loc_lgm_winnipeg_franchise_001",
               status: "ACTIVE",
               locationName: "WINNIPEG",
               locationType: "FRANCHISE"
@@ -485,15 +547,15 @@ export default function UnifiedLoginPage() {
       // Fallback to empty array
       setCompanyUsers([]);
       setFilteredUsers([]);
-    } finally {
-      setLoadingUsers(false);
     }
+    setLoadingUsers(false);
   };
 
   const handleCompanySelect = (company: Company) => {
     setSelectedCompany(company);
     setFormData(prev => ({ ...prev, email: '', password: '' }));
     setSearchTerm('');
+    setSelectedLocation('ALL'); // Reset location filter
     setStep('login');
   };
 
@@ -512,64 +574,35 @@ export default function UnifiedLoginPage() {
       
       const userData = await userResponse.json();
       
-      if (userResponse.ok && userData.success && userData.user && userData.access_token) {
-        const role = userData.user?.role || '';
-        const userType = userData.user?.user_type || '';
+      if (!userResponse.ok) {
+        throw new Error(userData.message || 'Login failed');
+      }
+      
+      if (userData.success && userData.data) {
+        const user = userData.data.user;
         
-        // Store authentication data
-        localStorage.setItem('access_token', userData.access_token);
-        localStorage.setItem('user_data', JSON.stringify(userData.user));
-        
-        // Set appropriate cookie for middleware
-        if (role.toUpperCase() === 'SUPER_ADMIN' || userType === 'super_admin') {
-          document.cookie = `super-admin-token=${userData.access_token}; path=/; max-age=86400; secure; samesite=strict`;
-        } else {
-          document.cookie = `auth-token=${userData.access_token}; path=/; max-age=86400; secure; samesite=strict`;
-        }
-        
-        // Super admin gets super interface
-        if (role.toUpperCase() === 'SUPER_ADMIN' || userType === 'super_admin') {
+        // Determine user type based on role
+        if (user.role === 'SUPER_ADMIN') {
           return { type: 'super', userData };
-        }
-        
-        // Mobile roles get mobile interface
-        if (['DRIVER', 'MOVER'].includes(role.toUpperCase())) {
+        } else if (['DRIVER', 'MOVER'].includes(user.role)) {
           return { type: 'mobile', userData };
+        } else {
+          return { type: 'web', userData };
         }
-        
-        // Web roles get web interface (MANAGER, ADMIN, DISPATCHER, AUDITOR)
-        return { type: 'web', userData };
       } else {
-        // Handle API error response
-        const errorMessage = userData.error || userData.message || 'Invalid credentials';
-        throw new Error(errorMessage);
+        throw new Error(userData.message || 'Login failed');
       }
     } catch (error) {
-      console.error('Login error:', error);
-      
-      // Fallback to email-based detection for development/testing
-      if (email === 'udi.shkolnik@candc.com' || email === 'admin@test.com') {
-        console.log('Using fallback super admin detection');
-        return { type: 'super', userData: null };
-      }
-      
-      const mobileRoles = ['driver', 'mover'];
-      const emailLower = email.toLowerCase();
-      if (mobileRoles.some(role => emailLower.includes(role))) {
-        console.log('Using fallback mobile detection');
-        return { type: 'mobile', userData: null };
-      }
-      
-      console.log('Using fallback web detection');
-      return { type: 'web', userData: null };
+      console.error('Error detecting user type:', error);
+      throw error;
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.email || !formData.password) {
-      toast.error('Please fill in all fields');
+    if (!selectedCompany) {
+      toast.error('Please select a company first');
       return;
     }
 
@@ -622,26 +655,37 @@ export default function UnifiedLoginPage() {
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role.toUpperCase()) {
-      case 'SUPER_ADMIN': return 'primary';
-      case 'ADMIN': return 'primary';
-      case 'MANAGER': return 'success';
-      case 'DISPATCHER': return 'warning';
-      case 'DRIVER': return 'info';
-      case 'MOVER': return 'secondary';
-      case 'AUDITOR': return 'info';
-      default: return 'secondary';
+      case 'ADMIN':
+        return 'error';
+      case 'MANAGER':
+        return 'default';
+      case 'DISPATCHER':
+        return 'secondary';
+      case 'DRIVER':
+        return 'outline';
+      case 'MOVER':
+        return 'warning';
+      case 'AUDITOR':
+        return 'info';
+      default:
+        return 'default';
     }
   };
 
   const getRoleIcon = (role: string) => {
     switch (role.toUpperCase()) {
-      case 'DRIVER': return '🚛';
-      case 'MOVER': return '📦';
-      case 'DISPATCHER': return '📞';
-      case 'MANAGER': return '👔';
-      case 'ADMIN': return '⚙️';
-      case 'AUDITOR': return '🔍';
-      default: return '👤';
+      case 'ADMIN':
+        return <User className="w-4 h-4" />;
+      case 'MANAGER':
+        return <Building2 className="w-4 h-4" />;
+      case 'DISPATCHER':
+        return <Users className="w-4 h-4" />;
+      case 'DRIVER':
+        return <Truck className="w-4 h-4" />;
+      case 'MOVER':
+        return <Smartphone className="w-4 h-4" />;
+      default:
+        return <User className="w-4 h-4" />;
     }
   };
 
@@ -844,6 +888,25 @@ export default function UnifiedLoginPage() {
             </CardHeader>
             
             <CardContent>
+              {/* Location Filter */}
+              <div className="mb-4">
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-secondary w-4 h-4" />
+                  <select
+                    value={selectedLocation}
+                    onChange={(e) => setSelectedLocation(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 bg-surface border border-gray-600 rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  >
+                    <option value="ALL">📍 All Locations ({locations.length})</option>
+                    {locations.map((location) => (
+                      <option key={location.id} value={location.id}>
+                        📍 {location.name} ({location.type})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
               {/* Search */}
               <div className="mb-4">
                 <div className="relative">
@@ -918,6 +981,11 @@ export default function UnifiedLoginPage() {
               <div className="mt-4 text-center">
                 <p className="text-xs text-text-secondary">
                   {filteredUsers.length} of {companyUsers.length} users
+                  {selectedLocation !== 'ALL' && (
+                    <span className="ml-1 text-primary">
+                      • {locations.find(l => l.id === selectedLocation)?.name}
+                    </span>
+                  )}
                 </p>
               </div>
             </CardContent>

@@ -6,8 +6,8 @@
 import SecureTokenManager from './SecureTokenManager';
 
 export class SecureSessionManager {
-  private static readonly SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours
-  private static readonly INACTIVITY_TIMEOUT = 4 * 60 * 60 * 1000; // 4 hours
+  private static readonly SESSION_TIMEOUT = 8 * 60 * 60 * 1000; // 8 hours
+  private static readonly INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
   private static inactivityTimer: NodeJS.Timeout | null = null;
   private static lastActivity: number = Date.now();
   private static sessionHeartbeatInterval: NodeJS.Timeout | null = null;

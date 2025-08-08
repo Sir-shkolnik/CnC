@@ -152,10 +152,6 @@ async def get_active_journeys(current_user: Dict[str, Any] = Depends(verify_toke
     """Get all active journeys for the current location"""
     
     try:
-        # For now, use a default user ID if the current user is not found
-        user_id = current_user.get("id", "usr_shahbaz_burnaby")
-        company_id = current_user.get("company_id", "clm_f55e13de_a5c4_4990_ad02_34bb07187daa")
-        location_id = current_user.get("location_id", "loc_lgm_vancouver_corporate_001")
         # Check if business logic modules are available
         if journey_engine is None:
             # Create real journey data in database if it doesn't exist
@@ -168,12 +164,12 @@ async def get_active_journeys(current_user: Dict[str, Any] = Depends(verify_toke
                 journey_count = cursor.fetchone()['count']
                 
                 if journey_count == 0:
-                    # Create real journey data for Let's Get Moving
+                    # Create real journey data
                     real_journeys = [
                         {
                             "id": "journey_real_001",
-                            "locationId": location_id,
-                            "clientId": company_id,
+                            "locationId": current_user.get("location_id") or "loc_lgm_vancouver_corporate_001",
+                            "clientId": current_user.get("company_id") or "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
                             "date": datetime.now().date(),
                             "status": "MORNING_PREP",
                             "truckNumber": "T-001",
@@ -181,14 +177,14 @@ async def get_active_journeys(current_user: Dict[str, Any] = Depends(verify_toke
                             "startTime": datetime.now().replace(hour=8, minute=0, second=0, microsecond=0),
                             "endTime": datetime.now().replace(hour=16, minute=0, second=0, microsecond=0),
                             "notes": "Residential move - 3 bedroom house in Vancouver",
-                            "createdBy": user_id,
+                            "createdBy": current_user.get("id"),
                             "createdAt": datetime.now(),
                             "updatedAt": datetime.now()
                         },
                         {
                             "id": "journey_real_002",
-                            "locationId": location_id,
-                            "clientId": company_id,
+                            "locationId": current_user.get("location_id") or "loc_lgm_vancouver_corporate_001",
+                            "clientId": current_user.get("company_id") or "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
                             "date": datetime.now().date(),
                             "status": "EN_ROUTE",
                             "truckNumber": "T-002",
@@ -196,14 +192,14 @@ async def get_active_journeys(current_user: Dict[str, Any] = Depends(verify_toke
                             "startTime": datetime.now().replace(hour=7, minute=30, second=0, microsecond=0),
                             "endTime": datetime.now().replace(hour=15, minute=30, second=0, microsecond=0),
                             "notes": "Office relocation - downtown Vancouver",
-                            "createdBy": user_id,
+                            "createdBy": current_user.get("id"),
                             "createdAt": datetime.now(),
                             "updatedAt": datetime.now()
                         },
                         {
                             "id": "journey_real_003",
-                            "locationId": location_id,
-                            "clientId": company_id,
+                            "locationId": current_user.get("location_id") or "loc_lgm_vancouver_corporate_001",
+                            "clientId": current_user.get("company_id") or "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
                             "date": (datetime.now() + timedelta(days=1)).date(),
                             "status": "ONSITE",
                             "truckNumber": "T-003",
@@ -211,7 +207,7 @@ async def get_active_journeys(current_user: Dict[str, Any] = Depends(verify_toke
                             "startTime": datetime.now().replace(hour=9, minute=0, second=0, microsecond=0),
                             "endTime": datetime.now().replace(hour=17, minute=0, second=0, microsecond=0),
                             "notes": "Warehouse inventory transfer",
-                            "createdBy": user_id,
+                            "createdBy": current_user.get("id"),
                             "createdAt": datetime.now(),
                             "updatedAt": datetime.now()
                         }
@@ -237,7 +233,7 @@ async def get_active_journeys(current_user: Dict[str, Any] = Depends(verify_toke
                     SELECT * FROM "TruckJourney" 
                     WHERE "clientId" = %s 
                     ORDER BY "createdAt" DESC
-                """, (company_id,))
+                """, (current_user.get("company_id") or "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",))
                 
                 real_journeys = cursor.fetchall()
                 conn.close()
@@ -1123,105 +1119,3 @@ async def validate_journey(journey_id: str) -> Dict[str, Any]:
         },
         "message": "Journey validation completed"
     }
-
-@router.get("/test/real-data")
-async def test_real_journey_data():
-    """Test endpoint to create and retrieve real journey data for Let's Get Moving"""
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor(cursor_factory=RealDictCursor)
-        
-        # Check if we have any journeys
-        cursor.execute('SELECT COUNT(*) as count FROM "TruckJourney"')
-        journey_count = cursor.fetchone()['count']
-        
-        if journey_count == 0:
-            # Create real journey data for Let's Get Moving
-            real_journeys = [
-                {
-                    "id": "journey_real_001",
-                    "locationId": "loc_lgm_vancouver_corporate_001",
-                    "clientId": "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
-                    "date": datetime.now().date(),
-                    "status": "MORNING_PREP",
-                    "truckNumber": "T-001",
-                    "moveSourceId": "move_001",
-                    "startTime": datetime.now().replace(hour=8, minute=0, second=0, microsecond=0),
-                    "endTime": datetime.now().replace(hour=16, minute=0, second=0, microsecond=0),
-                    "notes": "Residential move - 3 bedroom house in Vancouver",
-                    "createdBy": "usr_shahbaz_burnaby",
-                    "createdAt": datetime.now(),
-                    "updatedAt": datetime.now()
-                },
-                {
-                    "id": "journey_real_002",
-                    "locationId": "loc_lgm_vancouver_corporate_001",
-                    "clientId": "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
-                    "date": datetime.now().date(),
-                    "status": "EN_ROUTE",
-                    "truckNumber": "T-002",
-                    "moveSourceId": "move_002",
-                    "startTime": datetime.now().replace(hour=7, minute=30, second=0, microsecond=0),
-                    "endTime": datetime.now().replace(hour=15, minute=30, second=0, microsecond=0),
-                    "notes": "Office relocation - downtown Vancouver",
-                    "createdBy": "usr_shahbaz_burnaby",
-                    "createdAt": datetime.now(),
-                    "updatedAt": datetime.now()
-                },
-                {
-                    "id": "journey_real_003",
-                    "locationId": "loc_lgm_vancouver_corporate_001",
-                    "clientId": "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
-                    "date": (datetime.now() + timedelta(days=1)).date(),
-                    "status": "ONSITE",
-                    "truckNumber": "T-003",
-                    "moveSourceId": "move_003",
-                    "startTime": datetime.now().replace(hour=9, minute=0, second=0, microsecond=0),
-                    "endTime": datetime.now().replace(hour=17, minute=0, second=0, microsecond=0),
-                    "notes": "Warehouse inventory transfer",
-                    "createdBy": "usr_shahbaz_burnaby",
-                    "createdAt": datetime.now(),
-                    "updatedAt": datetime.now()
-                }
-            ]
-            
-            # Insert real journeys into database
-            for journey in real_journeys:
-                cursor.execute("""
-                    INSERT INTO "TruckJourney" (
-                        id, "locationId", "clientId", date, status, "truckNumber", 
-                        "moveSourceId", "startTime", "endTime", notes, "createdBy", "createdAt", "updatedAt"
-                    ) VALUES (
-                        %(id)s, %(locationId)s, %(clientId)s, %(date)s, %(status)s, %(truckNumber)s,
-                        %(moveSourceId)s, %(startTime)s, %(endTime)s, %(notes)s, %(createdBy)s, %(createdAt)s, %(updatedAt)s
-                    )
-                """, journey)
-            
-            conn.commit()
-            print(f"✅ Created {len(real_journeys)} real journeys in database")
-        
-        # Now fetch the real journeys from database
-        cursor.execute("""
-            SELECT * FROM "TruckJourney" 
-            WHERE "clientId" = 'clm_f55e13de_a5c4_4990_ad02_34bb07187daa'
-            ORDER BY "createdAt" DESC
-            LIMIT 10
-        """)
-        
-        real_journeys = cursor.fetchall()
-        conn.close()
-        
-        return {
-            "success": True,
-            "data": [dict(journey) for journey in real_journeys],
-            "message": f"Retrieved {len(real_journeys)} real journeys from database for Let's Get Moving",
-            "company": "Let's Get Moving",
-            "company_id": "clm_f55e13de_a5c4_4990_ad02_34bb07187daa"
-        }
-        
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e),
-            "message": "Failed to create/retrieve real journey data"
-        }

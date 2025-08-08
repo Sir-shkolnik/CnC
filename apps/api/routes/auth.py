@@ -736,4 +736,3 @@ async def get_locations(
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
-# Force deployment update
