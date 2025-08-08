@@ -11,6 +11,7 @@ services:
     buildCommand: |
       python -m pip install --upgrade pip
       pip install fastapi uvicorn prisma asyncpg python-jose PyJWT passlib[bcrypt] python-multipart httpx requests python-dotenv python-dateutil structlog pytest pytest-asyncio black isort flake8 mypy gunicorn psycopg2-binary psutil bcrypt
+      python -m prisma py fetch
       python -m prisma generate
     startCommand: |
       # Start the API server
