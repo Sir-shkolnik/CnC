@@ -183,6 +183,7 @@ class BackgroundSmartMovingSync:
 
 # Global sync service instance
 sync_service = None
+sync_task = None
 
 def signal_handler(signum, frame):
     """Handle shutdown signals"""
@@ -190,6 +191,40 @@ def signal_handler(signum, frame):
     if sync_service:
         sync_service.stop()
     sys.exit(0)
+
+async def start_background_sync():
+    """Start the background sync service"""
+    global sync_service, sync_task
+    
+    try:
+        logger.info("Starting background SmartMoving sync service...")
+        sync_service = BackgroundSmartMovingSync()
+        sync_task = asyncio.create_task(sync_service.run_continuous_sync())
+        logger.info("Background sync service started successfully")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to start background sync service: {e}")
+        return False
+
+async def stop_background_sync():
+    """Stop the background sync service"""
+    global sync_service, sync_task
+    
+    try:
+        logger.info("Stopping background SmartMoving sync service...")
+        if sync_service:
+            sync_service.stop()
+        if sync_task:
+            sync_task.cancel()
+            try:
+                await sync_task
+            except asyncio.CancelledError:
+                pass
+        logger.info("Background sync service stopped successfully")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to stop background sync service: {e}")
+        return False
 
 async def main():
     """Main function to run the background sync service"""
