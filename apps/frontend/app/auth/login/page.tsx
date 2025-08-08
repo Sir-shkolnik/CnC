@@ -308,7 +308,7 @@ export default function UnifiedLoginPage() {
   const getRoleBadgeVariant = (role: string) => {
     switch (role.toUpperCase()) {
       case 'SUPER_ADMIN':
-        return 'destructive';
+        return 'error';
       case 'ADMIN':
         return 'default';
       case 'MANAGER':
@@ -380,7 +380,7 @@ export default function UnifiedLoginPage() {
                       key={company.id}
                       onClick={() => handleCompanySelect(company)}
                       className="w-full justify-between bg-white/10 hover:bg-white/20 border-white/20 text-white"
-                      variant="outline"
+                      variant="secondary"
                     >
                       <div className="flex items-center">
                         <Building2 className="w-5 h-5 mr-3" />
@@ -424,7 +424,7 @@ export default function UnifiedLoginPage() {
             {/* Company Selection */}
             <div className="flex items-center justify-center space-x-2 mt-4">
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 className="bg-white/10 hover:bg-white/20 border-white/20 text-white"
               >
