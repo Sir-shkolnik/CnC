@@ -23,16 +23,26 @@
     {
       "name": "Dashboard",
       "short_name": "Dashboard",
-      "description": "View operations dashboard",
+      "description": "View operational dashboard",
       "url": "/dashboard",
-      "icons": [{ "src": "/icon.svg", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/icon.svg",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "Journeys",
       "short_name": "Journeys",
-      "description": "Manage journeys",
+      "description": "Manage truck journeys",
       "url": "/journeys",
-      "icons": [{ "src": "/icon.svg", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/icon.svg",
+          "sizes": "96x96"
+        }
+      ]
     }
   ]
 } 
