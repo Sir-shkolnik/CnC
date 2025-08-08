@@ -208,22 +208,9 @@ EOF
 
 print_success "Prisma schema updated with job management models"
 
-# Step 4: Run data import script
-print_status "Step 4: Running complete data import..."
-
-# Make the script executable
-chmod +x scripts/import_complete_lgm_data.py
-
-# Run the import script
-print_status "Importing all missing branches, users, and referral sources..."
-python3 scripts/import_complete_lgm_data.py
-
-if [ $? -eq 0 ]; then
-    print_success "Data import completed successfully"
-else
-    print_error "Data import failed"
-    exit 1
-fi
+# Step 4: Skip local data import (will be done on Render)
+print_status "Step 4: Skipping local data import (will be done on Render deployment)..."
+print_warning "Data import will be performed on Render deployment with proper DATABASE_URL"
 
 # Step 5: Generate Prisma client
 print_status "Step 5: Generating Prisma client..."

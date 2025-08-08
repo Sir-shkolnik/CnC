@@ -533,6 +533,7 @@ model CompanyBranch {
 
   // Relations
   companyIntegration  CompanyIntegration @relation(fields: [companyIntegrationId], references: [id], onDelete: Cascade)
+  jobs                Job[]
 
   // Unique constraints
   @@unique([companyIntegrationId, externalId])
@@ -647,6 +648,8 @@ model CompanyUser {
 
   // Relations
   companyIntegration  CompanyIntegration @relation(fields: [companyIntegrationId], references: [id], onDelete: Cascade)
+  jobAssignments      JobAssignment[]
+  availability        UserAvailability[]
 
   // Unique constraints
   @@unique([companyIntegrationId, externalId])
@@ -675,6 +678,8 @@ model CompanyReferralSource {
 }
 
 // Job Management System Models
+// ===============================
+
 model Job {
   id                String   @id @default(cuid())
   externalId        String?
@@ -710,6 +715,7 @@ model Job {
   @@unique([externalId, branchId])
   @@index([branchId, scheduledDate])
   @@index([status])
+  @@map("Job")
 }
 
 model JobAssignment {
@@ -730,6 +736,7 @@ model JobAssignment {
   @@unique([jobId, userId, role])
   @@index([jobId])
   @@index([userId])
+  @@map("JobAssignment")
 }
 
 model JobTag {
@@ -746,6 +753,7 @@ model JobTag {
   @@unique([jobId, tagType, tagValue])
   @@index([jobId])
   @@index([tagType, tagValue])
+  @@map("JobTag")
 }
 
 model JobStatusHistory {
@@ -760,6 +768,7 @@ model JobStatusHistory {
   job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
   @@index([jobId])
+  @@map("JobStatusHistory")
 }
 
 model JobNote {
@@ -772,6 +781,7 @@ model JobNote {
 
   // Relations
   job      Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  @@map("JobNote")
 }
 
 model UserAvailability {
@@ -790,16 +800,5 @@ model UserAvailability {
 
   @@unique([userId, date])
   @@index([userId, date])
-}
-
-// Update existing models to include relations
-model CompanyBranch {
-  // ... existing fields ...
-  jobs Job[]
-}
-
-model CompanyUser {
-  // ... existing fields ...
-  jobAssignments JobAssignment[]
-  availability   UserAvailability[]
+  @@map("UserAvailability")
 }
