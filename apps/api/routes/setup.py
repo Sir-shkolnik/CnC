@@ -7,13 +7,19 @@ import os
 router = APIRouter(tags=["Setup"])
 
 def get_db_connection():
-    return psycopg2.connect(
-        host=os.getenv("DB_HOST", "localhost"),
-        port=os.getenv("DB_PORT", "5432"),
-        database=os.getenv("DB_NAME", "c_and_c_crm"),
-        user=os.getenv("DB_USER", "c_and_c_user"),
-        password=os.getenv("DB_PASSWORD", "c_and_c_password")
-    )
+    """Get database connection using DATABASE_URL or individual env vars"""
+    database_url = os.getenv("DATABASE_URL")
+    if database_url:
+        return psycopg2.connect(database_url)
+    else:
+        # Fallback to individual environment variables
+        return psycopg2.connect(
+            host=os.getenv("DB_HOST", "localhost"),
+            port=os.getenv("DB_PORT", "5432"),
+            database=os.getenv("DB_NAME", "c_and_c_crm"),
+            user=os.getenv("DB_USER", "c_and_c_user"),
+            password=os.getenv("DB_PASSWORD", "c_and_c_password")
+        )
 
 @router.post("/setup/database")
 async def setup_database():
