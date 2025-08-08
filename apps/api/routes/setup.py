@@ -3,17 +3,32 @@ from typing import Dict, Any
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
+from urllib.parse import urlparse
 
 router = APIRouter(tags=["Setup"])
 
 def get_db_connection():
-    return psycopg2.connect(
-        host=os.getenv("DB_HOST", "localhost"),
-        port=os.getenv("DB_PORT", "5432"),
-        database=os.getenv("DB_NAME", "c_and_c_crm"),
-        user=os.getenv("DB_USER", "c_and_c_user"),
-        password=os.getenv("DB_PASSWORD", "c_and_c_password")
-    )
+    """Get database connection using DATABASE_URL or fallback to individual env vars"""
+    database_url = os.getenv("DATABASE_URL")
+    if database_url:
+        # Parse DATABASE_URL for psycopg2
+        parsed = urlparse(database_url)
+        return psycopg2.connect(
+            host=parsed.hostname,
+            port=parsed.port or 5432,
+            database=parsed.path[1:],  # Remove leading slash
+            user=parsed.username,
+            password=parsed.password
+        )
+    else:
+        # Fallback to individual environment variables
+        return psycopg2.connect(
+            host=os.getenv("DB_HOST", "localhost"),
+            port=os.getenv("DB_PORT", "5432"),
+            database=os.getenv("DB_NAME", "c_and_c_crm"),
+            user=os.getenv("DB_USER", "c_and_c_user"),
+            password=os.getenv("DB_PASSWORD", "c_and_c_password")
+        )
 
 @router.post("/setup/database")
 async def setup_database():
@@ -99,12 +114,13 @@ async def setup_database():
             );
         """)
         
-        # Create User table
+        # Create User table with password field
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS "User" (
                 "id" TEXT NOT NULL,
                 "name" TEXT NOT NULL,
                 "email" TEXT NOT NULL,
+                "password" TEXT NOT NULL DEFAULT '1234',
                 "role" "UserRole" NOT NULL,
                 "locationId" TEXT NOT NULL,
                 "clientId" TEXT NOT NULL,
@@ -210,8 +226,8 @@ async def setup_database():
         
         for user_id, user_name, user_email, user_role, location_id in users_data:
             cursor.execute("""
-                INSERT INTO "User" ("id", "name", "email", "role", "locationId", "clientId", "status", "createdAt", "updatedAt") 
-                VALUES (%s, %s, %s, %s, %s, 'clm_f55e13de_a5c4_4990_ad02_34bb07187daa', 'ACTIVE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                INSERT INTO "User" ("id", "name", "email", "password", "role", "locationId", "clientId", "status", "createdAt", "updatedAt") 
+                VALUES (%s, %s, %s, '1234', %s, %s, 'clm_f55e13de_a5c4_4990_ad02_34bb07187daa', 'ACTIVE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                 ON CONFLICT ("id") DO NOTHING;
             """, (user_id, user_name, user_email, user_role, location_id))
         

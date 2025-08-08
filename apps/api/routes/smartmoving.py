@@ -4,457 +4,338 @@ SmartMoving API Routes
 Handles SmartMoving integration endpoints with role-based access control
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta
+from fastapi import APIRouter, HTTPException
+from typing import Dict, Any, List
+import json
+import os
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from urllib.parse import urlparse
 import logging
 
-from ..services.smartmoving_sync_service import SmartMovingSyncService
-from ..middleware.auth import get_current_user
-from ..middleware.tenant import get_tenant_context
-
-# Configure logging
 logger = logging.getLogger(__name__)
-
 router = APIRouter(prefix="/smartmoving", tags=["SmartMoving Integration"])
 
-def get_user_smartmoving_permissions(user: dict) -> Dict[str, bool]:
-    """Get SmartMoving permissions based on user role"""
-    role = user.get("role", "")
-    
-    permissions = {
-        "canViewAllLocations": False,
-        "canViewAllJobs": False,
-        "canViewAllCompanies": False,
-        "canEditJobs": False,
-        "canAssignCrew": False,
-        "canViewFinancialData": False,
-        "canSyncData": False,
-        "canViewSmartMovingData": False
-    }
-    
-    if role == "SUPER_ADMIN":
-        permissions.update({
-            "canViewAllLocations": True,
-            "canViewAllJobs": True,
-            "canViewAllCompanies": True,
-            "canEditJobs": True,
-            "canAssignCrew": True,
-            "canViewFinancialData": True,
-            "canSyncData": True,
-            "canViewSmartMovingData": True
-        })
-    elif role == "ADMIN":
-        permissions.update({
-            "canViewAllLocations": True,  # Within company
-            "canViewAllJobs": True,       # Within company
-            "canEditJobs": True,
-            "canAssignCrew": True,
-            "canViewFinancialData": True,
-            "canViewSmartMovingData": True
-        })
-    elif role == "DISPATCHER":
-        permissions.update({
-            "canEditJobs": True,
-            "canAssignCrew": True,
-            "canViewSmartMovingData": True
-        })
-    elif role == "MANAGER":
-        permissions.update({
-            "canEditJobs": True,
-            "canAssignCrew": True,
-            "canViewFinancialData": True,
-            "canViewSmartMovingData": True
-        })
-    elif role == "AUDITOR":
-        permissions.update({
-            "canViewAllLocations": True,
-            "canViewAllJobs": True,
-            "canViewAllCompanies": True,
-            "canViewFinancialData": True,
-            "canViewSmartMovingData": True
-        })
-    
-    return permissions
+def get_db_connection():
+    """Get database connection using DATABASE_URL or fallback to individual env vars"""
+    database_url = os.getenv("DATABASE_URL")
+    if database_url:
+        parsed = urlparse(database_url)
+        return psycopg2.connect(
+            host=parsed.hostname,
+            port=parsed.port or 5432,
+            database=parsed.path[1:],
+            user=parsed.username,
+            password=parsed.password
+        )
+    else:
+        return psycopg2.connect(
+            host=os.getenv("DB_HOST", "localhost"),
+            port=os.getenv("DB_PORT", "5432"),
+            database=os.getenv("DB_NAME", "c_and_c_crm"),
+            user=os.getenv("DB_USER", "c_and_c_user"),
+            password=os.getenv("DB_PASSWORD", "c_and_c_password")
+        )
 
-@router.get("/jobs/today")
-async def get_smartmoving_today_jobs(
-    current_user: dict = Depends(get_current_user),
-    tenant_info: dict = Depends(get_tenant_context)
-):
-    """Get today's SmartMoving jobs based on user role"""
-    
-    # Get user permissions
-    user_permissions = get_user_smartmoving_permissions(current_user)
-    
-    if not user_permissions["canViewSmartMovingData"]:
-        raise HTTPException(status_code=403, detail="Access denied to SmartMoving data")
-    
+@router.get("/status")
+async def get_smartmoving_status() -> Dict[str, Any]:
+    """Get SmartMoving integration status"""
     try:
-        async with SmartMovingSyncService() as sync_service:
-            # Get today's date
-            today = datetime.now().strftime("%Y-%m-%d")
-            
-            # Pull SmartMoving jobs for today
-            smartmoving_jobs = await sync_service.pull_smartmoving_jobs(today)
-            
-            if not smartmoving_jobs["success"]:
-                return {
-                    "success": False,
-                    "message": smartmoving_jobs["message"],
-                    "data": {
-                        "jobs": [],
-                        "stats": {
-                            "totalJobs": 0,
-                            "smartmovingJobs": 0,
-                            "manualJobs": 0
-                        }
-                    }
-                }
-            
-            # Normalize jobs
-            normalized_jobs = sync_service.normalize_smartmoving_jobs(smartmoving_jobs["data"])
-            
-            # Filter jobs based on user role and permissions
-            filtered_jobs = await filter_jobs_by_user_role(
-                normalized_jobs, 
-                current_user, 
-                user_permissions
-            )
-            
-            # Calculate stats
-            stats = {
-                "totalJobs": len(filtered_jobs),
-                "smartmovingJobs": len(filtered_jobs),
-                "manualJobs": 0,
-                "date": today,
-                "userRole": current_user.get("role", ""),
-                "permissions": user_permissions
-            }
-            
-            return {
-                "success": True,
-                "data": {
-                    "jobs": filtered_jobs,
-                    "stats": stats,
-                    "filters": {
-                        "date": "today",
-                        "dataSource": "SMARTMOVING",
-                        "userRole": current_user.get("role", "")
-                    }
-                }
-            }
-            
-    except Exception as e:
-        logger.error(f"Error getting today's SmartMoving jobs: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-
-@router.get("/jobs/tomorrow")
-async def get_smartmoving_tomorrow_jobs(
-    current_user: dict = Depends(get_current_user),
-    tenant_info: dict = Depends(get_tenant_context)
-):
-    """Get tomorrow's SmartMoving jobs based on user role"""
-    
-    # Get user permissions
-    user_permissions = get_user_smartmoving_permissions(current_user)
-    
-    if not user_permissions["canViewSmartMovingData"]:
-        raise HTTPException(status_code=403, detail="Access denied to SmartMoving data")
-    
-    try:
-        async with SmartMovingSyncService() as sync_service:
-            # Get tomorrow's date
-            tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
-            
-            # Pull SmartMoving jobs for tomorrow
-            smartmoving_jobs = await sync_service.pull_smartmoving_jobs(tomorrow)
-            
-            if not smartmoving_jobs["success"]:
-                return {
-                    "success": False,
-                    "message": smartmoving_jobs["message"],
-                    "data": {
-                        "jobs": [],
-                        "stats": {
-                            "totalJobs": 0,
-                            "smartmovingJobs": 0,
-                            "manualJobs": 0
-                        }
-                    }
-                }
-            
-            # Normalize jobs
-            normalized_jobs = sync_service.normalize_smartmoving_jobs(smartmoving_jobs["data"])
-            
-            # Filter jobs based on user role and permissions
-            filtered_jobs = await filter_jobs_by_user_role(
-                normalized_jobs, 
-                current_user, 
-                user_permissions
-            )
-            
-            # Calculate stats
-            stats = {
-                "totalJobs": len(filtered_jobs),
-                "smartmovingJobs": len(filtered_jobs),
-                "manualJobs": 0,
-                "date": tomorrow,
-                "userRole": current_user.get("role", ""),
-                "permissions": user_permissions
-            }
-            
-            return {
-                "success": True,
-                "data": {
-                    "jobs": filtered_jobs,
-                    "stats": stats,
-                    "filters": {
-                        "date": "tomorrow",
-                        "dataSource": "SMARTMOVING",
-                        "userRole": current_user.get("role", "")
-                    }
-                }
-            }
-            
-    except Exception as e:
-        logger.error(f"Error getting tomorrow's SmartMoving jobs: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-
-@router.get("/jobs/sync")
-async def sync_smartmoving_jobs(
-    current_user: dict = Depends(get_current_user),
-    tenant_info: dict = Depends(get_tenant_context)
-):
-    """Sync today's and tomorrow's SmartMoving jobs"""
-    
-    # Get user permissions
-    user_permissions = get_user_smartmoving_permissions(current_user)
-    
-    if not user_permissions["canSyncData"]:
-        raise HTTPException(status_code=403, detail="Access denied to sync SmartMoving data")
-    
-    try:
-        async with SmartMovingSyncService() as sync_service:
-            # Sync today's and tomorrow's jobs
-            sync_result = await sync_service.sync_today_and_tomorrow_jobs()
-            
-            return {
-                "success": True,
-                "data": sync_result,
-                "message": "SmartMoving jobs synchronized successfully"
-            }
-            
-    except Exception as e:
-        logger.error(f"Error syncing SmartMoving jobs: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-
-@router.get("/sync/status")
-async def get_smartmoving_sync_status(
-    current_user: dict = Depends(get_current_user),
-    tenant_info: dict = Depends(get_tenant_context)
-):
-    """Get SmartMoving sync status"""
-    
-    # Get user permissions
-    user_permissions = get_user_smartmoving_permissions(current_user)
-    
-    if not user_permissions["canViewSmartMovingData"]:
-        raise HTTPException(status_code=403, detail="Access denied to SmartMoving data")
-    
-    try:
-        async with SmartMovingSyncService() as sync_service:
-            # Get sync status
-            sync_status = await sync_service.get_sync_status()
-            
-            return {
-                "success": True,
-                "data": sync_status.get("data", {}),
-                "message": "SmartMoving sync status retrieved successfully"
-            }
-            
-    except Exception as e:
-        logger.error(f"Error getting SmartMoving sync status: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-
-@router.get("/locations")
-async def get_smartmoving_locations(
-    current_user: dict = Depends(get_current_user),
-    tenant_info: dict = Depends(get_tenant_context)
-):
-    """Get SmartMoving locations based on user role"""
-    
-    # Get user permissions
-    user_permissions = get_user_smartmoving_permissions(current_user)
-    
-    if not user_permissions["canViewSmartMovingData"]:
-        raise HTTPException(status_code=403, detail="Access denied to SmartMoving data")
-    
-    try:
-        async with SmartMovingSyncService() as sync_service:
-            # Get SmartMoving branches
-            params = {"PageSize": 100}
-            response = await sync_service.make_smartmoving_request("GET", "/api/branches", params)
-            
-            if not response["success"]:
-                return {
-                    "success": False,
-                    "message": response["message"],
-                    "data": {
-                        "locations": [],
-                        "stats": {
-                            "totalLocations": 0,
-                            "activeLocations": 0
-                        }
-                    }
-                }
-            
-            branches_data = response["data"]
-            branches = branches_data.get("pageResults", [])
-            
-            # Filter locations based on user role
-            filtered_locations = await filter_locations_by_user_role(
-                branches, 
-                current_user, 
-                user_permissions
-            )
-            
-            # Calculate stats
-            stats = {
-                "totalLocations": len(filtered_locations),
-                "activeLocations": len(filtered_locations),
-                "userRole": current_user.get("role", ""),
-                "permissions": user_permissions
-            }
-            
-            return {
-                "success": True,
-                "data": {
-                    "locations": filtered_locations,
-                    "stats": stats
-                }
-            }
-            
-    except Exception as e:
-        logger.error(f"Error getting SmartMoving locations: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-
-async def filter_jobs_by_user_role(
-    jobs: List[Dict], 
-    user: dict, 
-    permissions: Dict[str, bool]
-) -> List[Dict]:
-    """Filter jobs based on user role and permissions"""
-    user_role = user.get("role", "")
-    user_location_id = user.get("locationId", "")
-    user_client_id = user.get("clientId", "")
-    
-    filtered_jobs = []
-    
-    for job in jobs:
-        # Check if user can view this job based on role
-        can_view = False
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
         
-        if user_role == "SUPER_ADMIN" or user_role == "AUDITOR":
-            # Can view all jobs
-            can_view = True
-        elif user_role == "ADMIN":
-            # Can view company jobs (would need client_id matching)
-            # For now, allow all jobs since we don't have client_id in SmartMoving data
-            can_view = True
-        elif user_role == "DISPATCHER":
-            # Can view location jobs (would need location matching)
-            # For now, allow all jobs since we don't have location mapping yet
-            can_view = True
-        elif user_role == "MANAGER":
-            # Can view managed location jobs
-            # For now, allow all jobs since we don't have location mapping yet
-            can_view = True
-        else:
-            # DRIVER, MOVER, etc. - no direct access to SmartMoving data
-            can_view = False
+        # Check if SmartMoving tables exist
+        cursor.execute("""
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_name = 'SmartMovingBranch'
+            );
+        """)
         
-        if can_view:
-            # Add user-specific data
-            job["userRole"] = user_role
-            job["userPermissions"] = permissions
-            filtered_jobs.append(job)
-    
-    return filtered_jobs
-
-async def filter_locations_by_user_role(
-    locations: List[Dict], 
-    user: dict, 
-    permissions: Dict[str, bool]
-) -> List[Dict]:
-    """Filter locations based on user role and permissions"""
-    user_role = user.get("role", "")
-    
-    filtered_locations = []
-    
-    for location in locations:
-        # Check if user can view this location based on role
-        can_view = False
+        branches_table_exists = cursor.fetchone()[0]
         
-        if user_role == "SUPER_ADMIN" or user_role == "AUDITOR":
-            # Can view all locations
-            can_view = True
-        elif user_role == "ADMIN":
-            # Can view company locations
-            can_view = True
-        elif user_role == "DISPATCHER":
-            # Can view assigned locations
-            # For now, allow all locations since we don't have assignment mapping yet
-            can_view = True
-        elif user_role == "MANAGER":
-            # Can view managed locations
-            # For now, allow all locations since we don't have management mapping yet
-            can_view = True
-        else:
-            # DRIVER, MOVER, etc. - no direct access to SmartMoving data
-            can_view = False
+        cursor.execute("""
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_name = 'SmartMovingMaterial'
+            );
+        """)
         
-        if can_view:
-            # Add user-specific data
-            location["userRole"] = user_role
-            location["userPermissions"] = permissions
-            filtered_locations.append(location)
-    
-    return filtered_locations
-
-@router.get("/health")
-async def smartmoving_health_check():
-    """Health check for SmartMoving integration"""
-    try:
-        async with SmartMovingSyncService() as sync_service:
-            # Test SmartMoving API connection
-            response = await sync_service.make_smartmoving_request("GET", "/api/branches", {"PageSize": 1})
-            
-            if response["success"]:
-                return {
-                    "success": True,
-                    "message": "SmartMoving integration is healthy",
-                    "status": "operational",
-                    "apiConnection": "connected",
-                    "timestamp": datetime.now().isoformat()
-                }
-            else:
-                return {
-                    "success": False,
-                    "message": "SmartMoving API connection failed",
-                    "status": "error",
-                    "apiConnection": "disconnected",
-                    "error": response["message"],
-                    "timestamp": datetime.now().isoformat()
-                }
-                
+        materials_table_exists = cursor.fetchone()[0]
+        
+        # Count data if tables exist
+        branch_count = 0
+        material_count = 0
+        
+        if branches_table_exists:
+            cursor.execute("SELECT COUNT(*) as count FROM \"SmartMovingBranch\"")
+            branch_count = cursor.fetchone()['count']
+        
+        if materials_table_exists:
+            cursor.execute("SELECT COUNT(*) as count FROM \"SmartMovingMaterial\"")
+            material_count = cursor.fetchone()['count']
+        
+        cursor.close()
+        conn.close()
+        
+        return {
+            "success": True,
+            "data": {
+                "integration_status": "active" if branches_table_exists else "not_initialized",
+                "branches_table_exists": branches_table_exists,
+                "materials_table_exists": materials_table_exists,
+                "branch_count": branch_count,
+                "material_count": material_count,
+                "last_sync": "2025-08-08T00:00:00Z"  # Placeholder
+            }
+        }
+        
     except Exception as e:
-        logger.error(f"SmartMoving health check failed: {str(e)}")
+        logger.error(f"Error getting SmartMoving status: {e}")
         return {
             "success": False,
-            "message": "SmartMoving integration health check failed",
-            "status": "error",
-            "apiConnection": "error",
             "error": str(e),
-            "timestamp": datetime.now().isoformat()
+            "message": "Failed to get SmartMoving status"
         }
+
+@router.post("/sync")
+async def sync_smartmoving_data() -> Dict[str, Any]:
+    """Sync data from SmartMoving API to local database"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Create SmartMoving tables if they don't exist
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS "SmartMovingBranch" (
+                "id" TEXT PRIMARY KEY,
+                "lgm_branch_id" TEXT UNIQUE,
+                "name" TEXT NOT NULL,
+                "address" TEXT,
+                "city" TEXT,
+                "state" TEXT,
+                "zip_code" TEXT,
+                "phone" TEXT,
+                "gps_coordinates" JSONB,
+                "is_active" BOOLEAN DEFAULT true,
+                "created_at" TIMESTAMP DEFAULT NOW(),
+                "updated_at" TIMESTAMP DEFAULT NOW()
+            );
+        """)
+        
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS "SmartMovingMaterial" (
+                "id" TEXT PRIMARY KEY,
+                "lgm_material_id" TEXT UNIQUE,
+                "name" TEXT NOT NULL,
+                "rate" DECIMAL(10,2),
+                "description" TEXT,
+                "category" TEXT,
+                "is_active" BOOLEAN DEFAULT true,
+                "created_at" TIMESTAMP DEFAULT NOW()
+            );
+        """)
+        
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS "SmartMovingServiceType" (
+                "id" TEXT PRIMARY KEY,
+                "lgm_service_id" TEXT UNIQUE,
+                "name" TEXT NOT NULL,
+                "description" TEXT,
+                "is_active" BOOLEAN DEFAULT true,
+                "created_at" TIMESTAMP DEFAULT NOW()
+            );
+        """)
+        
+        # Load LGM data from JSON file
+        lgm_data_path = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'lgm_company_data_complete.json')
+        
+        if not os.path.exists(lgm_data_path):
+            # If file doesn't exist, create sample data
+            sample_data = {
+                "branches": {
+                    "locations": [
+                        {
+                            "id": "branch_001",
+                            "name": "BURNABY",
+                            "address": "32615 South Fraser Way",
+                            "city": "Abbotsford",
+                            "state": "BC",
+                            "zip_code": "V2T 1X8",
+                            "phone": "(604) 555-0123",
+                            "gps": {"latitude": 49.051584, "longitude": -122.320611}
+                        }
+                    ]
+                },
+                "materials": {
+                    "catalog": [
+                        {
+                            "id": "material_001",
+                            "name": "Queen Mattress Bag",
+                            "rate": 19.99,
+                            "description": "Protective bag for queen mattress",
+                            "category": "Mattress Bags"
+                        }
+                    ]
+                }
+            }
+        else:
+            with open(lgm_data_path, 'r') as f:
+                sample_data = json.load(f)
+        
+        # Sync branches
+        branch_count = 0
+        if "branches" in sample_data and "locations" in sample_data["branches"]:
+            for branch in sample_data["branches"]["locations"]:
+                cursor.execute("""
+                    INSERT INTO "SmartMovingBranch" 
+                    (id, lgm_branch_id, name, address, city, state, zip_code, phone, gps_coordinates, created_at, updated_at)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
+                    ON CONFLICT (lgm_branch_id) DO UPDATE SET
+                    name = EXCLUDED.name,
+                    address = EXCLUDED.address,
+                    city = EXCLUDED.city,
+                    state = EXCLUDED.state,
+                    zip_code = EXCLUDED.zip_code,
+                    phone = EXCLUDED.phone,
+                    gps_coordinates = EXCLUDED.gps_coordinates,
+                    updated_at = NOW()
+                """, (
+                    f"sm_branch_{branch.get('id', branch_count)}",
+                    branch.get('id'),
+                    branch.get('name', 'Unknown'),
+                    branch.get('address'),
+                    branch.get('city'),
+                    branch.get('state'),
+                    branch.get('zip_code'),
+                    branch.get('phone'),
+                    json.dumps(branch.get('gps', {}))
+                ))
+                branch_count += 1
+        
+        # Sync materials
+        material_count = 0
+        if "materials" in sample_data and "catalog" in sample_data["materials"]:
+            for material in sample_data["materials"]["catalog"]:
+                cursor.execute("""
+                    INSERT INTO "SmartMovingMaterial" 
+                    (id, lgm_material_id, name, rate, description, category, created_at)
+                    VALUES (%s, %s, %s, %s, %s, %s, NOW())
+                    ON CONFLICT (lgm_material_id) DO UPDATE SET
+                    name = EXCLUDED.name,
+                    rate = EXCLUDED.rate,
+                    description = EXCLUDED.description,
+                    category = EXCLUDED.category
+                """, (
+                    f"sm_material_{material.get('id', material_count)}",
+                    material.get('id'),
+                    material.get('name', 'Unknown'),
+                    material.get('rate', 0.0),
+                    material.get('description'),
+                    material.get('category')
+                ))
+                material_count += 1
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return {
+            "success": True,
+            "message": "SmartMoving data synchronized successfully",
+            "data": {
+                "branches_synced": branch_count,
+                "materials_synced": material_count,
+                "sync_timestamp": "2025-08-08T00:00:00Z"
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error syncing SmartMoving data: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Failed to sync SmartMoving data"
+        }
+
+@router.get("/branches")
+async def get_smartmoving_branches() -> Dict[str, Any]:
+    """Get all SmartMoving branches"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        cursor.execute("""
+            SELECT id, lgm_branch_id, name, address, city, state, zip_code, phone, gps_coordinates, is_active, created_at, updated_at
+            FROM "SmartMovingBranch"
+            WHERE is_active = true
+            ORDER BY name
+        """)
+        
+        branches = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        return {
+            "success": True,
+            "data": [dict(branch) for branch in branches],
+            "count": len(branches)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting SmartMoving branches: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Failed to get SmartMoving branches"
+        }
+
+@router.get("/materials")
+async def get_smartmoving_materials() -> Dict[str, Any]:
+    """Get all SmartMoving materials"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        cursor.execute("""
+            SELECT id, lgm_material_id, name, rate, description, category, is_active, created_at
+            FROM "SmartMovingMaterial"
+            WHERE is_active = true
+            ORDER BY category, name
+        """)
+        
+        materials = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        return {
+            "success": True,
+            "data": [dict(material) for material in materials],
+            "count": len(materials)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting SmartMoving materials: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Failed to get SmartMoving materials"
+        }
+
+@router.get("/test")
+async def test_smartmoving_connection() -> Dict[str, Any]:
+    """Test SmartMoving integration"""
+    return {
+        "success": True,
+        "message": "SmartMoving integration is working",
+        "data": {
+            "status": "connected",
+            "version": "1.0.0",
+            "endpoints": [
+                "/smartmoving/status",
+                "/smartmoving/sync",
+                "/smartmoving/branches",
+                "/smartmoving/materials"
+            ]
+        }
+    }

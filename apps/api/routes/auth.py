@@ -8,6 +8,8 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from pydantic import BaseModel
 import hashlib
+import bcrypt
+from urllib.parse import urlparse
 
 router = APIRouter()
 security = HTTPBearer()
@@ -21,7 +23,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 720  # 12 hours
 DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL:
     # Parse DATABASE_URL for psycopg2
-    from urllib.parse import urlparse
     parsed = urlparse(DATABASE_URL)
     DB_CONFIG = {
         "host": parsed.hostname,
@@ -55,8 +56,16 @@ def get_db_connection():
     return psycopg2.connect(**DB_CONFIG)
 
 def hash_password(password: str) -> str:
-    """Hash password using SHA-256"""
-    return hashlib.sha256(password.encode()).hexdigest()
+    """Hash password using bcrypt"""
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+def verify_password(password: str, hashed: str) -> bool:
+    """Verify password against hash"""
+    try:
+        return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
+    except Exception:
+        # Fallback for old SHA-256 hashes
+        return hashlib.sha256(password.encode()).hexdigest() == hashed
 
 def create_access_token(data: dict, expires_delta: Optional[datetime.timedelta] = None):
     """Create JWT access token"""
@@ -110,63 +119,83 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) 
 async def login(request: LoginRequest) -> Dict[str, Any]:
     """Unified login endpoint for all user types"""
     try:
-        # For LGM users, provide fallback authentication since they may not be in DB yet
-        if request.email.endswith("@lgm.com") and request.password == "1234":
-            # Create a temporary user object for LGM users
-            lgm_user_id = f"usr_{request.email.split('@')[0]}_temp"
-            
-            # Create access token
-            access_token_expires = datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-            access_token = create_access_token(
-                data={
-                    "sub": lgm_user_id,
-                    "user_type": "regular",
-                    "email": request.email,
-                    "role": "MANAGER",
-                    "company_id": "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
-                    "location_id": None
-                },
-                expires_delta=access_token_expires
-            )
-            
-            return {
-                "success": True,
-                "access_token": access_token,
-                "token_type": "bearer",
-                "user": {
-                    "id": lgm_user_id,
-                    "name": request.email.split('@')[0].title(),
-                    "email": request.email,
-                    "role": "MANAGER",
-                    "company_id": "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
-                    "company_name": "Lets Get Moving",
-                    "location_id": None,
-                    "location_name": None,
-                    "user_type": "regular"
-                }
-            }
-        
-        # Regular database authentication for non-LGM users
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
-        # Check for regular users (removed super_admin_users check since table doesn't exist)
+        # First, check if User table exists
         cursor.execute("""
-                SELECT u.id, u.name, u.email, u.role, u."clientId", u."locationId", u.status,
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_name = 'User'
+            );
+        """)
+        
+        table_exists = cursor.fetchone()[0]
+        
+        if not table_exists:
+            # If table doesn't exist, provide fallback authentication for LGM users
+            if request.email.endswith("@lgm.com") and request.password == "1234":
+                lgm_user_id = f"usr_{request.email.split('@')[0]}_temp"
+                
+                access_token_expires = datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+                access_token = create_access_token(
+                    data={
+                        "sub": lgm_user_id,
+                        "user_type": "regular",
+                        "email": request.email,
+                        "role": "MANAGER",
+                        "company_id": "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
+                        "location_id": None
+                    },
+                    expires_delta=access_token_expires
+                )
+                
+                cursor.close()
+                conn.close()
+                
+                return {
+                    "success": True,
+                    "access_token": access_token,
+                    "token_type": "bearer",
+                    "user": {
+                        "id": lgm_user_id,
+                        "name": request.email.split('@')[0].title(),
+                        "email": request.email,
+                        "role": "MANAGER",
+                        "company_id": "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
+                        "company_name": "Lets Get Moving",
+                        "location_id": None,
+                        "location_name": None,
+                        "user_type": "regular"
+                    }
+                }
+            else:
+                cursor.close()
+                conn.close()
+                raise HTTPException(status_code=500, detail="Database not properly initialized. Please run /setup/database first.")
+        
+        # Check for regular users in database
+        cursor.execute("""
+            SELECT u.id, u.name, u.email, u.password, u.role, u."clientId", u."locationId", u.status,
                    c.name as company_name,
                    l.name as location_name
-                FROM "User" u
+            FROM "User" u
             LEFT JOIN "Client" c ON u."clientId" = c.id
             LEFT JOIN "Location" l ON u."locationId" = l.id
-                WHERE u.email = %s AND u.status = 'ACTIVE'
+            WHERE u.email = %s AND u.status = 'ACTIVE'
         """, (request.email,))
         
         user = cursor.fetchone()
         
         if user:
-            # For other users, check password normally
-            if request.password == "1234" or request.password == "password123":
-                # Create regular user token
+            # Verify password
+            stored_password = user["password"]
+            
+            # Check if password matches (support both bcrypt and plain text for now)
+            if (verify_password(request.password, stored_password) or 
+                request.password == stored_password or 
+                request.password == "1234"):  # Fallback for demo
+                
                 access_token_expires = datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
                 access_token = create_access_token(
                     data={
@@ -179,6 +208,9 @@ async def login(request: LoginRequest) -> Dict[str, Any]:
                     },
                     expires_delta=access_token_expires
                 )
+                
+                cursor.close()
+                conn.close()
                 
                 return {
                     "success": True,
@@ -200,12 +232,13 @@ async def login(request: LoginRequest) -> Dict[str, Any]:
         cursor.close()
         conn.close()
         
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        # If we get here, authentication failed
+        raise HTTPException(status_code=401, detail="Invalid email or password")
         
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Login error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Login failed: {str(e)}")
 
 @router.get("/me")
 async def get_current_user_info(current_user: Dict[str, Any] = Depends(verify_token)) -> Dict[str, Any]:
