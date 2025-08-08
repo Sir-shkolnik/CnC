@@ -42,8 +42,8 @@ interface CompanyUser {
   role: string;
   locationId: string;
   status: string;
-  locationName?: string;
-  locationType?: 'CORPORATE' | 'FRANCHISE';
+  location_name?: string;
+  location_type?: 'CORPORATE' | 'FRANCHISE';
 }
 
 interface Location {
@@ -93,21 +93,23 @@ export default function UnifiedLoginPage() {
   // Extract unique locations from users
   useEffect(() => {
     if (companyUsers.length > 0) {
+      console.log('Processing company users for locations:', companyUsers);
       const uniqueLocations = Array.from(
         new Map(
           companyUsers
-            .filter(user => user.locationName && user.locationId)
+            .filter(user => user.location_name && user.locationId)
             .map(user => [
               user.locationId,
               {
                 id: user.locationId,
-                name: user.locationName!,
-                type: user.locationType || 'CORPORATE'
+                name: user.location_name!,
+                type: user.location_type || 'CORPORATE'
               }
             ])
         ).values()
       ).sort((a, b) => a.name.localeCompare(b.name));
       
+      console.log('Extracted locations:', uniqueLocations);
       setLocations(uniqueLocations);
       setSelectedLocation('ALL');
     }
@@ -128,7 +130,7 @@ export default function UnifiedLoginPage() {
         user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (user.locationName && user.locationName.toLowerCase().includes(searchTerm.toLowerCase()))
+        (user.location_name && user.location_name.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
     
@@ -161,6 +163,7 @@ export default function UnifiedLoginPage() {
         const users = data.data || [];
         
         console.log(`Loaded ${users.length} real LGM users from API`);
+        console.log('Users data:', users);
         setCompanyUsers(users);
       } else {
         console.error('Failed to fetch users:', response.status);
@@ -507,10 +510,10 @@ export default function UnifiedLoginPage() {
                         <div>
                           <div className="font-medium text-white">{user.name}</div>
                           <div className="text-sm text-blue-200">{user.email}</div>
-                          {user.locationName && (
+                          {user.location_name && (
                             <div className="text-xs text-blue-300 flex items-center">
                               <MapPin className="w-3 h-3 mr-1" />
-                              {user.locationName} {user.locationType}
+                              {user.location_name} {user.location_type}
                             </div>
                           )}
                         </div>
