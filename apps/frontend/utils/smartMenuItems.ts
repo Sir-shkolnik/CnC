@@ -138,7 +138,7 @@ const managementMenuItems: MenuItem[] = [
     priority: 'medium',
     roles: ['MANAGER', 'ADMIN'],
     children: [
-      { id: 'audit-logs', label: 'Audit Logs', href: '/audit/logs', icon: 'FileText' },
+      { id: 'audit-logs', label: 'Audit Logs', href: '/audit', icon: 'FileText' },
       { id: 'compliance', label: 'Compliance', href: '/audit/compliance', icon: 'CheckCircle' },
       { id: 'reports', label: 'Reports', href: '/audit/reports', icon: 'BarChart3' }
     ]
