@@ -338,7 +338,7 @@ export const useJourneyStore = create<JourneyStore>()(
       name: 'journey-storage',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        journeys: state.journeys,
+        // Don't persist journeys - always fetch from API
         currentJourney: state.currentJourney,
         stats: state.stats
       }),
