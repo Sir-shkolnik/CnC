@@ -91,96 +91,48 @@ export default function CalendarPage() {
     try {
       setIsLoading(true)
       
-      // In a real app, this would fetch from the API
-      // For now, we'll use mock data that matches our schema
-      const mockJourneys: CalendarJourney[] = [
-        {
-          id: '1',
-          date: '2024-01-15',
-          status: 'MORNING_PREP',
-          truckNumber: 'TRUCK-001',
-          startTime: '08:00',
-          endTime: '16:00',
-          notes: 'Downtown office relocation',
-          location: {
-            name: 'Downtown Office',
-            address: '123 Main St, Toronto'
-          },
-          client: {
-            name: 'LGM Corporate'
-          },
-          assignedCrew: [
-            { user: { name: 'Mike Wilson', role: 'DRIVER' } },
-            { user: { name: 'David Rodriguez', role: 'MOVER' } }
-          ],
-          capacity: { used: 2, total: 3 }
-        },
-        {
-          id: '2',
-          date: '2024-01-15',
-          status: 'EN_ROUTE',
-          truckNumber: 'TRUCK-002',
-          startTime: '07:30',
-          endTime: '15:30',
-          notes: 'Warehouse inventory transfer',
-          location: {
-            name: 'Industrial Warehouse',
-            address: '456 Industrial Ave, Toronto'
-          },
-          client: {
-            name: 'LGM Corporate'
-          },
-          assignedCrew: [
-            { user: { name: 'Sarah Johnson', role: 'DRIVER' } },
-            { user: { name: 'Emma Davis', role: 'MOVER' } }
-          ],
-          capacity: { used: 2, total: 2 }
-        },
-        {
-          id: '3',
-          date: '2024-01-16',
-          status: 'ONSITE',
-          truckNumber: 'TRUCK-003',
-          startTime: '09:00',
-          endTime: '17:00',
-          notes: 'Residential move - family of 4',
-          location: {
-            name: 'Suburban Home',
-            address: '789 Suburban Rd, Toronto'
-          },
-          client: {
-            name: 'LGM Corporate'
-          },
-          assignedCrew: [
-            { user: { name: 'Tom Wilson', role: 'DRIVER' } },
-            { user: { name: 'Rachel Green', role: 'MOVER' } }
-          ],
-          capacity: { used: 2, total: 3 }
-        },
-        {
-          id: '4',
-          date: '2024-01-17',
-          status: 'COMPLETED',
-          truckNumber: 'TRUCK-001',
-          startTime: '08:00',
-          endTime: '16:00',
-          notes: 'Office furniture delivery',
-          location: {
-            name: 'Tech Startup',
-            address: '321 Innovation St, Toronto'
-          },
-          client: {
-            name: 'LGM Corporate'
-          },
-          assignedCrew: [
-            { user: { name: 'Mike Wilson', role: 'DRIVER' } },
-            { user: { name: 'David Rodriguez', role: 'MOVER' } }
-          ],
-          capacity: { used: 2, total: 3 }
-        }
-      ]
+      // Fetch real journey data from API
+      const token = localStorage.getItem('auth-token') || document.cookie.split('auth-token=')[1]?.split(';')[0];
+      if (!token) {
+        console.log('No authentication token found for calendar data');
+        generateCalendarDays([]);
+        return;
+      }
 
-      generateCalendarDays(mockJourneys)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/journey/active`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const realJourneys: CalendarJourney[] = (data.data || []).map((journey: any) => ({
+          id: journey.id,
+          date: journey.date?.split('T')[0] || new Date().toISOString().split('T')[0],
+          status: journey.status,
+          truckNumber: journey.truckNumber || `T-${journey.id}`,
+          startTime: journey.startTime?.split('T')[1]?.substring(0, 5) || '08:00',
+          endTime: journey.endTime?.split('T')[1]?.substring(0, 5),
+          notes: journey.notes || 'Real LGM journey',
+          location: {
+            name: journey.locationName || 'LGM Location',
+            address: journey.locationAddress || 'LGM Address'
+          },
+          client: {
+            name: 'Lets Get Moving'
+          },
+          assignedCrew: journey.assignedCrew || [],
+          capacity: { used: 0, total: 3 }
+        }));
+        
+        console.log(`Loaded ${realJourneys.length} real journeys for calendar`);
+        generateCalendarDays(realJourneys);
+      } else {
+        console.log('No real journey data available yet');
+        generateCalendarDays([]);
+      }
     } catch (error) {
       console.error('Failed to load calendar data:', error)
       toast.error('Failed to load calendar data')

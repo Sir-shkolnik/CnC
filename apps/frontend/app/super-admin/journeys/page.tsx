@@ -56,49 +56,8 @@ interface MockJourney {
   updatedAt: string;
 }
 
-const mockJourneys: MockJourney[] = [
-  {
-    id: 'journey-1',
-    customerName: 'John Smith',
-    customerPhone: '+1-416-555-0101',
-    customerEmail: 'john.smith@email.com',
-    pickupAddress: '123 Main St, Toronto, ON M5V 1A1',
-    deliveryAddress: '456 Oak Ave, Toronto, ON M6K 1B2',
-    scheduledDate: '2025-01-20T09:00:00Z',
-    estimatedDuration: 3,
-    crewSize: 3,
-    specialRequirements: 'Piano moving, stairs access',
-    status: 'ONSITE',
-    companyId: 'company-1',
-    companyName: 'LGM Corporate',
-    locationId: 'location-1',
-    locationName: 'Toronto Main',
-    assignedCrew: ['Alex Driver', 'Sam Mover', 'Chris Helper'],
-    totalCost: 950,
-    createdAt: '2025-01-17T11:00:00Z',
-    updatedAt: '2025-01-22T12:30:00Z'
-  },
-  {
-    id: 'journey-5',
-    customerName: 'David Lee',
-    customerPhone: '+1-604-555-0505',
-    customerEmail: 'david.lee@email.com',
-    pickupAddress: '369 East Blvd, Vancouver, BC V5K 1B3',
-    deliveryAddress: '741 West Ave, Vancouver, BC V6B 1A1',
-    scheduledDate: '2025-01-18T08:00:00Z',
-    estimatedDuration: 4,
-    crewSize: 2,
-    status: 'CANCELLED',
-    companyId: 'company-2',
-    companyName: 'LGM Vancouver',
-    locationId: 'location-2',
-    locationName: 'Vancouver West',
-    assignedCrew: ['Frank Driver', 'Grace Mover'],
-    totalCost: 750,
-    createdAt: '2025-01-13T15:00:00Z',
-    updatedAt: '2025-01-18T07:00:00Z'
-  }
-];
+const [realJourneys, setRealJourneys] = useState<MockJourney[]>([]);
+const [isLoadingJourneys, setIsLoadingJourneys] = useState(false);
 
 export default function SuperAdminJourneysPage() {
   const router = useRouter();
@@ -118,10 +77,67 @@ export default function SuperAdminJourneysPage() {
       router.push('/auth/login');
       return;
     }
+    
+    // Fetch real journey data
+    const fetchRealJourneys = async () => {
+      setIsLoadingJourneys(true);
+      try {
+        const token = localStorage.getItem('auth-token') || document.cookie.split('auth-token=')[1]?.split(';')[0];
+        if (!token) {
+          console.log('No authentication token found for super admin journeys');
+          return;
+        }
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/journey/active`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const journeys: MockJourney[] = (data.data || []).map((journey: any) => ({
+            id: journey.id,
+            customerName: journey.customerName || 'LGM Customer',
+            customerPhone: journey.customerPhone || '+1-000-000-0000',
+            customerEmail: journey.customerEmail || 'customer@lgm.com',
+            pickupAddress: journey.pickupAddress || 'LGM Pickup Location',
+            deliveryAddress: journey.deliveryAddress || 'LGM Delivery Location',
+            scheduledDate: journey.date || new Date().toISOString(),
+            estimatedDuration: journey.estimatedDuration || 3,
+            crewSize: journey.crewSize || 2,
+            specialRequirements: journey.specialRequirements || '',
+            status: journey.status || 'MORNING_PREP',
+            companyId: journey.clientId || 'lgm-corp',
+            companyName: 'Lets Get Moving',
+            locationId: journey.locationId || 'lgm-location',
+            locationName: journey.locationName || 'LGM Location',
+            assignedCrew: journey.assignedCrew || [],
+            totalCost: journey.totalCost || 0,
+            createdAt: journey.createdAt || new Date().toISOString(),
+            updatedAt: journey.updatedAt || new Date().toISOString()
+          }));
+          
+          console.log(`Loaded ${journeys.length} real journeys for super admin`);
+          setRealJourneys(journeys);
+        } else {
+          console.log('No real journey data available yet for super admin');
+          setRealJourneys([]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch real journeys:', error);
+        setRealJourneys([]);
+      } finally {
+        setIsLoadingJourneys(false);
+      }
+    };
+
+    fetchRealJourneys();
   }, [superAdmin, router]);
 
   // Filter journeys based on search and filters
-  const filteredJourneys = mockJourneys.filter(journey => {
+  const filteredJourneys = realJourneys.filter(journey => {
     const matchesSearch = 
       journey.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       journey.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -334,7 +350,7 @@ export default function SuperAdminJourneysPage() {
         {/* Results Summary */}
         <div className="flex items-center justify-between">
           <p className="text-sm text-text-secondary">
-            Showing {filteredJourneys.length} of {mockJourneys.length} journeys
+            Showing {filteredJourneys.length} of {realJourneys.length} journeys
           </p>
         </div>
 

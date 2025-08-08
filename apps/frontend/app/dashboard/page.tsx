@@ -45,9 +45,7 @@ export default function DashboardPage() {
       return
     }
     
-    // Clear any existing mock data and fetch real journey data from API
-    const { clearMockData } = useJourneyStore.getState()
-    clearMockData()
+    // Fetch real journey data from API
     fetchJourneys()
   }, [isAuthenticated, router, fetchJourneys])
 
