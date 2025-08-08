@@ -578,8 +578,8 @@ export default function UnifiedLoginPage() {
         throw new Error(userData.message || 'Login failed');
       }
       
-      if (userData.success && userData.data) {
-        const user = userData.data.user;
+      if (userData.success && userData.user) {
+        const user = userData.user;
         
         // Determine user type based on role
         if (user.role === 'SUPER_ADMIN') {
