@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/atoms/Button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/atoms/Card';
@@ -30,12 +30,18 @@ import toast from 'react-hot-toast';
 
 export default function JourneysPage() {
   const router = useRouter();
-  const { journeys, isLoading } = useJourneyStore();
+  const { journeys, isLoading, fetchJourneys, clearMockData } = useJourneyStore();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
   const [sortBy, setSortBy] = useState('date');
+
+  // Clear mock data and fetch real journeys on mount
+  useEffect(() => {
+    clearMockData();
+    fetchJourneys();
+  }, [clearMockData, fetchJourneys]);
 
   // Filter and sort journeys
   const filteredJourneys = journeys

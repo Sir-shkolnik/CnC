@@ -33,7 +33,7 @@ import toast from 'react-hot-toast'
 export default function DashboardPage() {
   const router = useRouter()
   const { isAuthenticated, user } = useAuthStore()
-  const { journeys, isLoading, fetchJourneys, clearMockData } = useJourneyStore()
+  const { journeys, isLoading, fetchJourneys } = useJourneyStore()
 
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
@@ -45,12 +45,11 @@ export default function DashboardPage() {
       return
     }
     
-    // Clear any mock data first
+    // Clear any existing mock data and fetch real journey data from API
+    const { clearMockData } = useJourneyStore.getState()
     clearMockData()
-    
-    // Fetch real journey data from API
     fetchJourneys()
-  }, [isAuthenticated, router, fetchJourneys, clearMockData])
+  }, [isAuthenticated, router, fetchJourneys])
 
   // Filter journeys based on search and status
   const filteredJourneys = journeys.filter(journey => {
