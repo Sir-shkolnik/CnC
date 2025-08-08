@@ -75,6 +75,13 @@ model Location {
   name      String
   timezone  String   @default("America/Toronto")
   address   String?
+  
+  // SmartMoving Integration Fields
+  externalId   String?      // SmartMoving branch ID
+  externalData Json?        // Raw SmartMoving data
+  dataSource   String       @default("MANUAL") // "SMARTMOVING" or "MANUAL"
+  lastSyncAt   DateTime?
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
