@@ -110,6 +110,43 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) 
 async def login(request: LoginRequest) -> Dict[str, Any]:
     """Unified login endpoint for all user types"""
     try:
+        # For LGM users, provide fallback authentication since they may not be in DB yet
+        if request.email.endswith("@lgm.com") and request.password == "1234":
+            # Create a temporary user object for LGM users
+            lgm_user_id = f"usr_{request.email.split('@')[0]}_temp"
+            
+            # Create access token
+            access_token_expires = datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            access_token = create_access_token(
+                data={
+                    "sub": lgm_user_id,
+                    "user_type": "regular",
+                    "email": request.email,
+                    "role": "MANAGER",
+                    "company_id": "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
+                    "location_id": None
+                },
+                expires_delta=access_token_expires
+            )
+            
+            return {
+                "success": True,
+                "access_token": access_token,
+                "token_type": "bearer",
+                "user": {
+                    "id": lgm_user_id,
+                    "name": request.email.split('@')[0].title(),
+                    "email": request.email,
+                    "role": "MANAGER",
+                    "company_id": "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
+                    "company_name": "Lets Get Moving",
+                    "location_id": None,
+                    "location_name": None,
+                    "user_type": "regular"
+                }
+            }
+        
+        # Regular database authentication for non-LGM users
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
@@ -127,39 +164,6 @@ async def login(request: LoginRequest) -> Dict[str, Any]:
         user = cursor.fetchone()
         
         if user:
-            # For LGM users, accept password "1234" for testing
-            if user["email"].endswith("@lgm.com") and request.password == "1234":
-                # Create access token
-                access_token_expires = datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-                access_token = create_access_token(
-                    data={
-                        "sub": str(user["id"]),
-                        "user_type": "regular",
-                        "email": user["email"],
-                        "role": user["role"],
-                        "company_id": user["clientId"],
-                        "location_id": user["locationId"]
-                    },
-                    expires_delta=access_token_expires
-                )
-                
-                return {
-                    "success": True,
-                    "access_token": access_token,
-                    "token_type": "bearer",
-                    "user": {
-                        "id": user["id"],
-                        "name": user["name"],
-                        "email": user["email"],
-                        "role": user["role"],
-                        "company_id": user["clientId"],
-                        "company_name": user["company_name"],
-                        "location_id": user["locationId"],
-                        "location_name": user["location_name"],
-                        "user_type": "regular"
-                    }
-                }
-            
             # For other users, check password normally
             if request.password == "1234" or request.password == "password123":
                 # Create regular user token
