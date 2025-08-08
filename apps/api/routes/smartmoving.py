@@ -12,6 +12,10 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from urllib.parse import urlparse
 import logging
+import asyncio
+
+# Import SmartMoving sync service
+from ..services.smartmoving_sync_service import SmartMovingSyncService
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/smartmoving", tags=["SmartMoving Integration"])
@@ -36,6 +40,52 @@ def get_db_connection():
             user=os.getenv("DB_USER", "c_and_c_user"),
             password=os.getenv("DB_PASSWORD", "c_and_c_password")
         )
+
+@router.post("/sync/jobs")
+async def sync_smartmoving_jobs() -> Dict[str, Any]:
+    """Sync today's and tomorrow's jobs from SmartMoving"""
+    try:
+        logger.info("Starting SmartMoving job sync...")
+        
+        async with SmartMovingSyncService() as sync_service:
+            result = await sync_service.sync_today_and_tomorrow_jobs()
+            
+            logger.info(f"SmartMoving job sync completed: {result}")
+            
+            return {
+                "success": True,
+                "data": result,
+                "message": "SmartMoving jobs synced successfully"
+            }
+            
+    except Exception as e:
+        logger.error(f"Error syncing SmartMoving jobs: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Failed to sync SmartMoving jobs"
+        }
+
+@router.get("/sync/status")
+async def get_smartmoving_sync_status() -> Dict[str, Any]:
+    """Get SmartMoving sync status"""
+    try:
+        async with SmartMovingSyncService() as sync_service:
+            status = await sync_service.get_sync_status()
+            
+            return {
+                "success": True,
+                "data": status,
+                "message": "SmartMoving sync status retrieved"
+            }
+            
+    except Exception as e:
+        logger.error(f"Error getting SmartMoving sync status: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Failed to get SmartMoving sync status"
+        }
 
 @router.get("/status")
 async def get_smartmoving_status() -> Dict[str, Any]:

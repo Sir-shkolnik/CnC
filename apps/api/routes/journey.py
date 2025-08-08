@@ -154,86 +154,38 @@ async def get_active_journeys(current_user: Dict[str, Any] = Depends(verify_toke
     try:
         # Check if business logic modules are available
         if journey_engine is None:
-            # Create real journey data in database if it doesn't exist
+            # Try to sync SmartMoving data first, then fetch from database
             try:
+                # Import SmartMoving sync service
+                from ..services.smartmoving_sync_service import SmartMovingSyncService
+                
+                # Sync SmartMoving jobs for today and tomorrow
+                async with SmartMovingSyncService() as sync_service:
+                    sync_result = await sync_service.sync_today_and_tomorrow_jobs()
+                    print(f"SmartMoving sync result: {sync_result}")
+                
+                # Now fetch the synced journeys from database
                 conn = get_db_connection()
                 cursor = conn.cursor(cursor_factory=RealDictCursor)
                 
-                # Check if we have any journeys
-                cursor.execute('SELECT COUNT(*) as count FROM "TruckJourney"')
-                journey_count = cursor.fetchone()['count']
+                # Get journeys for the user's location
+                user_location_id = current_user.get("location_id")
+                user_company_id = current_user.get("company_id") or "clm_f55e13de_a5c4_4990_ad02_34bb07187daa"
                 
-                if journey_count == 0:
-                    # Create real journey data
-                    real_journeys = [
-                        {
-                            "id": "journey_real_001",
-                            "locationId": current_user.get("location_id") or "loc_lgm_vancouver_corporate_001",
-                            "clientId": current_user.get("company_id") or "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
-                            "date": datetime.now().date(),
-                            "status": "MORNING_PREP",
-                            "truckNumber": "T-001",
-                            "moveSourceId": "move_001",
-                            "startTime": datetime.now().replace(hour=8, minute=0, second=0, microsecond=0),
-                            "endTime": datetime.now().replace(hour=16, minute=0, second=0, microsecond=0),
-                            "notes": "Residential move - 3 bedroom house in Vancouver",
-                            "createdBy": current_user.get("id"),
-                            "createdAt": datetime.now(),
-                            "updatedAt": datetime.now()
-                        },
-                        {
-                            "id": "journey_real_002",
-                            "locationId": current_user.get("location_id") or "loc_lgm_vancouver_corporate_001",
-                            "clientId": current_user.get("company_id") or "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
-                            "date": datetime.now().date(),
-                            "status": "EN_ROUTE",
-                            "truckNumber": "T-002",
-                            "moveSourceId": "move_002",
-                            "startTime": datetime.now().replace(hour=7, minute=30, second=0, microsecond=0),
-                            "endTime": datetime.now().replace(hour=15, minute=30, second=0, microsecond=0),
-                            "notes": "Office relocation - downtown Vancouver",
-                            "createdBy": current_user.get("id"),
-                            "createdAt": datetime.now(),
-                            "updatedAt": datetime.now()
-                        },
-                        {
-                            "id": "journey_real_003",
-                            "locationId": current_user.get("location_id") or "loc_lgm_vancouver_corporate_001",
-                            "clientId": current_user.get("company_id") or "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
-                            "date": (datetime.now() + timedelta(days=1)).date(),
-                            "status": "ONSITE",
-                            "truckNumber": "T-003",
-                            "moveSourceId": "move_003",
-                            "startTime": datetime.now().replace(hour=9, minute=0, second=0, microsecond=0),
-                            "endTime": datetime.now().replace(hour=17, minute=0, second=0, microsecond=0),
-                            "notes": "Warehouse inventory transfer",
-                            "createdBy": current_user.get("id"),
-                            "createdAt": datetime.now(),
-                            "updatedAt": datetime.now()
-                        }
-                    ]
-                    
-                    # Insert real journeys into database
-                    for journey in real_journeys:
-                        cursor.execute("""
-                            INSERT INTO "TruckJourney" (
-                                id, "locationId", "clientId", date, status, "truckNumber", 
-                                "moveSourceId", "startTime", "endTime", notes, "createdBy", "createdAt", "updatedAt"
-                            ) VALUES (
-                                %(id)s, %(locationId)s, %(clientId)s, %(date)s, %(status)s, %(truckNumber)s,
-                                %(moveSourceId)s, %(startTime)s, %(endTime)s, %(notes)s, %(createdBy)s, %(createdAt)s, %(updatedAt)s
-                            )
-                        """, journey)
-                    
-                    conn.commit()
-                    print(f"✅ Created {len(real_journeys)} real journeys in database")
-                
-                # Now fetch the real journeys from database
-                cursor.execute("""
-                    SELECT * FROM "TruckJourney" 
-                    WHERE "clientId" = %s 
-                    ORDER BY "createdAt" DESC
-                """, (current_user.get("company_id") or "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",))
+                if user_location_id:
+                    # Filter by specific location
+                    cursor.execute("""
+                        SELECT * FROM "TruckJourney" 
+                        WHERE "locationId" = %s AND "clientId" = %s
+                        ORDER BY "date" DESC, "createdAt" DESC
+                    """, (user_location_id, user_company_id))
+                else:
+                    # Get all journeys for the company
+                    cursor.execute("""
+                        SELECT * FROM "TruckJourney" 
+                        WHERE "clientId" = %s
+                        ORDER BY "date" DESC, "createdAt" DESC
+                    """, (user_company_id,))
                 
                 real_journeys = cursor.fetchall()
                 conn.close()
@@ -241,16 +193,16 @@ async def get_active_journeys(current_user: Dict[str, Any] = Depends(verify_toke
                 return {
                     "success": True,
                     "data": [dict(journey) for journey in real_journeys],
-                    "message": f"Retrieved {len(real_journeys)} real journeys from database"
+                    "message": f"Retrieved {len(real_journeys)} SmartMoving journeys from database"
                 }
                 
             except Exception as e:
-                print(f"Error creating real journeys: {e}")
-                # Return empty data instead of test data
+                print(f"Error syncing SmartMoving data: {e}")
+                # Return empty data if SmartMoving sync fails
                 return {
                     "success": True,
                     "data": [],
-                    "message": "No journeys found in database"
+                    "message": "No SmartMoving journeys found"
                 }
         
         # Handle super admin vs regular user
