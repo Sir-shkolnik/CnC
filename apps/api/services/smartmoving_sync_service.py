@@ -159,21 +159,38 @@ class SmartMovingSyncService:
     async def pull_smartmoving_jobs(self, date_str: str) -> Dict[str, Any]:
         """Pull jobs from SmartMoving API for a specific date"""
         try:
-            # Get jobs from SmartMoving API
+            # Get customers from SmartMoving API (jobs are nested in customers)
             params = {
                 "PageSize": 100,
-                "JobDate": date_str
+                "PageNumber": 1
             }
             
-            response = await self.make_smartmoving_request("GET", "/api/jobs", params)
+            response = await self.make_smartmoving_request("GET", "/api/customers", params)
             
             if response["success"]:
-                jobs_data = response["data"]
-                jobs = jobs_data.get("pageResults", [])
-                logger.info(f"Pulled {len(jobs)} jobs from SmartMoving for {date_str}")
+                customers_data = response["data"]
+                customers = customers_data.get("pageResults", [])
+                logger.info(f"Pulled {len(customers)} customers from SmartMoving")
+                
+                # Extract jobs from customers
+                all_jobs = []
+                for customer in customers:
+                    opportunities = customer.get("opportunities")
+                    if opportunities:
+                        for opportunity in opportunities:
+                            jobs = opportunity.get("jobs")
+                            if jobs:
+                                for job in jobs:
+                                    # Add customer and opportunity info to job
+                                    job["customer"] = customer
+                                    job["opportunity"] = opportunity
+                                    all_jobs.append(job)
+                
+                logger.info(f"Extracted {len(all_jobs)} jobs from {len(customers)} customers")
                 return {
                     "success": True,
-                    "data": jobs
+                    "data": all_jobs,
+                    "customers_processed": len(customers)
                 }
             else:
                 return response
@@ -191,26 +208,44 @@ class SmartMovingSyncService:
         
         for job in smartmoving_jobs:
             try:
+                # Extract customer and opportunity info
+                customer = job.get("customer", {})
+                opportunity = job.get("opportunity", {})
+                
                 # Extract job addresses
                 job_addresses = job.get("jobAddresses", [])
                 origin_address = job_addresses[0] if len(job_addresses) > 0 else ""
                 destination_address = job_addresses[1] if len(job_addresses) > 1 else ""
                 
                 # Extract customer information
-                customer = job.get("customer", {})
                 customer_name = customer.get("name", "")
                 customer_phone = customer.get("phoneNumber", "")
                 customer_email = customer.get("emailAddress", "")
+                
+                # Extract opportunity information
+                quote_number = opportunity.get("quoteNumber", "")
                 
                 # Extract estimated value
                 estimated_total = job.get("estimatedTotal", {})
                 estimated_value = estimated_total.get("finalTotal", 0.0)
                 
+                # Convert job date
+                job_date = job.get("jobDate")
+                if isinstance(job_date, int):
+                    # SmartMoving date format: 20250807
+                    job_date_str = str(job_date)
+                    if len(job_date_str) == 8:
+                        scheduled_date = datetime.strptime(job_date_str, "%Y%m%d")
+                    else:
+                        scheduled_date = datetime.now()
+                else:
+                    scheduled_date = self.convert_smartmoving_date(job_date)
+                
                 normalized_job = {
                     "externalId": f"sm_job_{job.get('jobNumber', 'unknown')}",
                     "externalData": job,
                     "smartmovingJobNumber": job.get("jobNumber", ""),
-                    "smartmovingQuoteNumber": job.get("quoteNumber", ""),
+                    "smartmovingQuoteNumber": quote_number,
                     "customerName": customer_name,
                     "customerPhone": customer_phone,
                     "customerEmail": customer_email,
@@ -219,7 +254,7 @@ class SmartMovingSyncService:
                     "moveSize": job.get("moveSize", ""),
                     "originAddress": origin_address,
                     "destinationAddress": destination_address,
-                    "scheduledDate": self.convert_smartmoving_date(job.get("jobDate")),
+                    "scheduledDate": scheduled_date,
                     "confirmed": job.get("confirmed", False),
                     "dataSource": "SMARTMOVING",
                     "lastSyncAt": datetime.now(),
