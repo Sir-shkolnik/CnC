@@ -899,21 +899,21 @@ export default function SuperAdminBackupPage() {
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Button variant="outline" className="h-20">
-                        <Upload className="w-6 h-6 mr-2" />
-                        <div className="text-left">
-                          <div className="font-medium">Upload Backup</div>
-                          <div className="text-sm text-text-secondary">Restore from external backup file</div>
-                        </div>
-                      </Button>
-                      
-                      <Button variant="outline" className="h-20">
-                        <Database className="w-6 h-6 mr-2" />
-                        <div className="text-left">
-                          <div className="font-medium">Select Backup</div>
-                          <div className="text-sm text-text-secondary">Choose from existing backups</div>
-                        </div>
-                      </Button>
+                                        <Button variant="secondary" className="h-20">
+                    <Upload className="w-6 h-6 mr-2" />
+                    <div className="text-left">
+                      <div className="font-medium">Upload Backup</div>
+                      <div className="text-sm text-text-secondary">Restore from external backup file</div>
+                    </div>
+                  </Button>
+
+                  <Button variant="secondary" className="h-20">
+                    <Database className="w-6 h-6 mr-2" />
+                    <div className="text-left">
+                      <div className="font-medium">Select Backup</div>
+                      <div className="text-sm text-text-secondary">Choose from existing backups</div>
+                    </div>
+                  </Button>
                     </div>
                   </div>
                 </CardContent>

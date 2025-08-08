@@ -394,3 +394,59 @@ The C&C CRM system has a **fully operational SmartMoving API integration** that 
 ✅ **Security & RBAC** - Multi-tenant with role-based access control  
 
 **The SmartMoving integration is ONLINE and ready for production use!**
+
+---
+
+## 👥 **USER DATA ACCESS & JOB VIEWING**
+
+### **📊 User Access Matrix**
+
+| **Role** | **LGM Data Access** | **All Locations** | **Today's Jobs** | **Tomorrow's Jobs** | **Interface** |
+|----------|-------------------|-------------------|------------------|-------------------|---------------|
+| **SUPER_ADMIN** | ✅ Full Access | ✅ All 50+ | ✅ All Jobs | ✅ All Jobs | Super Admin Portal |
+| **ADMIN** | ✅ Company Access | ✅ Company Only | ✅ Company Jobs | ✅ Company Jobs | Desktop Management |
+| **DISPATCHER** | ✅ Location Access | ❌ Assigned Only | ✅ Location Jobs | ✅ Location Jobs | Desktop Management |
+| **DRIVER** | ❌ No Direct Access | ❌ Journey Only | ❌ Assigned Only | ❌ Assigned Only | Mobile Field Ops |
+| **MOVER** | ❌ No Direct Access | ❌ Journey Only | ❌ Assigned Only | ❌ Assigned Only | Mobile Field Ops |
+| **MANAGER** | ✅ Oversight Access | ❌ Managed Only | ✅ Managed Jobs | ✅ Managed Jobs | Desktop Management |
+| **AUDITOR** | ✅ Read-Only Access | ✅ All 50+ | ✅ All Jobs | ✅ All Jobs | Desktop Audit Portal |
+
+### **🎯 Key User Access Features**
+
+#### **SUPER_ADMIN & AUDITOR**
+- **All 50+ LGM Locations** across Canada and USA
+- **All Jobs** from all locations (today and tomorrow)
+- **System-wide Analytics** and reporting
+- **Complete Data Access** with proper RBAC
+
+#### **ADMIN**
+- **Company LGM Locations** only
+- **Company Jobs** (today and tomorrow)
+- **Company Analytics** and financial data
+- **User Management** within company
+
+#### **DISPATCHER & MANAGER**
+- **Assigned Location(s)** only
+- **Location Jobs** (today and tomorrow)
+- **Crew Assignment** capabilities
+- **Location-specific Analytics**
+
+#### **DRIVER & MOVER**
+- **No Direct SmartMoving Access**
+- **Assigned Journey Data** only
+- **Mobile Field Operations** interface
+- **Journey-specific Information**
+
+### **📅 Date-Based Job Filtering**
+- **Today's Jobs** - Current day job access
+- **Tomorrow's Jobs** - Next day job access
+- **Role-Based Filtering** - Users see only authorized jobs
+- **Real-Time Sync** - Live SmartMoving data integration
+
+### **🗺️ Multi-Location Support**
+- **50+ LGM Locations** across Canada and USA
+- **GPS Coordinates** for all locations
+- **Location-Specific Data** filtering
+- **Regional Analytics** and reporting
+
+**For detailed implementation plan, see: `SMARTMOVING_USER_DATA_ACCESS_PLAN.md`**
