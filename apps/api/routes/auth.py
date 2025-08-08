@@ -196,6 +196,20 @@ async def login(request: LoginRequest) -> Dict[str, Any]:
             """, (request.email,))
             
             user = cursor.fetchone()
+            
+            # If user not found, try to find by email pattern for LGM users
+            if not user and request.email.endswith("@lgm.com"):
+                cursor.execute("""
+                    SELECT u.id, u.name, u.email, u.role, u."clientId", u."locationId", u.status,
+                           c.name as company_name,
+                           l.name as location_name
+                    FROM "User" u
+                    LEFT JOIN "Client" c ON u."clientId" = c.id
+                    LEFT JOIN "Location" l ON u."locationId" = l.id
+                    WHERE u.email LIKE %s AND u.status = 'ACTIVE'
+                """, (f"%{request.email.split('@')[0]}%",))
+                
+                user = cursor.fetchone()
             cursor.close()
             conn.close()
             
