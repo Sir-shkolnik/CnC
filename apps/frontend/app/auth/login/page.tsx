@@ -161,29 +161,14 @@ export default function UnifiedLoginPage() {
         const users = data.data || [];
         
         console.log(`Loaded ${users.length} real LGM users from API`);
-        
-        // Transform API data to match our interface
-        const transformedUsers = users.map((user: any) => ({
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          locationId: user.locationId,
-          status: user.status,
-          locationName: user.location_name,
-          locationType: user.location_type
-        }));
-        
-        setCompanyUsers(transformedUsers);
+        setCompanyUsers(users);
       } else {
-        console.error('Failed to fetch users:', response.status, response.statusText);
+        console.error('Failed to fetch users:', response.status);
         toast.error('Failed to load users');
-        setCompanyUsers([]);
       }
     } catch (error) {
       console.error('Failed to fetch company users:', error);
       toast.error('Failed to load users');
-      setCompanyUsers([]);
     } finally {
       setLoadingUsers(false);
     }
