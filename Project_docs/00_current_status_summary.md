@@ -80,6 +80,15 @@ C&C CRM (Command & Control CRM) is a comprehensive mobile-first operations manag
 
 ## 🔧 **RECENT FIXES (August 8, 2025)**
 
+### ✅ **SmartMoving Route Conflicts Resolved**
+- **Issue**: SmartMoving integration and sync routes using same prefix causing conflicts
+- **Root Cause**: Both `smartmoving.py` and `smartmoving_integration.py` using `/smartmoving` prefix
+- **Solution**: Separated routes with different prefixes
+  - Integration routes: `/smartmoving-integration`
+  - Sync routes: `/smartmoving`
+- **Status**: ✅ **FIXED AND DEPLOYED**
+- **Result**: All SmartMoving endpoints now accessible without conflicts
+
 ### ✅ **Automated SmartMoving Sync System Implemented**
 - **Issue**: Users not seeing journey data after login
 - **Root Cause**: Frontend trying to call non-existent `/journey/user-journeys` endpoint
@@ -103,6 +112,16 @@ C&C CRM (Command & Control CRM) is a comprehensive mobile-first operations manag
 - **Issue**: Duplicate route definition in FrontendRBAC.ts causing build failure
 - **Solution**: Removed duplicate `/audit` route definition
 - **Status**: ✅ **FIXED AND DEPLOYED**
+
+### ✅ **Documentation Organization Completed**
+- **Issue**: MD files scattered across project root
+- **Solution**: Organized all documentation under Project_docs with comprehensive index
+- **Features**:
+  - Complete documentation index created
+  - SmartMoving integration status report
+  - All MD files properly categorized
+- **Status**: ✅ **COMPLETED**
+- **Result**: Super organized documentation structure
 
 ## 🔄 **SMARTMOVING SYNC ARCHITECTURE**
 
