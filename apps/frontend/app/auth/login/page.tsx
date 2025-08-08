@@ -251,13 +251,19 @@ export default function UnifiedLoginPage() {
         const userData = await userResponse.json();
         
         if (userData.success && userData.user && userData.access_token) {
+          // Store in localStorage
           localStorage.setItem('access_token', userData.access_token);
           localStorage.setItem('user_data', JSON.stringify(userData.user));
+          
+          // Also set cookies for middleware
+          document.cookie = `auth-token=${userData.access_token}; path=/; max-age=3600; secure; samesite=strict`;
           
           const role = userData.user?.role || '';
           const userType = userData.user?.user_type || '';
           
           if (role.toUpperCase() === 'SUPER_ADMIN' || userType === 'super_admin') {
+            // Set super admin cookie
+            document.cookie = `super-admin-token=${userData.access_token}; path=/; max-age=3600; secure; samesite=strict`;
             return { type: 'super', userData };
           }
           
@@ -287,18 +293,25 @@ export default function UnifiedLoginPage() {
     try {
       const { type, userData } = await detectUserType(formData.email, formData.password);
       
-      if (type === 'super') {
-        await superAdminLogin(formData.email, formData.password);
-        router.push('/super-admin/dashboard');
-      } else if (type === 'mobile') {
-        await authLogin(formData.email, formData.password);
-        router.push('/mobile');
-      } else {
-        await authLogin(formData.email, formData.password);
-        router.push('/dashboard');
-      }
+      console.log('Login successful, user type:', type);
+      console.log('User data:', userData);
       
       toast.success('Login successful!');
+      
+      // Add a small delay to ensure toast shows before redirect
+      setTimeout(() => {
+        if (type === 'super') {
+          console.log('Redirecting to super admin dashboard...');
+          router.push('/super-admin/dashboard');
+        } else if (type === 'mobile') {
+          console.log('Redirecting to mobile...');
+          router.push('/mobile');
+        } else {
+          console.log('Redirecting to dashboard...');
+          router.push('/dashboard');
+        }
+      }, 1000);
+      
     } catch (error) {
       console.error('Login error:', error);
       toast.error('Login failed. Please check your credentials.');
