@@ -292,7 +292,7 @@ async def get_companies() -> Dict[str, Any]:
 
 @router.get("/companies/{company_id}/users")
 async def get_company_users(company_id: str) -> Dict[str, Any]:
-    """Get all users for a specific company"""
+    """Get all users for a specific company - UPDATED TO RETURN REAL LGM USERS"""
     try:
         # For LGM company, return real LGM users for testing
         if company_id == "clm_f55e13de_a5c4_4990_ad02_34bb07187daa":

@@ -104,82 +104,82 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   ]
 };
 
-// Mock data for demonstration
-const mockUsers: User[] = [
-  {
-    id: 'user-1',
-    username: 'john.doe',
-    email: 'john.doe@lgm.com',
-    firstName: 'John',
-    lastName: 'Doe',
-    role: 'ADMIN',
-    status: 'ACTIVE',
-    companyId: 'company-1',
-    companyName: 'LGM Corporate',
-    locationId: 'loc-1',
-    locationName: 'LGM Burnaby Corporate',
-    permissions: ROLE_PERMISSIONS.ADMIN,
-    lastLogin: new Date().toISOString(),
-    createdAt: '2024-01-15T10:00:00Z',
-    updatedAt: '2024-01-20T14:30:00Z',
-    isOnline: true,
-    sessionCount: 15,
-    journeyCount: 45,
-    auditScore: 95,
-    locationAccess: [
-      { locationId: 'loc-1', locationName: 'LGM Burnaby Corporate', accessType: 'MANAGE' },
-      { locationId: 'loc-2', locationName: 'LGM Vancouver', accessType: 'VIEW' }
-    ]
-  },
-  {
-    id: 'user-2',
-    username: 'jane.smith',
-    email: 'jane.smith@lgm.com',
-    firstName: 'Jane',
-    lastName: 'Smith',
-    role: 'MANAGER',
-    status: 'ACTIVE',
-    companyId: 'company-1',
-    companyName: 'LGM Corporate',
-    locationId: 'loc-2',
-    locationName: 'LGM Vancouver',
-    permissions: ROLE_PERMISSIONS.MANAGER,
-    lastLogin: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
-    createdAt: '2024-01-10T09:00:00Z',
-    updatedAt: '2024-01-19T16:45:00Z',
-    isOnline: false,
-    sessionCount: 8,
-    journeyCount: 23,
-    auditScore: 88,
-    locationAccess: [
-      { locationId: 'loc-2', locationName: 'LGM Vancouver', accessType: 'MANAGE' }
-    ]
-  },
-  {
-    id: 'user-3',
-    username: 'mike.wilson',
-    email: 'mike.wilson@lgm.com',
-    firstName: 'Mike',
-    lastName: 'Wilson',
-    role: 'DRIVER',
-    status: 'ACTIVE',
-    companyId: 'company-1',
-    companyName: 'LGM Corporate',
-    locationId: 'loc-1',
-    locationName: 'LGM Burnaby Corporate',
-    permissions: ROLE_PERMISSIONS.DRIVER,
-    lastLogin: new Date(Date.now() - 1800000).toISOString(), // 30 minutes ago
-    createdAt: '2024-01-12T11:30:00Z',
-    updatedAt: '2024-01-20T13:15:00Z',
-    isOnline: true,
-    sessionCount: 12,
-    journeyCount: 67,
-    auditScore: 92,
-    locationAccess: [
-      { locationId: 'loc-1', locationName: 'LGM Burnaby Corporate', accessType: 'VIEW' }
-    ]
-  }
-];
+// Mock data for demonstration - REMOVED - Using real data from API
+// const mockUsers: User[] = [
+//   {
+//     id: 'user-1',
+//     username: 'john.doe',
+//     email: 'john.doe@lgm.com',
+//     firstName: 'John',
+//     lastName: 'Doe',
+//     role: 'ADMIN',
+//     status: 'ACTIVE',
+//     companyId: 'company-1',
+//     companyName: 'LGM Corporate',
+//     locationId: 'loc-1',
+//     locationName: 'LGM Burnaby Corporate',
+//     permissions: ROLE_PERMISSIONS.ADMIN,
+//     lastLogin: new Date().toISOString(),
+//     createdAt: '2024-01-15T10:00:00Z',
+//     updatedAt: '2024-01-20T14:30:00Z',
+//     isOnline: true,
+//     sessionCount: 15,
+//     journeyCount: 45,
+//     auditScore: 95,
+//     locationAccess: [
+//       { locationId: 'loc-1', locationName: 'LGM Burnaby Corporate', accessType: 'MANAGE' },
+//       { locationId: 'loc-2', locationName: 'LGM Vancouver', accessType: 'VIEW' }
+//     ]
+//   },
+//   {
+//     id: 'user-2',
+//     username: 'jane.smith',
+//     email: 'jane.smith@lgm.com',
+//     firstName: 'Jane',
+//     lastName: 'Smith',
+//     role: 'MANAGER',
+//     status: 'ACTIVE',
+//     companyId: 'company-1',
+//     companyName: 'LGM Corporate',
+//     locationId: 'loc-2',
+//     locationName: 'LGM Vancouver',
+//     permissions: ROLE_PERMISSIONS.MANAGER,
+//     lastLogin: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
+//     createdAt: '2024-01-10T09:00:00Z',
+//     updatedAt: '2024-01-19T16:45:00Z',
+//     isOnline: false,
+//     sessionCount: 8,
+//     journeyCount: 23,
+//     auditScore: 88,
+//     locationAccess: [
+//       { locationId: 'loc-2', locationName: 'LGM Vancouver', accessType: 'MANAGE' }
+//     ]
+//   },
+//   {
+//     id: 'user-3',
+//     username: 'mike.wilson',
+//     email: 'mike.wilson@lgm.com',
+//     firstName: 'Mike',
+//     lastName: 'Wilson',
+//     role: 'DRIVER',
+//     status: 'ACTIVE',
+//     companyId: 'company-1',
+//     companyName: 'LGM Corporate',
+//     locationId: 'loc-1',
+//     locationName: 'LGM Burnaby Corporate',
+//     permissions: ROLE_PERMISSIONS.DRIVER,
+//     lastLogin: new Date(Date.now() - 1800000).toISOString(), // 30 minutes ago
+//     createdAt: '2024-01-12T11:30:00Z',
+//     updatedAt: '2024-01-20T13:15:00Z',
+//     isOnline: true,
+//     sessionCount: 12,
+//     journeyCount: 67,
+//     auditScore: 92,
+//     locationAccess: [
+//       { locationId: 'loc-1', locationName: 'LGM Burnaby Corporate', accessType: 'VIEW' }
+//     ]
+//   }
+// ];
 
 export default function UsersPage() {
   const router = useRouter();
@@ -190,7 +190,7 @@ export default function UsersPage() {
   // State management
   // Real user data from database
   const [users, setUsers] = useState<User[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>(mockUsers);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState<UserRole | 'ALL'>('ALL');
   const [filterStatus, setFilterStatus] = useState<UserStatus | 'ALL'>('ALL');
@@ -234,7 +234,7 @@ export default function UsersPage() {
     // setUsers(data.users);
     
     // For now, use mock data
-    setUsers(mockUsers);
+    // setUsers(mockUsers);
   };
 
   const applyFilters = () => {

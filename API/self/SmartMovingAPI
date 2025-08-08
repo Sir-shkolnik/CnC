@@ -63,3 +63,51 @@ Would you like help integrating this into your existing Cursor AI setup? I can h
 [2]: https://smartmoving-prod-api-management.developer.azure-api.net/webhook-document?utm_source=chatgpt.com "Webhook Document - SmartMoving API Developer Portal"
 [3]: https://help.smartmoving.com/en/articles/3269925-getting-started-guide?utm_source=chatgpt.com "Getting Started Guide"
 [4]: https://help.smartmoving.com/en/articles/3994387-smartmoving-lead-api-integration-guide?utm_source=chatgpt.com "SmartMoving Lead API Integration Guide"
+{
+  "FullName": "John Doe",
+  "FirstName": "John",
+  "LastName": "Doe",
+  "Email": "john.doe@example.com",
+  "Phone": "+1-416-555-0123",
+  "MoveDate": "2025-08-20T09:00:00Z",
+  "MoveSize": "3 Bedroom House",
+  "ServiceType": "Full Service Move",
+  "ReferralSource": "Website Contact Form",
+  "Notes": "Customer prefers morning start, has a large piano to move.",
+  "OriginAddress": {
+    "Street1": "123 Main Street",
+    "Street2": "Unit 4",
+    "City": "Toronto",
+    "State": "ON",
+    "PostalCode": "M5J2N1",
+    "Country": "Canada"
+  },
+  "DestinationAddress": {
+    "Street1": "456 Oak Avenue",
+    "Street2": "",
+    "City": "Ottawa",
+    "State": "ON",
+    "PostalCode": "K1A0B1",
+    "Country": "Canada"
+  },
+  "InventoryList": [
+    { "ItemName": "Sofa", "Quantity": 2 },
+    { "ItemName": "King Bed", "Quantity": 1 },
+    { "ItemName": "Dining Table", "Quantity": 1 },
+    { "ItemName": "Piano", "Quantity": 1 }
+  ],
+  "PreferredContactMethod": "Phone",
+  "BestTimeToCall": "Afternoon",
+  "EstimatedWeightLbs": 6500,
+  "PackingRequired": true,
+  "StorageRequired": false,
+  "CustomFields": [
+    { "FieldName": "Customer Budget", "FieldValue": "$4500" },
+    { "FieldName": "Lead Priority", "FieldValue": "High" }
+  ]
+}
+API help
+API Key
+185840176c73420fbd3a473c2fdccedb
+Client Id
+b0db4e2b-74af-44e2-8ecd-6f4921ec836f
