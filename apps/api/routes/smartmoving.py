@@ -652,3 +652,270 @@ async def get_tomorrow_journeys(location_id: str = None) -> Dict[str, Any]:
         date_from=date_from,
         date_to=date_to
     )
+
+@router.get("/data/complete")
+async def get_complete_lgm_data() -> Dict[str, Any]:
+    """Get complete LGM data including locations and sample jobs"""
+    try:
+        from prisma import Prisma
+        db = Prisma()
+        await db.connect()
+        
+        # Get LGM Client
+        lgm_client = await db.client.find_first(
+            where={
+                "name": {
+                    "contains": "Lets Get Moving"
+                }
+            }
+        )
+        
+        if not lgm_client:
+            await db.disconnect()
+            return {
+                "success": False,
+                "message": "LGM client not found"
+            }
+        
+        # Get All LGM Locations
+        locations = await db.location.find_many(
+            where={
+                "clientId": lgm_client.id
+            },
+            order={
+                "name": "asc"
+            }
+        )
+        
+        # Get Today's Jobs
+        today = datetime.now().date()
+        today_jobs = await db.truckjourney.find_many(
+            where={
+                "date": {
+                    "gte": today,
+                    "lt": today + timedelta(days=1)
+                },
+                "clientId": lgm_client.id
+            },
+            include={
+                "location": True,
+                "client": True,
+                "assignedCrew": {
+                    "include": {
+                        "user": True
+                    }
+                }
+            },
+            order={
+                "date": "asc"
+            },
+            take=3  # Limit to 3 jobs for display
+        )
+        
+        # Get Tomorrow's Jobs
+        tomorrow = today + timedelta(days=1)
+        tomorrow_jobs = await db.truckjourney.find_many(
+            where={
+                "date": {
+                    "gte": tomorrow,
+                    "lt": tomorrow + timedelta(days=1)
+                },
+                "clientId": lgm_client.id
+            },
+            include={
+                "location": True,
+                "client": True,
+                "assignedCrew": {
+                    "include": {
+                        "user": True
+                    }
+                }
+            },
+            order={
+                "date": "asc"
+            },
+            take=3  # Limit to 3 jobs for display
+        )
+        
+        # Get Job Statistics
+        total_jobs = await db.truckjourney.count(
+            where={
+                "clientId": lgm_client.id
+            }
+        )
+        
+        # Get Sample Job with Full Details
+        sample_job = await db.truckjourney.find_first(
+            where={
+                "clientId": lgm_client.id
+            },
+            include={
+                "location": True,
+                "client": True,
+                "assignedCrew": {
+                    "include": {
+                        "user": True
+                    }
+                }
+            }
+        )
+        
+        await db.disconnect()
+        
+        # Format response
+        formatted_locations = []
+        for location in locations:
+            formatted_locations.append({
+                "id": location.id,
+                "name": location.name,
+                "address": location.address,
+                "timezone": location.timezone,
+                "createdAt": location.createdAt.isoformat()
+            })
+        
+        formatted_today_jobs = []
+        for job in today_jobs:
+            formatted_job = {
+                "id": job.id,
+                "date": job.date.isoformat(),
+                "status": job.status,
+                "truckNumber": job.truckNumber,
+                "notes": job.notes,
+                "priority": job.priority,
+                "estimatedCost": float(job.estimatedCost) if job.estimatedCost else None,
+                "startTime": job.startTime.isoformat() if job.startTime else None,
+                "endTime": job.endTime.isoformat() if job.endTime else None,
+                "estimatedDuration": job.estimatedDuration,
+                "startLocation": job.startLocation,
+                "endLocation": job.endLocation,
+                "tags": job.tags,
+                "billingStatus": job.billingStatus,
+                "location": {
+                    "id": job.location.id,
+                    "name": job.location.name,
+                    "address": job.location.address
+                } if job.location else None,
+                "assignedCrew": [
+                    {
+                        "id": crew.id,
+                        "user": {
+                            "id": crew.user.id,
+                            "name": crew.user.name,
+                            "email": crew.user.email,
+                            "role": crew.user.role
+                        } if crew.user else None
+                    } for crew in job.assignedCrew
+                ]
+            }
+            formatted_today_jobs.append(formatted_job)
+        
+        formatted_tomorrow_jobs = []
+        for job in tomorrow_jobs:
+            formatted_job = {
+                "id": job.id,
+                "date": job.date.isoformat(),
+                "status": job.status,
+                "truckNumber": job.truckNumber,
+                "notes": job.notes,
+                "priority": job.priority,
+                "estimatedCost": float(job.estimatedCost) if job.estimatedCost else None,
+                "startTime": job.startTime.isoformat() if job.startTime else None,
+                "endTime": job.endTime.isoformat() if job.endTime else None,
+                "estimatedDuration": job.estimatedDuration,
+                "startLocation": job.startLocation,
+                "endLocation": job.endLocation,
+                "tags": job.tags,
+                "billingStatus": job.billingStatus,
+                "location": {
+                    "id": job.location.id,
+                    "name": job.location.name,
+                    "address": job.location.address
+                } if job.location else None,
+                "assignedCrew": [
+                    {
+                        "id": crew.id,
+                        "user": {
+                            "id": crew.user.id,
+                            "name": crew.user.name,
+                            "email": crew.user.email,
+                            "role": crew.user.role
+                        } if crew.user else None
+                    } for crew in job.assignedCrew
+                ]
+            }
+            formatted_tomorrow_jobs.append(formatted_job)
+        
+        # Format sample job
+        formatted_sample_job = None
+        if sample_job:
+            formatted_sample_job = {
+                "id": sample_job.id,
+                "date": sample_job.date.isoformat(),
+                "status": sample_job.status,
+                "truckNumber": sample_job.truckNumber,
+                "notes": sample_job.notes,
+                "priority": sample_job.priority,
+                "estimatedCost": float(sample_job.estimatedCost) if sample_job.estimatedCost else None,
+                "startTime": sample_job.startTime.isoformat() if sample_job.startTime else None,
+                "endTime": sample_job.endTime.isoformat() if sample_job.endTime else None,
+                "estimatedDuration": sample_job.estimatedDuration,
+                "startLocation": sample_job.startLocation,
+                "endLocation": sample_job.endLocation,
+                "tags": sample_job.tags,
+                "billingStatus": sample_job.billingStatus,
+                "createdAt": sample_job.createdAt.isoformat(),
+                "updatedAt": sample_job.updatedAt.isoformat(),
+                "location": {
+                    "id": sample_job.location.id,
+                    "name": sample_job.location.name,
+                    "address": sample_job.location.address,
+                    "timezone": sample_job.location.timezone
+                } if sample_job.location else None,
+                "client": {
+                    "id": sample_job.client.id,
+                    "name": sample_job.client.name,
+                    "industry": sample_job.client.industry
+                } if sample_job.client else None,
+                "assignedCrew": [
+                    {
+                        "id": crew.id,
+                        "user": {
+                            "id": crew.user.id,
+                            "name": crew.user.name,
+                            "email": crew.user.email,
+                            "role": crew.user.role
+                        } if crew.user else None
+                    } for crew in sample_job.assignedCrew
+                ]
+            }
+        
+        return {
+            "success": True,
+            "data": {
+                "client": {
+                    "id": lgm_client.id,
+                    "name": lgm_client.name,
+                    "industry": lgm_client.industry,
+                    "isFranchise": lgm_client.isFranchise,
+                    "createdAt": lgm_client.createdAt.isoformat()
+                },
+                "locations": formatted_locations,
+                "today_jobs": formatted_today_jobs,
+                "tomorrow_jobs": formatted_tomorrow_jobs,
+                "sample_job": formatted_sample_job,
+                "statistics": {
+                    "total_jobs": total_jobs,
+                    "locations_count": len(locations),
+                    "today_jobs_count": len(today_jobs),
+                    "tomorrow_jobs_count": len(tomorrow_jobs)
+                }
+            },
+            "query_time": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting complete LGM data: {e}")
+        return {
+            "success": False,
+            "message": f"Failed to get complete LGM data: {str(e)}"
+        }
