@@ -7,8 +7,51 @@ import { Badge } from '@/components/atoms/Badge';
 import { Shield, FileText, CheckCircle, AlertTriangle, Download, Filter } from 'lucide-react';
 
 export default function AuditPage() {
-  // TODO: Replace with API data
-  const mockAuditLogs: any[] = [];
+  const [auditLogs, setAuditLogs] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    fetchAuditLogs();
+  }, []);
+
+  const fetchAuditLogs = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('access_token') || 
+                   document.cookie.split('auth-token=')[1]?.split(';')[0];
+      
+      if (!token) {
+        setError('No authentication token found');
+        return;
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/super-admin/audit-logs`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          setAuditLogs(data.data.logs || []);
+        } else {
+          setAuditLogs([]);
+        }
+      } else {
+        setError(`Failed to fetch audit logs: ${response.status}`);
+        setAuditLogs([]);
+      }
+    } catch (err) {
+      console.error('Error fetching audit logs:', err);
+      setError('Failed to fetch audit logs');
+      setAuditLogs([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getActionBadge = (action: string) => {
     const variants = {
@@ -138,34 +181,59 @@ export default function AuditPage() {
                 </tr>
               </thead>
               <tbody>
-                {mockAuditLogs.map((log) => (
-                  <tr key={log.id} className="border-b border-border hover:bg-surface/50">
-                    <td className="py-3 px-4">
-                      {getActionBadge(log.action)}
-                    </td>
-                    <td className="py-3 px-4">
-                      <div>
-                        <p className="font-medium text-text-primary">{log.userName}</p>
-                        <p className="text-sm text-text-secondary">{log.userRole}</p>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4 text-text-primary">
-                      {log.entity}
-                    </td>
-                    <td className="py-3 px-4 text-text-secondary max-w-xs truncate">
-                      {log.details}
-                    </td>
-                    <td className="py-3 px-4 text-text-secondary">
-                      {log.location}
-                    </td>
-                    <td className="py-3 px-4 text-text-secondary">
-                      {formatTimestamp(log.timestamp)}
-                    </td>
-                    <td className="py-3 px-4">
-                      {getStatusBadge(log.status)}
+                {loading ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-8">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
+                      <p className="text-text-secondary mt-2">Loading audit logs...</p>
                     </td>
                   </tr>
-                ))}
+                ) : error ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-8">
+                      <AlertTriangle className="w-6 h-6 text-error mx-auto mb-2" />
+                      <p className="text-error text-sm">{error}</p>
+                      <Button onClick={fetchAuditLogs} className="mt-2" variant="secondary" size="sm">
+                        Retry
+                      </Button>
+                    </td>
+                  </tr>
+                ) : auditLogs.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-8 text-text-secondary">
+                      No audit logs available
+                    </td>
+                  </tr>
+                ) : (
+                  auditLogs.map((log, index) => (
+                    <tr key={index} className="border-b border-border hover:bg-surface/50">
+                      <td className="py-3 px-4">
+                        {getActionBadge(log.action || 'VIEW')}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div>
+                          <p className="font-medium text-text-primary">{log.userName || log.user || 'Unknown'}</p>
+                          <p className="text-sm text-text-secondary">{log.userRole || 'N/A'}</p>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-text-primary">
+                        {log.entity || 'System'}
+                      </td>
+                      <td className="py-3 px-4 text-text-secondary max-w-xs truncate">
+                        {log.details || 'No details'}
+                      </td>
+                      <td className="py-3 px-4 text-text-secondary">
+                        {log.location || 'N/A'}
+                      </td>
+                      <td className="py-3 px-4 text-text-secondary">
+                        {formatTimestamp(log.timestamp || new Date().toISOString())}
+                      </td>
+                      <td className="py-3 px-4">
+                        {getStatusBadge(log.status || 'SUCCESS')}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

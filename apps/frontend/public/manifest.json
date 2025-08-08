@@ -1,14 +1,12 @@
 {
   "name": "C&C CRM - Trust the Journey",
   "short_name": "C&C CRM",
-  "description": "Mobile-first operations management platform for moving and logistics companies",
+  "description": "Complete Customer Relationship Management for Moving & Logistics",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1a1a1a",
+  "background_color": "#0f172a",
   "theme_color": "#3b82f6",
   "orientation": "portrait-primary",
-  "scope": "/",
-  "lang": "en",
   "icons": [
     {
       "src": "/icon.svg",
@@ -18,31 +16,8 @@
     }
   ],
   "categories": ["business", "productivity", "utilities"],
-  "screenshots": [],
-  "shortcuts": [
-    {
-      "name": "Dashboard",
-      "short_name": "Dashboard",
-      "description": "View operational dashboard",
-      "url": "/dashboard",
-      "icons": [
-        {
-          "src": "/icon.svg",
-          "sizes": "96x96"
-        }
-      ]
-    },
-    {
-      "name": "Journeys",
-      "short_name": "Journeys",
-      "description": "Manage truck journeys",
-      "url": "/journeys",
-      "icons": [
-        {
-          "src": "/icon.svg",
-          "sizes": "96x96"
-        }
-      ]
-    }
-  ]
+  "lang": "en",
+  "dir": "ltr",
+  "scope": "/",
+  "prefer_related_applications": false
 } 
