@@ -152,6 +152,10 @@ async def get_active_journeys(current_user: Dict[str, Any] = Depends(verify_toke
     """Get all active journeys for the current location"""
     
     try:
+        # For now, use a default user ID if the current user is not found
+        user_id = current_user.get("id", "usr_shahbaz_burnaby")
+        company_id = current_user.get("company_id", "clm_f55e13de_a5c4_4990_ad02_34bb07187daa")
+        location_id = current_user.get("location_id", "loc_lgm_vancouver_corporate_001")
         # Check if business logic modules are available
         if journey_engine is None:
             # Create real journey data in database if it doesn't exist
@@ -164,12 +168,12 @@ async def get_active_journeys(current_user: Dict[str, Any] = Depends(verify_toke
                 journey_count = cursor.fetchone()['count']
                 
                 if journey_count == 0:
-                    # Create real journey data
+                    # Create real journey data for Let's Get Moving
                     real_journeys = [
                         {
                             "id": "journey_real_001",
-                            "locationId": current_user.get("location_id") or "loc_lgm_vancouver_corporate_001",
-                            "clientId": current_user.get("company_id") or "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
+                            "locationId": location_id,
+                            "clientId": company_id,
                             "date": datetime.now().date(),
                             "status": "MORNING_PREP",
                             "truckNumber": "T-001",
@@ -177,14 +181,14 @@ async def get_active_journeys(current_user: Dict[str, Any] = Depends(verify_toke
                             "startTime": datetime.now().replace(hour=8, minute=0, second=0, microsecond=0),
                             "endTime": datetime.now().replace(hour=16, minute=0, second=0, microsecond=0),
                             "notes": "Residential move - 3 bedroom house in Vancouver",
-                            "createdBy": current_user.get("id"),
+                            "createdBy": user_id,
                             "createdAt": datetime.now(),
                             "updatedAt": datetime.now()
                         },
                         {
                             "id": "journey_real_002",
-                            "locationId": current_user.get("location_id") or "loc_lgm_vancouver_corporate_001",
-                            "clientId": current_user.get("company_id") or "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
+                            "locationId": location_id,
+                            "clientId": company_id,
                             "date": datetime.now().date(),
                             "status": "EN_ROUTE",
                             "truckNumber": "T-002",
@@ -192,14 +196,14 @@ async def get_active_journeys(current_user: Dict[str, Any] = Depends(verify_toke
                             "startTime": datetime.now().replace(hour=7, minute=30, second=0, microsecond=0),
                             "endTime": datetime.now().replace(hour=15, minute=30, second=0, microsecond=0),
                             "notes": "Office relocation - downtown Vancouver",
-                            "createdBy": current_user.get("id"),
+                            "createdBy": user_id,
                             "createdAt": datetime.now(),
                             "updatedAt": datetime.now()
                         },
                         {
                             "id": "journey_real_003",
-                            "locationId": current_user.get("location_id") or "loc_lgm_vancouver_corporate_001",
-                            "clientId": current_user.get("company_id") or "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
+                            "locationId": location_id,
+                            "clientId": company_id,
                             "date": (datetime.now() + timedelta(days=1)).date(),
                             "status": "ONSITE",
                             "truckNumber": "T-003",
@@ -207,7 +211,7 @@ async def get_active_journeys(current_user: Dict[str, Any] = Depends(verify_toke
                             "startTime": datetime.now().replace(hour=9, minute=0, second=0, microsecond=0),
                             "endTime": datetime.now().replace(hour=17, minute=0, second=0, microsecond=0),
                             "notes": "Warehouse inventory transfer",
-                            "createdBy": current_user.get("id"),
+                            "createdBy": user_id,
                             "createdAt": datetime.now(),
                             "updatedAt": datetime.now()
                         }
@@ -233,7 +237,7 @@ async def get_active_journeys(current_user: Dict[str, Any] = Depends(verify_toke
                     SELECT * FROM "TruckJourney" 
                     WHERE "clientId" = %s 
                     ORDER BY "createdAt" DESC
-                """, (current_user.get("company_id") or "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",))
+                """, (company_id,))
                 
                 real_journeys = cursor.fetchall()
                 conn.close()
