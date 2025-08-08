@@ -45,6 +45,21 @@
 - **[Journey Workflow Implementation](06_User_Journeys_and_Workflows/JOURNEY_WORKFLOW_IMPLEMENTATION_SUMMARY.md)** - Complete journey management system
 - **[Journey Workflow Status Report](06_User_Journeys_and_Workflows/JOURNEY_WORKFLOW_STATUS_REPORT.md)** - Journey workflow implementation status
 
+### **👥 [13. User Journeys & RBAC](13_User_Journeys_and_RBAC/)**
+- **[User Journey Overview](13_User_Journeys_and_RBAC/00_USER_JOURNEY_OVERVIEW.md)** - Complete user journey documentation index
+- **[RBAC System Implementation](13_User_Journeys_and_RBAC/RBAC_SYSTEM_IMPLEMENTATION.md)** - Complete Role-Based Access Control system
+- **[Super Admin Journey](13_User_Journeys_and_RBAC/01_SUPER_ADMIN_Journey.md)** - System-wide administration journey
+- **[Admin Journey](13_User_Journeys_and_RBAC/02_ADMIN_Journey.md)** - Company-wide administration journey
+- **[Dispatcher Journey](13_User_Journeys_and_RBAC/03_DISPATCHER_Journey.md)** - Journey management and crew coordination
+- **[Driver Journey](13_User_Journeys_and_RBAC/04_DRIVER_Journey.md)** - Mobile field operations journey
+- **[Mover Journey](13_User_Journeys_and_RBAC/05_MOVER_Journey.md)** - Physical moving operations journey
+- **[Manager Journey](13_User_Journeys_and_RBAC/06_MANAGER_Journey.md)** - Operational oversight journey
+- **[Auditor Journey](13_User_Journeys_and_RBAC/07_AUDITOR_Journey.md)** - Compliance monitoring journey
+- **[Storage Manager Journey](13_User_Journeys_and_RBAC/08_STORAGE_MANAGER_Journey.md)** - Storage system management journey
+- **[General Journey Rules](13_User_Journeys_and_RBAC/09_GENERAL_JOURNEY_RULES.md)** - General rules for all journeys
+- **[Daily Dispatch Journey](13_User_Journeys_and_RBAC/10_DAILY_DISPATCH_JOURNEY.md)** - Complete daily dispatch workflow
+- **[Truck Dispatcher 4-Step Journey](13_User_Journeys_and_RBAC/11_TRUCK_DISPATCHER_4_STEP_JOURNEY.md)** - Simplified 4-step journey flow
+
 ### **🏗️ [07. Architecture & Design](07_Architecture_and_Design/)**
 - **[Data Structure Guide](07_Architecture_and_Design/02_data_structure_guide.md)** - Complete data architecture
 - **[Database Optimization](07_Architecture_and_Design/22_database_optimization_summary.md)** - Performance optimization
@@ -149,6 +164,8 @@
 - **CRM Schema Plan** - Complete implementation roadmap
 - **Customer Management** - Complete customer profiles and sales pipeline
 - **Sales Pipeline** - Multi-service quoting with approval workflows
+- **RBAC System** - Complete Role-Based Access Control with automatic routing
+- **User Journey Documentation** - Comprehensive journey documentation for all roles
 
 ### **🔄 IN PROGRESS**
 - **Financial Operations** - Invoicing and payment processing
