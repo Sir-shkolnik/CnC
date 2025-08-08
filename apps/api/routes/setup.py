@@ -466,6 +466,73 @@ async def update_users_to_real_lgm():
             "message": "Failed to update users to real LGM data"
         } 
 
+@router.get("/setup/debug-database")
+async def debug_database() -> Dict[str, Any]:
+    """Debug database contents to understand user lookup issues"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        # Check if User table exists
+        cursor.execute("""
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_name = 'User'
+            );
+        """)
+        table_exists = cursor.fetchone()['exists']
+        
+        if not table_exists:
+            cursor.close()
+            conn.close()
+            return {
+                "success": False,
+                "error": "User table does not exist",
+                "table_exists": False
+            }
+        
+        # Check total users
+        cursor.execute('SELECT COUNT(*) as count FROM "User"')
+        total_users = cursor.fetchone()['count']
+        
+        # Check users with shahbaz email
+        cursor.execute('SELECT * FROM "User" WHERE email = %s', ('shahbaz@lgm.com',))
+        shahbaz_user = cursor.fetchone()
+        
+        # Check for any users with shahbaz in email
+        cursor.execute('SELECT * FROM "User" WHERE email LIKE %s', ('%shahbaz%',))
+        shahbaz_like_users = cursor.fetchall()
+        
+        # Check all LGM users
+        cursor.execute('SELECT * FROM "User" WHERE "clientId" = %s', ('clm_f55e13de_a5c4_4990_ad02_34bb07187daa',))
+        lgm_users = cursor.fetchall()
+        
+        # Check locations
+        cursor.execute('SELECT COUNT(*) as count FROM "Location" WHERE "clientId" = %s', ('clm_f55e13de_a5c4_4990_ad02_34bb07187daa',))
+        lgm_locations = cursor.fetchone()['count']
+        
+        cursor.close()
+        conn.close()
+        
+        return {
+            "success": True,
+            "table_exists": table_exists,
+            "total_users": total_users,
+            "shahbaz_user_found": shahbaz_user is not None,
+            "shahbaz_user": dict(shahbaz_user) if shahbaz_user else None,
+            "shahbaz_like_users_count": len(shahbaz_like_users),
+            "shahbaz_like_users": [dict(user) for user in shahbaz_like_users],
+            "lgm_users_count": len(lgm_users),
+            "lgm_users_sample": [dict(user) for user in lgm_users[:5]],
+            "lgm_locations_count": lgm_locations
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
 @router.post("/fix-production-database")
 async def fix_production_database() -> Dict[str, Any]:
     """Fix production database by cleaning up mock data and ensuring real LGM data"""
