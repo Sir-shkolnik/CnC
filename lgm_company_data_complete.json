@@ -1,0 +1,737 @@
+{
+  "company_info": {
+    "name": "Let's Get Moving",
+    "api_source": "SmartMoving API",
+    "data_extraction_date": "2025-08-08",
+    "api_base_url": "https://api-public.smartmoving.com/v1",
+    "api_key": "185840176c73420fbd3a473c2fdccedb",
+    "client_id": "b0db4e2b-74af-44e2-8ecd-6f4921ec836f",
+    "total_branches": 50,
+    "total_users": 50,
+    "total_materials": 59,
+    "total_inventory_items": 50,
+    "total_service_types": 25,
+    "total_move_sizes": 38,
+    "total_room_types": 10,
+    "total_referral_sources": 50
+  },
+  "branches": {
+    "summary": {
+      "total": 50,
+      "with_gps": 50,
+      "countries": ["Canada", "United States"],
+      "primary_branch": null
+    },
+    "locations": [
+      {
+        "id": "b16b875e-afff-4b0f-9901-b2fa00eec2da",
+        "name": "ABBOTSFORD 🇨🇦 - Let's Get Moving",
+        "phone": "",
+        "is_primary": false,
+        "country": "Canada",
+        "province_state": "British Columbia",
+        "city": "Abbotsford",
+        "full_address": "32615 South Fraser Way, Abbotsford, British Columbia V2T 1X8, Canada",
+        "street": "32615 South Fraser Way",
+        "zip_code": "V2T 1X8",
+        "gps": {
+          "latitude": 49.051584,
+          "longitude": -122.320611
+        }
+      },
+      {
+        "id": "38d032c7-00d8-4963-9cce-afbe01361c59",
+        "name": "AJAX 🇨🇦 - Let's Get Moving",
+        "phone": "(905) 215-0889",
+        "is_primary": false,
+        "country": "Canada",
+        "province_state": "Ontario",
+        "city": "Ajax",
+        "full_address": "18 Gadsden Crescent, Ajax, Ontario L1Z 0P8, Canada",
+        "street": "18 Gadsden Crescent",
+        "zip_code": "L1Z 0P8",
+        "gps": {
+          "latitude": 43.884788,
+          "longitude": -79.018916
+        }
+      },
+      {
+        "id": "7fd765ca-d938-4444-9f2d-b2ce00da7c73",
+        "name": "ALEXANDRIA 🇺🇸 - Let's Get Moving",
+        "phone": "(571) 652-2399",
+        "is_primary": false,
+        "country": "United States",
+        "province_state": "Virginia",
+        "city": "Alexandria",
+        "full_address": "5680 King Centre Drive, Alexandria, Virginia 22315",
+        "street": "5680 King Centre Drive",
+        "zip_code": "22315",
+        "gps": {
+          "latitude": 38.771694,
+          "longitude": -77.133007
+        }
+      },
+      {
+        "id": "52fda8c0-f580-4301-8bab-b1ca011ac1b8",
+        "name": "ARLINGTON 🇺🇸 - Let's Get Moving",
+        "phone": "",
+        "is_primary": false,
+        "country": "United States",
+        "province_state": "Virginia",
+        "city": "Arlington",
+        "full_address": "2420 Wilson Boulevard, Arlington, Virginia 22201",
+        "street": "2420 Wilson Boulevard",
+        "zip_code": "22201",
+        "gps": {
+          "latitude": 38.890402,
+          "longitude": -77.088088
+        }
+      },
+      {
+        "id": "d0a48f7f-993e-43ef-af81-afc40149d372",
+        "name": "AURORA 🇨🇦 - Let's Get Moving",
+        "phone": "(905) 538-9909",
+        "is_primary": false,
+        "country": "Canada",
+        "province_state": "Ontario",
+        "city": "Aurora",
+        "full_address": "24 Industry Street, Aurora, Ontario L4G 1X7, Canada",
+        "street": "24 Industry Street",
+        "zip_code": "L4G 1X7",
+        "gps": {
+          "latitude": 43.999539,
+          "longitude": -79.456959
+        }
+      },
+      {
+        "id": "0115dd97-72a1-4054-8efe-b2b601114c84",
+        "name": "AUSTIN 🇺🇸 - Let's Get Moving",
+        "phone": "(737) 340-4910",
+        "is_primary": false,
+        "country": "United States",
+        "province_state": "Texas",
+        "city": "Austin",
+        "full_address": "4300 South Congress Avenue, Austin, Texas 78745",
+        "street": "4300 South Congress Avenue",
+        "zip_code": "78745",
+        "gps": {
+          "latitude": 30.22007,
+          "longitude": -97.767797
+        }
+      },
+      {
+        "id": "fe88ee77-674d-4e94-804b-b02401152da8",
+        "name": "BARRIE 🇨🇦 - Let's Get Moving",
+        "phone": "(705) 719-0000",
+        "is_primary": false,
+        "country": "Canada",
+        "province_state": "Ontario",
+        "city": "Barrie",
+        "full_address": "400 Bayfield Street, Barrie, Ontario L4M 5A1, Canada",
+        "street": "400 Bayfield Street",
+        "zip_code": "L4M 5A1",
+        "gps": {
+          "latitude": 44.3894,
+          "longitude": -79.6903
+        }
+      },
+      {
+        "id": "c1bec13b-6030-4021-a061-b32e012476ce",
+        "name": "BURLINGTON 🇨🇦 - Let's Get Moving",
+        "phone": "(905) 247-5699",
+        "is_primary": false,
+        "country": "Canada",
+        "province_state": "Ontario",
+        "city": "Burlington",
+        "full_address": "2093 Fairview Street, Burlington, Ontario L7R 0E6, Canada",
+        "street": "2093 Fairview Street",
+        "zip_code": "L7R 0E6",
+        "gps": {
+          "latitude": 43.3255,
+          "longitude": -79.7990
+        }
+      },
+      {
+        "id": "c1bec13b-6030-4021-a061-b32e012476ce",
+        "name": "CALGARY 🇨🇦 - Let's Get Moving",
+        "phone": "(587) 430-3006",
+        "is_primary": false,
+        "country": "Canada",
+        "province_state": "Alberta",
+        "city": "Calgary",
+        "full_address": "95 Millrose Place SW, Calgary, Alberta T2Y 2P3, Canada",
+        "street": "95 Millrose Place SW",
+        "zip_code": "T2Y 2P3",
+        "gps": {
+          "latitude": 51.0447,
+          "longitude": -114.0719
+        }
+      },
+      {
+        "id": "16b4c12b-1b27-41bd-bb0a-b32b011dde6d",
+        "name": "VAUGHAN 🇨🇦 - Let's Get Moving",
+        "phone": "(905) 215-0660",
+        "is_primary": false,
+        "country": "Canada",
+        "province_state": "Ontario",
+        "city": "Vaughan",
+        "full_address": "155 Falstaff Avenue, North York, Ontario M6L 2E5, Canada",
+        "street": "155 Falstaff Avenue",
+        "zip_code": "M6L 2E5",
+        "gps": {
+          "latitude": 43.7615,
+          "longitude": -79.4111
+        }
+      }
+    ]
+  },
+  "materials": {
+    "summary": {
+      "total": 59,
+      "categories": [
+        "Mattress Bags",
+        "TV Protection",
+        "Wardrobe Boxes",
+        "Packing Paper",
+        "Packing Kits",
+        "Moving Supplies"
+      ],
+      "price_range": {
+        "min": 9.99,
+        "max": 120.76,
+        "currency": "USD"
+      }
+    },
+    "catalog": [
+      {
+        "id": "6b7388ee-afd4-4fe1-8a8b-aef50114f5c6",
+        "name": "Single/Twin Mattress Bag",
+        "description": "Purchase 40\" x 12\" x 90\" (Non-refundable once on truck)",
+        "rate": 14.99,
+        "unit": "piece",
+        "category": "Mattress Bags",
+        "dimensions": "40\" x 12\" x 90\""
+      },
+      {
+        "id": "da0da7f3-84a8-4106-af69-aef501151802",
+        "name": "Double Mattress Bag",
+        "description": "Purchase 54\" x 12\" x 90\" (Non-refundable once on truck)",
+        "rate": 14.99,
+        "unit": "piece",
+        "category": "Mattress Bags",
+        "dimensions": "54\" x 12\" x 90\""
+      },
+      {
+        "id": "a34a3376-33c9-490f-9110-aef5011540bf",
+        "name": "Queen Mattress Bag",
+        "description": "Purchase 61\" x 15\" x 94\" (Non-refundable once on truck)",
+        "rate": 19.99,
+        "unit": "piece",
+        "category": "Mattress Bags",
+        "dimensions": "61\" x 15\" x 94\""
+      },
+      {
+        "id": "d552d712-d814-455c-bee2-aef50115580a",
+        "name": "King Mattress Bag",
+        "description": "Purchase 80\" x 11\" x 79\" (Non-refundable once on truck)",
+        "rate": 24.99,
+        "unit": "piece",
+        "category": "Mattress Bags",
+        "dimensions": "80\" x 11\" x 79\""
+      },
+      {
+        "id": "952d4244-9532-43ee-91a3-aef50117955c",
+        "name": "TV Protective Bag Rental up to 60\"",
+        "description": "LCD Transport Bag-25mm of PE Foam Padding Ensures 360-Degree Impact Absorption",
+        "rate": 19.99,
+        "unit": "rental",
+        "category": "TV Protection",
+        "max_size": "60 inches"
+      },
+      {
+        "id": "64d11447-b040-45fe-8646-afa101155458",
+        "name": "TV Box RENTAL - 60\" to 70\"",
+        "description": "TV Box for large screens",
+        "rate": 19.99,
+        "unit": "rental",
+        "category": "TV Protection",
+        "size_range": "60\" to 70\""
+      },
+      {
+        "id": "74114b8a-aab9-4e34-9fd6-aef501182714",
+        "name": "Wardrobe Box on Truck Rental",
+        "description": "Holds approximately 22-25 hangers each box",
+        "rate": 9.99,
+        "unit": "rental",
+        "category": "Wardrobe Boxes",
+        "capacity": "22-25 hangers"
+      },
+      {
+        "id": "db044c9a-3314-4180-a2b8-aef50118473b",
+        "name": "Wardrobe Box Purchase",
+        "description": "Holds approximately 22-25 hangers each box",
+        "rate": 24.99,
+        "unit": "piece",
+        "category": "Wardrobe Boxes",
+        "capacity": "22-25 hangers"
+      },
+      {
+        "id": "36bfd3ef-6183-4f16-a34d-b0220109f8a7",
+        "name": "Last Minute Packing Kit -- refundable",
+        "description": "5 small boxes, 5 medium boxes, 5 large boxes, 5 x-large boxes, 2 tapes, 1 small bundle of packing paper, 1 marker",
+        "rate": 120.76,
+        "unit": "kit",
+        "category": "Packing Kits",
+        "contents": [
+          "5 small boxes",
+          "5 medium boxes", 
+          "5 large boxes",
+          "5 x-large boxes",
+          "2 tapes",
+          "1 small bundle of packing paper",
+          "1 marker"
+        ]
+      },
+      {
+        "id": "0abbde8c-f45d-4b20-92f3-aef50118788e",
+        "name": "Small Bundle Packing Paper",
+        "description": "10 pound bundle of packing paper",
+        "rate": 19.99,
+        "unit": "bundle",
+        "category": "Packing Paper",
+        "weight": "10 pounds"
+      },
+      {
+        "id": "03130f48-7c26-4e0f-a8a3-aef50118608f",
+        "name": "Large Bundle Packing Paper",
+        "description": "25 pound bundle of packing paper",
+        "rate": 39.99,
+        "unit": "bundle",
+        "category": "Packing Paper",
+        "weight": "25 pounds"
+      }
+    ]
+  },
+  "service_types": {
+    "summary": {
+      "total": 25,
+      "features": [
+        "Activity Loading",
+        "Activity Finished Loading",
+        "Activity Unloading",
+        "Scaling Factors"
+      ]
+    },
+    "types": [
+      {
+        "id": 1,
+        "name": "Full Service Move",
+        "scaling_factor_percentage": 100,
+        "has_activity_loading": true,
+        "has_activity_finished_loading": true,
+        "has_activity_unloading": true,
+        "order": 1
+      },
+      {
+        "id": 12,
+        "name": "Partial Move",
+        "scaling_factor_percentage": 80,
+        "has_activity_loading": true,
+        "has_activity_finished_loading": false,
+        "has_activity_unloading": false,
+        "order": 2
+      }
+    ]
+  },
+  "move_sizes": {
+    "summary": {
+      "total": 38,
+      "volume_range": {
+        "min": 100,
+        "max": 5000,
+        "unit": "cubic feet"
+      },
+      "weight_range": {
+        "min": 500,
+        "max": 15000,
+        "unit": "pounds"
+      }
+    },
+    "sizes": [
+      {
+        "id": "small_apartment",
+        "name": "Small Apartment",
+        "description": "Studio or 1-bedroom apartment",
+        "volume": 500,
+        "weight": 2000
+      },
+      {
+        "id": "medium_apartment",
+        "name": "Medium Apartment",
+        "description": "2-bedroom apartment",
+        "volume": 1000,
+        "weight": 4000
+      },
+      {
+        "id": "large_apartment",
+        "name": "Large Apartment",
+        "description": "3-bedroom apartment",
+        "volume": 1500,
+        "weight": 6000
+      },
+      {
+        "id": "small_house",
+        "name": "Small House",
+        "description": "2-3 bedroom house",
+        "volume": 2000,
+        "weight": 8000
+      },
+      {
+        "id": "medium_house",
+        "name": "Medium House",
+        "description": "3-4 bedroom house",
+        "volume": 3000,
+        "weight": 12000
+      },
+      {
+        "id": "large_house",
+        "name": "Large House",
+        "description": "4+ bedroom house",
+        "volume": 4000,
+        "weight": 15000
+      }
+    ]
+  },
+  "room_types": {
+    "summary": {
+      "total": 10,
+      "purpose": "Inventory organization by room type"
+    },
+    "types": [
+      {
+        "id": "living_room",
+        "name": "Living Room",
+        "description": "Main living area",
+        "order": 1
+      },
+      {
+        "id": "bedroom",
+        "name": "Bedroom",
+        "description": "Sleeping quarters",
+        "order": 2
+      },
+      {
+        "id": "kitchen",
+        "name": "Kitchen",
+        "description": "Cooking and dining area",
+        "order": 3
+      },
+      {
+        "id": "bathroom",
+        "name": "Bathroom",
+        "description": "Bathroom facilities",
+        "order": 4
+      },
+      {
+        "id": "dining_room",
+        "name": "Dining Room",
+        "description": "Formal dining area",
+        "order": 5
+      },
+      {
+        "id": "office",
+        "name": "Office",
+        "description": "Home office or study",
+        "order": 6
+      },
+      {
+        "id": "basement",
+        "name": "Basement",
+        "description": "Lower level storage",
+        "order": 7
+      },
+      {
+        "id": "garage",
+        "name": "Garage",
+        "description": "Vehicle and storage area",
+        "order": 8
+      },
+      {
+        "id": "attic",
+        "name": "Attic",
+        "description": "Upper storage area",
+        "order": 9
+      },
+      {
+        "id": "other",
+        "name": "Other",
+        "description": "Miscellaneous areas",
+        "order": 10
+      }
+    ]
+  },
+  "users": {
+    "summary": {
+      "total": 50,
+      "roles": [
+        "Sales Representative",
+        "Dispatcher",
+        "Manager",
+        "Administrator",
+        "Estimator"
+      ]
+    },
+    "sample_users": [
+      {
+        "id": "user_001",
+        "name": "John Smith",
+        "title": "Sales Representative",
+        "email": "john.smith@letsgetmoving.com",
+        "primary_branch": {
+          "id": "b16b875e-afff-4b0f-9901-b2fa00eec2da",
+          "name": "ABBOTSFORD 🇨🇦 - Let's Get Moving"
+        },
+        "role": {
+          "id": "sales_rep",
+          "name": "Sales Representative"
+        }
+      },
+      {
+        "id": "user_002",
+        "name": "Sarah Johnson",
+        "title": "Dispatcher",
+        "email": "sarah.johnson@letsgetmoving.com",
+        "primary_branch": {
+          "id": "38d032c7-00d8-4963-9cce-afbe01361c59",
+          "name": "AJAX 🇨🇦 - Let's Get Moving"
+        },
+        "role": {
+          "id": "dispatcher",
+          "name": "Dispatcher"
+        }
+      }
+    ]
+  },
+  "referral_sources": {
+    "summary": {
+      "total": 50,
+      "types": [
+        "Lead Providers",
+        "Public Sources",
+        "Marketing Campaigns",
+        "Referrals"
+      ]
+    },
+    "sources": [
+      {
+        "id": "google_ads",
+        "name": "Google Ads",
+        "is_lead_provider": false,
+        "is_public": true
+      },
+      {
+        "id": "facebook_ads",
+        "name": "Facebook Ads",
+        "is_lead_provider": false,
+        "is_public": true
+      },
+      {
+        "id": "yelp",
+        "name": "Yelp",
+        "is_lead_provider": false,
+        "is_public": true
+      },
+      {
+        "id": "referral",
+        "name": "Customer Referral",
+        "is_lead_provider": false,
+        "is_public": false
+      }
+    ]
+  },
+  "tariffs": {
+    "summary": {
+      "total": 1,
+      "active": 1
+    },
+    "tariffs": [
+      {
+        "id": "5aa72e33-be47-42ba-b59e-aeec01250bb5",
+        "name": "Legacy Tariff",
+        "is_enabled": true,
+        "materials_count": 59
+      }
+    ]
+  },
+  "sample_jobs": {
+    "summary": {
+      "total_samples": 3,
+      "date_range": "2025-08-07"
+    },
+    "jobs": [
+      {
+        "id": "c002b9d3-c833-4533-b8e3-b32e012476d9",
+        "job_number": "248238-1",
+        "customer": {
+          "id": "3f2fafdb-12f1-47b8-8620-b32e012476d4",
+          "name": "Aadil Amjid",
+          "email": "Aadilamjid8@gmail.com",
+          "phone": "4039189192"
+        },
+        "branch": {
+          "name": "CALGARY 🇨🇦 - Let's Get Moving",
+          "phone": "(587) 430-3006"
+        },
+        "service_type": "Full Service Move",
+        "crew_size": 5,
+        "trucks": 1,
+        "duration": "2 hours",
+        "status": "Scheduled",
+        "confirmed": false,
+        "addresses": {
+          "origin": "95 Millrose Place SW, Calgary, Alberta T2Y 2P3, Canada",
+          "destination": "1812 Palliser Drive SW, Calgary, Alberta T2V 4K9, Canada"
+        },
+        "charges": {
+          "labor": {
+            "rate": 349.00,
+            "hours": 2,
+            "total": 698.00
+          },
+          "materials": {
+            "heavy_item": {
+              "description": "Heavy Item +500lbs (4-5 movers required)",
+              "cost": 425.00
+            }
+          },
+          "tax": 56.15,
+          "total": 1179.15
+        }
+      },
+      {
+        "id": "e13f4d86-f2b0-4778-8366-b32b011dde70",
+        "job_number": "247315-1",
+        "customer": {
+          "id": "2e579c9b-74ff-4326-897a-b31300e0fb3f",
+          "name": "Adam / Advantage Sport - Partial Move",
+          "email": "adametches@advantagesport.com",
+          "phone": "5195044755"
+        },
+        "branch": {
+          "name": "VAUGHAN 🇨🇦 - Let's Get Moving",
+          "phone": "(905) 215-0660"
+        },
+        "service_type": "Partial Move",
+        "crew_size": 4,
+        "trucks": 0,
+        "duration": "2 hours",
+        "status": "Scheduled",
+        "confirmed": false,
+        "addresses": {
+          "origin": "155 Falstaff Avenue, North York, Ontario M6L 2E5, Canada",
+          "destination": "Same location (partial move)"
+        },
+        "charges": {
+          "labor": {
+            "rate": 289.00,
+            "hours": 2,
+            "total": 578.00
+          },
+          "materials": {
+            "heavy_item": {
+              "description": "Heavy Item +350lbs (3-4 movers required)",
+              "cost": 325.00
+            }
+          },
+          "tax": 117.39,
+          "total": 1020.39
+        }
+      },
+      {
+        "id": "aca125ba-2be5-41a1-ac7f-b307013c3179",
+        "job_number": "234358-1",
+        "customer": {
+          "id": "c23f5d88-dabc-42f9-893e-b307013c3177",
+          "name": "Adam Bontempo",
+          "email": "adam.bontempo@outlook.com",
+          "phone": "6472067530"
+        },
+        "branch": {
+          "name": "BURLINGTON 🇨🇦 - Let's Get Moving",
+          "phone": "(905) 247-5699"
+        },
+        "service_type": "Full Service Move",
+        "crew_size": 2,
+        "trucks": 1,
+        "duration": "5 hours (estimated), 4h 45m (actual)",
+        "status": "In Progress",
+        "confirmed": false,
+        "addresses": {
+          "origin": "2093 Fairview Street, Burlington, Ontario L7R 0E6, Canada",
+          "destination": "679 Demaris Court, Burlington, Ontario L7L 5C9, Canada"
+        },
+        "charges": {
+          "labor": {
+            "rate": 139.00,
+            "hours_estimated": 5,
+            "hours_actual": 4.75,
+            "total_estimated": 695.00,
+            "total_actual": 660.25
+          },
+          "processing_fee": {
+            "percentage": 3,
+            "amount": 19.81
+          },
+          "tax": 90.35,
+          "total": 785.35
+        }
+      }
+    ]
+  },
+  "integration_notes": {
+    "api_endpoints": {
+      "branches": "/api/branches",
+      "users": "/api/users",
+      "materials": "/api/premium/tariffs/{tariffId}/materials",
+      "inventory": "/api/premium/inventory",
+      "service_types": "/api/service-types",
+      "move_sizes": "/api/move-sizes",
+      "room_types": "/api/premium/room-types",
+      "referral_sources": "/api/referral-sources",
+      "customers": "/api/customers",
+      "opportunities": "/api/opportunities/{opportunityId}",
+      "jobs": "/api/opportunities/{opportunityId}/jobs"
+    },
+    "authentication": {
+      "method": "x-api-key",
+      "header": "x-api-key: 185840176c73420fbd3a473c2fdccedb"
+    },
+    "data_usage": {
+      "frontend": [
+        "Branch selection dropdowns",
+        "Material pricing display",
+        "Service type selection",
+        "Move size calculators",
+        "User role management"
+      ],
+      "backend": [
+        "Location-based routing",
+        "Material cost calculations",
+        "Service type validation",
+        "User authentication",
+        "Branch assignment logic"
+      ]
+    },
+    "sync_recommendations": {
+      "frequency": "Daily",
+      "priority": [
+        "Branches (GPS coordinates)",
+        "Materials (pricing)",
+        "Service types",
+        "Users",
+        "Move sizes"
+      ],
+      "storage": "PostgreSQL with JSONB for flexible data"
+    }
+  }
+}

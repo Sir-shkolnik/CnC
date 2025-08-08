@@ -23,7 +23,7 @@ from apps.api.routes import auth, journey, calendar, dispatch, feedback, crew, s
 from apps.api.routes import users, mobile, locations, journey_steps, admin, setup, real_time
 from apps.api.routes import customers, quotes
 from apps.api.routes import journey_workflow, super_admin
-from apps.api.routes import smartmoving_integration
+from apps.api.routes import smartmoving_integration, company_management
 # Import middleware
 from apps.api.middleware.auth import AuthMiddleware
 from apps.api.middleware.tenant import TenantMiddleware
@@ -42,6 +42,9 @@ except ImportError as e:
 
 # Import database module
 from .database import initialize_database_pool, close_database_pool
+
+# Import background sync service
+from .background_sync import start_background_sync, stop_background_sync
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -71,11 +74,25 @@ async def lifespan(app: FastAPI):
     if notification_service:
         notification_service.websocket_server = websocket_server
     
+    # Start background sync service
+    try:
+        await start_background_sync()
+        logger.info("🔄 Background sync service started")
+    except Exception as e:
+        logger.error(f"Failed to start background sync service: {e}")
+    
     yield
     
     # Shutdown
     logger.info("🛑 Shutting down C&C CRM API...")
     logger.info("🔌 WebSocket server shutting down...")
+    
+    # Stop background sync service
+    try:
+        await stop_background_sync()
+        logger.info("🛑 Background sync service stopped")
+    except Exception as e:
+        logger.error(f"Failed to stop background sync service: {e}")
     
     # Close database pool
     try:
@@ -259,6 +276,17 @@ except Exception as e:
     @app.get("/smartmoving/test")
     async def smartmoving_test():
         return {"message": "SmartMoving Integration test endpoint working"}
+
+# Company Management routes
+try:
+    app.include_router(company_management.router, prefix="/company-management", tags=["Company Management"])
+    print("✅ Company Management routes loaded successfully")
+except Exception as e:
+    print(f"❌ Error loading Company Management routes: {e}")
+    # Create a simple test endpoint
+    @app.get("/company-management/test")
+    async def company_management_test():
+        return {"message": "Company Management test endpoint working"}
 
 # Admin routes
 app.include_router(admin.router, tags=["Admin"])

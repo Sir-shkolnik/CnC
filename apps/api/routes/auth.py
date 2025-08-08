@@ -152,13 +152,13 @@ async def login(request: LoginRequest) -> Dict[str, Any]:
         
         # Check for regular users (removed super_admin_users check since table doesn't exist)
         cursor.execute("""
-            SELECT u.id, u.name, u.email, u.role, u."clientId", u."locationId", u.status,
+                SELECT u.id, u.name, u.email, u.role, u."clientId", u."locationId", u.status,
                    c.name as company_name,
                    l.name as location_name
-            FROM "User" u
+                FROM "User" u
             LEFT JOIN "Client" c ON u."clientId" = c.id
             LEFT JOIN "Location" l ON u."locationId" = l.id
-            WHERE u.email = %s AND u.status = 'ACTIVE'
+                WHERE u.email = %s AND u.status = 'ACTIVE'
         """, (request.email,))
         
         user = cursor.fetchone()
