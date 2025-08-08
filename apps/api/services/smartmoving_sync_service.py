@@ -81,22 +81,28 @@ class SmartMovingSyncService:
             }
     
     async def sync_today_and_tomorrow_jobs(self, location_id: str = None) -> Dict[str, Any]:
-        """Sync today's and tomorrow's jobs from SmartMoving for a specific location or all locations"""
-        logger.info(f"Starting SmartMoving job sync for today and tomorrow (location_id: {location_id})")
+        """Sync today's and tomorrow's jobs from SmartMoving for ALL 66 branches"""
+        logger.info(f"Starting comprehensive SmartMoving job sync for today and tomorrow (location_id: {location_id})")
         
         today = datetime.now()
         tomorrow = today + timedelta(days=1)
         
+        # Get all branches first
+        all_branches = await self.get_all_smartmoving_branches()
+        logger.info(f"Found {len(all_branches)} SmartMoving branches to sync")
+        
         sync_results = {
-            "today": await self.sync_jobs_for_date(today, location_id),
-            "tomorrow": await self.sync_jobs_for_date(tomorrow, location_id),
+            "today": await self.sync_jobs_for_date_all_branches(today, all_branches, location_id),
+            "tomorrow": await self.sync_jobs_for_date_all_branches(tomorrow, all_branches, location_id),
+            "branches_synced": len(all_branches),
             "summary": {
                 "totalProcessed": 0,
                 "totalCreated": 0,
                 "totalUpdated": 0,
                 "totalFailed": 0,
                 "syncTime": datetime.now().isoformat(),
-                "location_id": location_id
+                "location_id": location_id,
+                "branches_count": len(all_branches)
             }
         }
         
@@ -118,7 +124,7 @@ class SmartMovingSyncService:
             sync_results["tomorrow"]["failed"]
         )
         
-        logger.info(f"SmartMoving sync completed: {sync_results['summary']}")
+        logger.info(f"Comprehensive SmartMoving sync completed: {sync_results['summary']}")
         return sync_results
     
     async def sync_jobs_for_date(self, date: datetime, location_id: str = None) -> Dict[str, Any]:
@@ -231,6 +237,191 @@ class SmartMovingSyncService:
                 "message": f"Failed to pull jobs: {str(e)}"
             }
     
+    async def get_all_smartmoving_branches(self) -> List[Dict[str, Any]]:
+        """Get all SmartMoving branches"""
+        try:
+            logger.info("Getting all SmartMoving branches...")
+            
+            response = await self.make_smartmoving_request("GET", "/api/branches")
+            
+            if response["success"]:
+                branches = response["data"].get("pageResults", [])
+                total_results = response["data"].get("totalResults", 0)
+                logger.info(f"Found {len(branches)} SmartMoving branches (Total: {total_results})")
+                return branches
+            else:
+                logger.error(f"Failed to get branches: {response['message']}")
+                return []
+                
+        except Exception as e:
+            logger.error(f"Error getting SmartMoving branches: {str(e)}")
+            return []
+    
+    async def get_branch_customers(self, branch_id: str, branch_name: str, date_str: str) -> Dict[str, Any]:
+        """Get customers for a specific branch on a specific date"""
+        try:
+            logger.info(f"Getting customers for branch {branch_name} on {date_str}")
+            
+            # Convert date string to SmartMoving format (YYYYMMDD)
+            date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+            smartmoving_date = date_obj.strftime("%Y%m%d")
+            
+            all_customers = []
+            page = 1
+            total_pages = 1
+            
+            # Pull all customers for the specific branch and date with pagination
+            while page <= total_pages:
+                params = {
+                    "FromServiceDate": int(smartmoving_date),
+                    "ToServiceDate": int(smartmoving_date),
+                    "IncludeOpportunityInfo": True,
+                    "Page": page,
+                    "PageSize": 100,
+                    "BranchId": branch_id
+                }
+                
+                response = await self.make_smartmoving_request("GET", "/api/customers", params)
+                
+                if response["success"]:
+                    customers_data = response["data"]
+                    customers = customers_data.get("pageResults", [])
+                    total_pages = customers_data.get("totalPages", 1)
+                    total_results = customers_data.get("totalResults", 0)
+                    
+                    logger.info(f"Branch {branch_name} - Page {page}/{total_pages}: {len(customers)} customers (Total: {total_results})")
+                    all_customers.extend(customers)
+                    
+                    page += 1
+                else:
+                    logger.error(f"Failed to get customers for branch {branch_name} page {page}: {response['message']}")
+                    break
+            
+            # Extract all jobs from customers
+            all_jobs = []
+            for customer in all_customers:
+                opportunities = customer.get("opportunities", [])
+                for opportunity in opportunities:
+                    jobs = opportunity.get("jobs", [])
+                    for job in jobs:
+                        # Add customer, opportunity, and branch info to job
+                        job["customer"] = customer
+                        job["opportunity"] = opportunity
+                        job["branch_id"] = branch_id
+                        job["branch_name"] = branch_name
+                        all_jobs.append(job)
+            
+            logger.info(f"Branch {branch_name} - Extracted {len(all_jobs)} jobs from {len(all_customers)} customers")
+            
+            return {
+                "success": True,
+                "data": all_jobs,
+                "customers_count": len(all_customers),
+                "jobs_count": len(all_jobs),
+                "branch_id": branch_id,
+                "branch_name": branch_name,
+                "date": date_str
+            }
+            
+        except Exception as e:
+            logger.error(f"Error getting customers for branch {branch_name}: {str(e)}")
+            return {
+                "success": False,
+                "message": f"Failed to get customers for branch {branch_name}: {str(e)}"
+            }
+    
+    async def sync_jobs_for_date_all_branches(self, date: datetime, branches: List[Dict[str, Any]], location_id: str = None) -> Dict[str, Any]:
+        """Sync jobs for a specific date across ALL branches"""
+        date_str = date.strftime("%Y-%m-%d")
+        logger.info(f"Syncing SmartMoving jobs for date: {date_str} across {len(branches)} branches")
+        
+        total_processed = 0
+        total_created = 0
+        total_updated = 0
+        total_failed = 0
+        branch_results = []
+        
+        for branch in branches:
+            branch_id = branch["id"]
+            branch_name = branch["name"]
+            
+            logger.info(f"Processing branch: {branch_name}")
+            
+            try:
+                # Get customers and jobs for this branch
+                branch_data = await self.get_branch_customers(branch_id, branch_name, date_str)
+                
+                if branch_data["success"]:
+                    jobs = branch_data["data"]
+                    
+                    # Normalize SmartMoving data to C&C CRM format
+                    normalized_jobs = self.normalize_smartmoving_jobs(jobs)
+                    
+                    # Filter by location if specified
+                    if location_id:
+                        normalized_jobs = [job for job in normalized_jobs if job.get('locationId') == location_id]
+                        logger.info(f"Filtered to {len(normalized_jobs)} jobs for location {location_id}")
+                    
+                    # Sync to C&C CRM database
+                    sync_result = await self.sync_to_crm_database(normalized_jobs, date_str)
+                    
+                    branch_result = {
+                        "branch_id": branch_id,
+                        "branch_name": branch_name,
+                        "success": True,
+                        "processed": len(jobs),
+                        "created": sync_result["created"],
+                        "updated": sync_result["updated"],
+                        "failed": sync_result["failed"]
+                    }
+                    
+                    total_processed += len(jobs)
+                    total_created += sync_result["created"]
+                    total_updated += sync_result["updated"]
+                    total_failed += sync_result["failed"]
+                    
+                else:
+                    branch_result = {
+                        "branch_id": branch_id,
+                        "branch_name": branch_name,
+                        "success": False,
+                        "error": branch_data["message"],
+                        "processed": 0,
+                        "created": 0,
+                        "updated": 0,
+                        "failed": 1
+                    }
+                    total_failed += 1
+                
+                branch_results.append(branch_result)
+                
+            except Exception as e:
+                logger.error(f"Error processing branch {branch_name}: {str(e)}")
+                branch_result = {
+                    "branch_id": branch_id,
+                    "branch_name": branch_name,
+                    "success": False,
+                    "error": str(e),
+                    "processed": 0,
+                    "created": 0,
+                    "updated": 0,
+                    "failed": 1
+                }
+                branch_results.append(branch_result)
+                total_failed += 1
+        
+        logger.info(f"Completed sync for {date_str}: {total_processed} processed, {total_created} created, {total_updated} updated, {total_failed} failed")
+        
+        return {
+            "processed": total_processed,
+            "created": total_created,
+            "updated": total_updated,
+            "failed": total_failed,
+            "branches_processed": len(branches),
+            "branch_results": branch_results,
+            "date": date_str
+        }
+    
     def normalize_smartmoving_jobs(self, smartmoving_jobs: List[Dict]) -> List[Dict]:
         """Normalize SmartMoving job data to C&C CRM TruckJourney format"""
         normalized_jobs = []
@@ -240,6 +431,10 @@ class SmartMovingSyncService:
                 # Extract customer and opportunity info
                 customer = job.get("customer", {})
                 opportunity = job.get("opportunity", {})
+                
+                # Extract branch information
+                branch_id = job.get("branch_id", "")
+                branch_name = job.get("branch_name", "")
                 
                 # Extract job addresses
                 job_addresses = job.get("jobAddresses", [])
@@ -282,9 +477,9 @@ class SmartMovingSyncService:
                     "estimatedDuration": job.get("estimatedDuration", 480),  # 8 hours default
                     
                     # Notes and priority
-                    "notes": f"SmartMoving Job #{job.get('jobNumber', '')} - {customer_name}",
+                    "notes": f"SmartMoving Job #{job.get('jobNumber', '')} - {customer_name} - {branch_name}",
                     "priority": "NORMAL",
-                    "tags": [job.get("serviceType", ""), "SmartMoving"],
+                    "tags": [job.get("serviceType", ""), "SmartMoving", branch_name],
                     
                     # Financial data
                     "estimatedCost": float(estimated_value) if estimated_value else None,
@@ -296,9 +491,15 @@ class SmartMovingSyncService:
                     
                     # SmartMoving specific data
                     "externalId": f"sm_job_{job.get('jobNumber', 'unknown')}",
-                    "externalData": job,
+                    "externalData": {
+                        **job,
+                        "branch_id": branch_id,
+                        "branch_name": branch_name
+                    },
                     "smartmovingJobNumber": job.get("jobNumber", ""),
                     "smartmovingQuoteNumber": quote_number,
+                    "smartmovingBranchId": branch_id,
+                    "smartmovingBranchName": branch_name,
                     "customerName": customer_name,
                     "customerPhone": customer_phone,
                     "customerEmail": customer_email,
