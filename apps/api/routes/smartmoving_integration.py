@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 from ..middleware.auth import get_current_user
 from ..middleware.tenant import get_tenant_context
 
-router = APIRouter(prefix="/smartmoving", tags=["SmartMoving Integration"])
+router = APIRouter(tags=["SmartMoving Integration"])
 
 # Configure logging
 logger = logging.getLogger(__name__)

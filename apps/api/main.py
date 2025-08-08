@@ -278,16 +278,16 @@ except Exception as e:
     async def backup_test():
         return {"message": "Backup Management test endpoint working"}
 
-# SmartMoving Integration routes
+# SmartMoving Integration routes (for lead management)
 try:
-    app.include_router(smartmoving_integration.router, prefix="/smartmoving", tags=["SmartMoving Integration"])
+    app.include_router(smartmoving_integration.router, prefix="/smartmoving-integration", tags=["SmartMoving Integration"])
     print("✅ SmartMoving Integration routes loaded successfully")
 except Exception as e:
     print(f"❌ Error loading SmartMoving Integration routes: {e}")
 
-# SmartMoving Sync routes
+# SmartMoving Sync routes (for journey data)
 try:
-    app.include_router(smartmoving.router, prefix="/smartmoving", tags=["SmartMoving Sync"])
+    app.include_router(smartmoving.router, tags=["SmartMoving Sync"])
     print("✅ SmartMoving Sync routes loaded successfully")
 except Exception as e:
     print(f"❌ Error loading SmartMoving Sync routes: {e}")
