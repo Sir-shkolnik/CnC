@@ -466,6 +466,44 @@ async def update_users_to_real_lgm():
             "message": "Failed to update users to real LGM data"
         } 
 
+@router.get("/setup/test-login-query")
+async def test_login_query() -> Dict[str, Any]:
+    """Test the exact same query that login function uses"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        # Test the exact same query as login function
+        cursor.execute("""
+            SELECT u.id, u.name, u.email, u.role, u."clientId", u."locationId", u.status,
+                   c.name as company_name,
+                   l.name as location_name
+            FROM "User" u
+            LEFT JOIN "Client" c ON u."clientId" = c.id
+            LEFT JOIN "Location" l ON u."locationId" = l.id
+            WHERE u.email = %s AND u.status = 'ACTIVE'
+        """, ('shahbaz@lgm.com',))
+        
+        user = cursor.fetchone()
+        
+        cursor.close()
+        conn.close()
+        
+        return {
+            "success": True,
+            "user_found": user is not None,
+            "user": dict(user) if user else None,
+            "query": "SELECT u.id, u.name, u.email, u.role, u.clientId, u.locationId, u.status, c.name as company_name, l.name as location_name FROM User u LEFT JOIN Client c ON u.clientId = c.id LEFT JOIN Location l ON u.locationId = l.id WHERE u.email = 'shahbaz@lgm.com' AND u.status = 'ACTIVE'"
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "user_found": False,
+            "user": None
+        }
+
 @router.get("/setup/debug-database")
 async def debug_database() -> Dict[str, Any]:
     """Debug database contents to understand user lookup issues"""
