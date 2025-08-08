@@ -238,21 +238,19 @@ async def login(request: LoginRequest) -> Dict[str, Any]:
             raise HTTPException(status_code=401, detail="Invalid email or password")
             
         except Exception as db_error:
-            print(f"Database authentication error: {db_error}")
             # If database authentication fails, fall back to LGM authentication
             if request.email.endswith("@lgm.com") and request.password == "1234":
-                # Use real user ID instead of temp
-                real_user_id = f"usr_{request.email.split('@')[0]}_burnaby"
+                lgm_user_id = f"usr_{request.email.split('@')[0]}_temp"
                 
                 access_token_expires = datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
                 access_token = create_access_token(
                     data={
-                        "sub": real_user_id,
+                        "sub": lgm_user_id,
                         "user_type": "regular",
                         "email": request.email,
                         "role": "MANAGER",
                         "company_id": "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
-                        "location_id": "loc_lgm_vancouver_corporate_001"
+                        "location_id": None
                     },
                     expires_delta=access_token_expires
                 )
@@ -262,14 +260,14 @@ async def login(request: LoginRequest) -> Dict[str, Any]:
                     "access_token": access_token,
                     "token_type": "bearer",
                     "user": {
-                        "id": real_user_id,
+                        "id": lgm_user_id,
                         "name": request.email.split('@')[0].title(),
                         "email": request.email,
                         "role": "MANAGER",
                         "company_id": "clm_f55e13de_a5c4_4990_ad02_34bb07187daa",
                         "company_name": "Lets Get Moving",
-                        "location_id": "loc_lgm_vancouver_corporate_001",
-                        "location_name": "VANCOUVER",
+                        "location_id": None,
+                        "location_name": None,
                         "user_type": "regular"
                     }
                 }
@@ -738,3 +736,4 @@ async def get_locations(
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+# Force deployment update
