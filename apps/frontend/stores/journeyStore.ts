@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { RealSmartMovingService } from '@/services/realSmartMovingService';
 
 // Journey Types
 interface Journey {
@@ -252,46 +253,32 @@ export const useJourneyStore = create<JourneyStore>()(
       fetchJourneys: async (params) => {
         set({ isLoading: true, error: null });
         try {
-          const token = localStorage.getItem('access_token') || 
-                       localStorage.getItem('auth-token') || 
-                       document.cookie.split('auth-token=')[1]?.split(';')[0];
+          console.log('🔍 Fetching REAL SmartMoving journeys directly from API...');
           
-          if (!token) {
-            throw new Error('No authentication token found');
-          }
-
-          // Use ONLY real LGM data endpoint - NO DEMO DATA
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/smartmoving-real/journeys/today`, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
+          // Use real SmartMoving data directly - NO backend needed
+          const journeys = await RealSmartMovingService.getRealJourneys();
+          
+          console.log(`✅ Loaded ${journeys.length} real LGM journeys from SmartMoving API`);
+          console.log('Data source: SmartMoving API (REAL DATA ONLY)');
+          
+          set({ 
+            journeys, 
+            isLoading: false,
+            error: null,
+            stats: {
+              total: journeys.length,
+              active: journeys.filter((j: Journey) => ['MORNING_PREP', 'EN_ROUTE', 'ONSITE'].includes(j.status)).length,
+              completed: journeys.filter((j: Journey) => j.status === 'COMPLETED').length,
+              onTime: journeys.filter((j: Journey) => j.status === 'COMPLETED').length,
+              revenue: journeys.reduce((sum: number, j: any) => sum + (j.estimatedRevenue || 0), 0)
+            }
           });
-
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          }
-
-          const data = await response.json();
-          
-          if (data.success) {
-            console.log(`✅ Fetched ${data.journeys?.length || 0} REAL LGM journeys from database`);
-            console.log('Data source:', data.dataSource); // Should show "LGM_DATABASE_REAL"
-            
-            set({ 
-              journeys: data.journeys || [], 
-              isLoading: false,
-              error: null
-            });
-          } else {
-            throw new Error(data.message || 'Failed to fetch real LGM journeys');
-          }
         } catch (error) {
-          console.error('❌ Error fetching real LGM journeys:', error);
+          console.error('❌ Error fetching real SmartMoving journeys:', error);
           set({ 
             isLoading: false, 
-            error: error instanceof Error ? error.message : 'Failed to fetch real LGM journeys' 
+            error: error instanceof Error ? error.message : 'Failed to fetch real SmartMoving data',
+            journeys: [] // NO FALLBACK DATA - empty array when real data fails
           });
         }
       },
