@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/atoms/Button';
 import { Badge } from '@/components/atoms/Badge';
 import { 
@@ -38,6 +38,7 @@ import toast from 'react-hot-toast';
 export default function JourneyDetailPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const journeyId = params.id as string;
   const { journeys } = useJourneyStore();
   
@@ -49,6 +50,14 @@ export default function JourneyDetailPage() {
   const [showCrewManagement, setShowCrewManagement] = useState(false);
   const [showMediaUpload, setShowMediaUpload] = useState(false);
   const [showJourneyEdit, setShowJourneyEdit] = useState(false);
+
+  // Handle query parameters
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'edit') {
+      setShowJourneyEdit(true);
+    }
+  }, [searchParams]);
 
   // Find the journey by ID
   const journey = journeys.find(j => j.id === journeyId);

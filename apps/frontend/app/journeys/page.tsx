@@ -101,7 +101,8 @@ export default function JourneysPage() {
         router.push(`/journey/${journeyId}`);
         break;
       case 'edit':
-        router.push(`/journey/${journeyId}/edit`);
+        // Navigate to journey detail page where edit modal can be opened
+        router.push(`/journey/${journeyId}?tab=edit`);
         break;
       case 'delete':
         toast('Delete functionality coming soon!');

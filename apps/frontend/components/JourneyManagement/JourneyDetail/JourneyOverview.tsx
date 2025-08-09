@@ -142,7 +142,7 @@ export const JourneyOverview: React.FC<JourneyOverviewProps> = ({
               variant="secondary" 
               size="sm" 
               className="w-full justify-start h-10"
-              onClick={() => router.push(`/journey/${journeyId}/edit`)}
+              onClick={() => router.push(`/journey/${journeyId}?tab=edit`)}
             >
               <Edit className="w-4 h-4 mr-2" />
               Edit Journey

@@ -108,7 +108,7 @@ export default function DashboardPage() {
         router.push(`/journey/${journeyId}`)
         break
       case 'edit':
-        router.push(`/journey/${journeyId}/edit`)
+        router.push(`/journey/${journeyId}?tab=edit`)
         break
       case 'delete':
         toast('Delete functionality coming soon!')
