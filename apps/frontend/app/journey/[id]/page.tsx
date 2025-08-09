@@ -16,7 +16,10 @@ import {
   Camera,
   MessageSquare,
   MapPin,
-  Calendar
+  Calendar,
+  UserPlus,
+  Upload,
+  Settings
 } from 'lucide-react';
 import { useJourneyStore } from '@/stores/journeyStore';
 import { 
@@ -26,6 +29,10 @@ import {
   JourneyMedia,
   JourneyChat
 } from '@/components/JourneyManagement/JourneyDetail';
+import { CrewAssignmentModal } from '@/components/JourneyManagement/CrewAssignment/CrewAssignmentModal';
+import { CrewManagementModal } from '@/components/JourneyManagement/CrewManagement/CrewManagementModal';
+import { MediaUploadModal } from '@/components/JourneyManagement/MediaUpload/MediaUploadModal';
+import { JourneyEditModal } from '@/components/JourneyManagement/JourneyEdit/JourneyEditModal';
 import toast from 'react-hot-toast';
 
 export default function JourneyDetailPage() {
@@ -36,6 +43,12 @@ export default function JourneyDetailPage() {
   
   const [isTracking, setIsTracking] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  
+  // Modal states
+  const [showCrewAssignment, setShowCrewAssignment] = useState(false);
+  const [showCrewManagement, setShowCrewManagement] = useState(false);
+  const [showMediaUpload, setShowMediaUpload] = useState(false);
+  const [showJourneyEdit, setShowJourneyEdit] = useState(false);
 
   // Find the journey by ID
   const journey = journeys.find(j => j.id === journeyId);
@@ -63,6 +76,27 @@ export default function JourneyDetailPage() {
       toast.success('Journey deleted');
       router.push('/journeys');
     }
+  };
+
+  // Modal handlers
+  const handleCrewAssignment = (assignedCrew: any[]) => {
+    toast.success(`${assignedCrew.length} crew member${assignedCrew.length !== 1 ? 's' : ''} assigned successfully!`);
+    // Refresh journey data or update state as needed
+  };
+
+  const handleCrewManagementUpdate = () => {
+    toast.success('Crew management updated!');
+    // Refresh crew data
+  };
+
+  const handleMediaUpload = (uploadedFiles: any[]) => {
+    toast.success(`${uploadedFiles.length} file${uploadedFiles.length !== 1 ? 's' : ''} uploaded successfully!`);
+    // Refresh media data
+  };
+
+  const handleJourneyUpdate = (updatedJourney: any) => {
+    toast.success('Journey updated successfully!');
+    // Update journey in store or refresh data
   };
 
   const getStatusColor = (status: string) => {
@@ -166,19 +200,26 @@ export default function JourneyDetailPage() {
         </div>
         
         {/* Action Buttons */}
-        <div className="flex items-center space-x-2 flex-shrink-0">
+        <div className="flex items-center space-x-2 flex-shrink-0 flex-wrap gap-2">
+          <Button variant="secondary" size="sm" className="h-9" onClick={() => setShowJourneyEdit(true)}>
+            <Edit className="w-4 h-4 mr-2" />
+            Edit Journey
+          </Button>
+          <Button variant="secondary" size="sm" className="h-9" onClick={() => setShowCrewAssignment(true)}>
+            <UserPlus className="w-4 h-4 mr-2" />
+            Assign Crew
+          </Button>
+          <Button variant="secondary" size="sm" className="h-9" onClick={() => setShowMediaUpload(true)}>
+            <Upload className="w-4 h-4 mr-2" />
+            Upload Media
+          </Button>
+          <Button variant="secondary" size="sm" className="h-9" onClick={() => setShowCrewManagement(true)}>
+            <Settings className="w-4 h-4 mr-2" />
+            Manage Crew
+          </Button>
           <Button variant="secondary" size="sm" className="h-9">
             <Download className="w-4 h-4 mr-2" />
             Export
-          </Button>
-          <Button 
-            variant="secondary" 
-            size="sm"
-            className="h-9"
-            onClick={() => router.push(`/journey/${journeyId}/edit`)}
-          >
-            <Edit className="w-4 h-4 mr-2" />
-            Edit
           </Button>
           <Button 
             variant="secondary" 
@@ -221,6 +262,36 @@ export default function JourneyDetailPage() {
       <div className="min-h-[400px]">
         {renderTabContent()}
       </div>
+
+      {/* Management Modals */}
+      <CrewAssignmentModal
+        journeyId={journeyId}
+        journeyTitle={journey.title || `Journey ${journey.id}`}
+        isOpen={showCrewAssignment}
+        onClose={() => setShowCrewAssignment(false)}
+        onAssignmentComplete={handleCrewAssignment}
+      />
+
+      <CrewManagementModal
+        isOpen={showCrewManagement}
+        onClose={() => setShowCrewManagement(false)}
+        onCrewUpdated={handleCrewManagementUpdate}
+      />
+
+      <MediaUploadModal
+        journeyId={journeyId}
+        journeyTitle={journey.title || `Journey ${journey.id}`}
+        isOpen={showMediaUpload}
+        onClose={() => setShowMediaUpload(false)}
+        onUploadComplete={handleMediaUpload}
+      />
+
+      <JourneyEditModal
+        journeyId={journeyId}
+        isOpen={showJourneyEdit}
+        onClose={() => setShowJourneyEdit(false)}
+        onSaveComplete={handleJourneyUpdate}
+      />
     </div>
   );
 } 
