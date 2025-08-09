@@ -67,7 +67,7 @@ export default function DashboardPage() {
     active: journeys.filter(j => j.status === 'ACTIVE').length,
     completed: journeys.filter(j => j.status === 'COMPLETED').length,
     onTime: journeys.filter(j => j.status === 'COMPLETED').length, // TODO: Calculate from actual data
-    revenue: journeys.reduce((sum, j) => sum + (parseFloat(j.actualCost) || 0), 0)
+    revenue: journeys.reduce((sum, j) => sum + (parseFloat(j.actualCost || '0') || 0), 0)
   }
 
   const getStatusColor = (status: string) => {
