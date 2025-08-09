@@ -10,8 +10,7 @@ import { DesktopMenu } from './DesktopMenu';
 import { Breadcrumbs } from './Breadcrumbs';
 import { Button } from '@/components/atoms/Button';
 import { cn } from '@/utils/cn';
-import { getRoleBasedMenuItems } from '@/utils/menuItems';
-import { useMenuItems } from '@/hooks/useMenuItems';
+import { getMenuItemsByRole } from '@/utils/simplifiedMenuItems';
 import { User as MenuUser } from '@/types/menu';
 
 interface MainNavigationProps {
@@ -29,7 +28,7 @@ export const MainNavigation: React.FC<MainNavigationProps> = ({ children }) => {
     setActiveMenuItem 
   } = useMenuStore();
   
-  const { menuItems } = useMenuItems();
+  const menuItems = user ? getMenuItemsByRole(user.role) : [];
   const [isOnline, setIsOnline] = useState(true);
   const [mounted, setMounted] = useState(false);
 
