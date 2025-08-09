@@ -319,11 +319,11 @@ export const MobileJourneyCard: React.FC<MobileJourneyCardProps> = ({
           <Button
             variant="primary"
             size="lg"
-            className="w-full"
+            className="w-full min-h-[56px]"
             onClick={() => router.push(`/journey/${journey.id}`)}
           >
-            Open Journey
-            <ChevronRight className="w-4 h-4 ml-2" />
+            <span className="text-base font-semibold">Start Journey</span>
+            <ChevronRight className="w-5 h-5 ml-2" />
           </Button>
         </div>
       </CardContent>

@@ -33,12 +33,15 @@ import { CrewAssignmentModal } from '@/components/JourneyManagement/CrewAssignme
 import { CrewManagementModal } from '@/components/JourneyManagement/CrewManagement/CrewManagementModal';
 import { MediaUploadModal } from '@/components/JourneyManagement/MediaUpload/MediaUploadModal';
 import { JourneyEditModal } from '@/components/JourneyManagement/JourneyEdit/JourneyEditModal';
+import { SimplifiedJourneyInterface } from '@/components/JourneyManagement/SimplifiedJourneyInterface';
+import { useAuthStore } from '@/stores/authStore';
 import toast from 'react-hot-toast';
 
 export default function JourneyDetailPage() {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
+  const { user } = useAuthStore();
   const journeyId = params.id as string;
   const { journeys } = useJourneyStore();
   
@@ -166,6 +169,17 @@ export default function JourneyDetailPage() {
         return null;
     }
   };
+
+  // Show simplified interface for drivers and movers
+  if (user && ['DRIVER', 'MOVER'].includes(user.role)) {
+    return (
+      <SimplifiedJourneyInterface
+        journeyId={journeyId}
+        journey={journey}
+        userRole={user.role as 'DRIVER' | 'MOVER'}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">

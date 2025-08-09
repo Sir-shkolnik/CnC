@@ -179,7 +179,7 @@ export class SecureSessionManager {
     }
     
     const timeSinceLastActivity = now - sessionData.lastActivity;
-    const timeUntilInactivity = Math.max(0, this.INACTIVITY_TIMEOUT - timeSinceLastActivity);
+    const timeUntilInactivity = Math.max(0, this.getInactivityTimeout() - timeSinceLastActivity);
     const timeUntilExpiry = Math.max(0, this.SESSION_TIMEOUT - timeSinceLastActivity);
     
     return {

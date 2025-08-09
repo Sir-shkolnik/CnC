@@ -1,15 +1,80 @@
-# 👷 **MOVER USER JOURNEY**
+# 👷 **MOVER JOURNEY - Simplified Mobile-First Experience**
+
+**Last Updated:** January 9, 2025  
+**Version:** 3.3.0  
+**Status:** 🎯 **PRODUCTION READY - Touch-Optimized Field Worker Interface**
 
 **Role:** MOVER  
 **Access Level:** Own journeys only  
-**Primary Interface:** Mobile Field Operations Portal  
-**Device Support:** Mobile-First, Tablet, Desktop (No Desktop Menus on Mobile)  
+**Primary Interface:** Touch-Optimized Mobile Journey Cards  
+**Primary Device:** Smartphone (iPhone/Android)  
+**Focus:** Simple journey selection → Step-by-step completion → Photo/video documentation  
+**Workflow:** Choose today's journey → Complete 5 standard steps → Upload media → Mark complete  
 
 ---
 
-## 🎯 **OVERVIEW**
+## 🎯 **MOVER ROLE OVERVIEW**
 
-The Mover is responsible for **physical moving operations and customer service** in the field. They work alongside drivers to handle loading, unloading, furniture protection, and customer interaction. They use the mobile interface to document work, capture media, validate damage, and ensure customer satisfaction.
+The Mover handles **physical moving operations and customer service**. They work with drivers to load/unload items, protect furniture, and interact with customers. The mobile interface is designed for **one-handed operation** while working.
+
+### **🎯 Mover's Daily Workflow (3 Simple Steps)**
+1. **📱 Open App** → See today's journeys as large, touch-friendly cards
+2. **🎯 Select Journey** → Tap "Open Journey" on assigned job  
+3. **✅ Complete Steps** → Work through 5 standard steps with photos
+
+## ✅ **5 STANDARD JOURNEY STEPS FOR MOVERS**
+
+Every journey follows the same 5 steps. Movers complete each step with photos and checkmarks:
+
+### **Step 1: 🔧 Pre-Move Assessment**
+**What:** Site assessment and preparation  
+**Mover Actions:**
+- ✅ Walk-through with customer
+- ✅ Identify fragile/valuable items
+- ✅ Check access points (stairs, elevators, doors)
+- ✅ Set up protective materials
+- 📷 **Required Photo:** Site conditions and access points
+- 📝 **Notes:** Special requirements or challenges
+
+### **Step 2: 📦 Packing & Protection**
+**What:** Prepare items for transport  
+**Mover Actions:**
+- ✅ Wrap furniture in blankets/plastic
+- ✅ Pack fragile items carefully
+- ✅ Label boxes and items
+- ✅ Create inventory list
+- 📷 **Required Photo:** Packed and protected items
+- 📝 **Notes:** Condition of items before move
+
+### **Step 3: 🚛 Loading Operations**
+**What:** Load items into truck safely  
+**Mover Actions:**
+- ✅ Load items systematically (heavy first)
+- ✅ Secure items with straps/ties
+- ✅ Maximize space efficiency
+- ✅ Final load inspection
+- 📷 **Required Photo:** Loaded truck interior
+- 📝 **Notes:** Loading challenges or damage
+
+### **Step 4: 🏠 Delivery & Unloading**
+**What:** Unload and place items at destination  
+**Mover Actions:**
+- ✅ Unload items carefully
+- ✅ Place items in designated rooms
+- ✅ Remove protective materials
+- ✅ Check for any damage
+- 📷 **Required Photo:** Items placed in customer's home
+- 📝 **Notes:** Customer placement preferences
+
+### **Step 5: ✅ Customer Sign-Off**
+**What:** Final inspection and customer approval  
+**Mover Actions:**
+- ✅ Walk through with customer
+- ✅ Address any concerns
+- ✅ Get customer signature/approval
+- ✅ Clean up any debris
+- 📷 **Required Photo:** Customer signature/approval
+- 📝 **Notes:** Customer feedback and final condition
 
 ---
 
