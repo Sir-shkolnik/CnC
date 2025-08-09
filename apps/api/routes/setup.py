@@ -827,4 +827,39 @@ async def fix_production_database() -> Dict[str, Any]:
             "success": False,
             "error": "Database fix failed",
             "message": str(e)
+        }
+
+@router.get("/setup/test-users")
+async def get_test_users():
+    """Get list of created users for testing (no auth required)"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        
+        cursor.execute("""
+            SELECT u.id, u.name, u.email, u.role, u.status,
+                   c.name as company_name,
+                   l.name as location_name
+            FROM "User" u
+            LEFT JOIN "Client" c ON u."clientId" = c.id
+            LEFT JOIN "Location" l ON u."locationId" = l.id
+            ORDER BY u.role, u.name
+            LIMIT 10
+        """)
+        
+        users = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        return {
+            "success": True,
+            "data": [dict(user) for user in users],
+            "message": f"Retrieved {len(users)} test users"
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Failed to retrieve test users"
         } 
