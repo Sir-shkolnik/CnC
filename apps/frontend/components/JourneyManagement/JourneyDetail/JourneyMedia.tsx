@@ -21,15 +21,56 @@ interface JourneyMediaProps {
 }
 
 export const JourneyMedia: React.FC<JourneyMediaProps> = ({ journeyId }) => {
-  // In a real app, this would fetch media data from the API
-  const mediaItems: MediaItem[] = [
-    { id: '1', type: 'photo', name: 'Loading Photo', time: '09:15 AM', size: '2.3 MB', thumbnail: '/api/placeholder/150/150' },
-    { id: '2', type: 'photo', name: 'Route Photo', time: '09:45 AM', size: '1.8 MB', thumbnail: '/api/placeholder/150/150' },
-    { id: '3', type: 'video', name: 'Unloading Video', time: '10:30 AM', size: '15.2 MB', thumbnail: '/api/placeholder/150/150' },
-    { id: '4', type: 'document', name: 'Delivery Receipt', time: '11:00 AM', size: '0.5 MB' },
-    { id: '5', type: 'photo', name: 'Final Inspection', time: '11:30 AM', size: '3.1 MB', thumbnail: '/api/placeholder/150/150' },
-    { id: '6', type: 'document', name: 'Customer Signature', time: '11:45 AM', size: '0.8 MB' }
-  ];
+  const [mediaItems, setMediaItems] = React.useState<MediaItem[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchJourneyMedia = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('access_token');
+        
+        // Fetch real media data from API for this specific journey
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/journey/${journeyId}/media`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setMediaItems(data.media || []);
+        } else {
+          console.warn(`No media found for journey ${journeyId}, using empty media list`);
+          setMediaItems([]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch journey media:', error);
+        setMediaItems([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJourneyMedia();
+  }, [journeyId]);
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold flex items-center">
+            <Camera className="w-5 h-5 mr-2" />
+            Media & Documents
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-4">Loading media...</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const getMediaIcon = (type: string) => {
     switch (type) {
@@ -116,7 +157,18 @@ export const JourneyMedia: React.FC<JourneyMediaProps> = ({ journeyId }) => {
 
         {/* Media Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-          {mediaItems.map((item) => (
+          {mediaItems.length === 0 ? (
+            <div className="col-span-full text-center py-12 text-text-secondary">
+              <FolderOpen className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+              <p className="text-lg mb-2">No media files yet</p>
+              <p className="text-sm mb-4">Photos, videos, and documents will appear here as they're uploaded during the journey</p>
+              <Button onClick={handleUpload} className="mx-auto">
+                <Upload className="w-4 h-4 mr-2" />
+                Upload Media
+              </Button>
+            </div>
+          ) : (
+            mediaItems.map((item) => (
             <div key={item.id} className="group relative">
               <div className="p-3 bg-surface/50 rounded-lg border border-gray-700 hover:border-gray-600 transition-all duration-200 hover:shadow-lg">
                 {/* Media Preview */}
@@ -187,23 +239,9 @@ export const JourneyMedia: React.FC<JourneyMediaProps> = ({ journeyId }) => {
                 </div>
               </div>
             </div>
-          ))}
+          ))
+          )}
         </div>
-
-        {/* Empty State */}
-        {mediaItems.length === 0 && (
-          <div className="text-center py-8">
-            <FolderOpen className="w-12 h-12 text-text-secondary mx-auto mb-3" />
-            <h3 className="text-lg font-medium text-text-primary mb-2">No media uploaded</h3>
-            <p className="text-text-secondary mb-4 text-sm">
-              Upload photos, videos, and documents to track this journey.
-            </p>
-            <Button onClick={handleUpload} size="sm">
-              <Upload className="w-4 h-4 mr-2" />
-              Upload Media
-            </Button>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
