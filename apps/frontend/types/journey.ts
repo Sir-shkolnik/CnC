@@ -1,7 +1,7 @@
 // Journey Management TypeScript Interfaces
 // Aligned with database schema and documentation
 
-export type JourneyStage = 'MORNING_PREP' | 'EN_ROUTE' | 'ONSITE' | 'COMPLETED' | 'AUDITED';
+export type JourneyStage = 'MORNING_PREP' | 'EN_ROUTE' | 'ONSITE' | 'COMPLETED' | 'AUDITED' | 'ACTIVE';
 export type EntryType = 'PHOTO' | 'NOTE' | 'GPS' | 'SIGNATURE' | 'CONFIRMATION';
 export type TagType = 'DAMAGE' | 'COMPLETED' | 'FEEDBACK' | 'ERROR' | 'ISSUE';
 export type MediaType = 'PHOTO' | 'VIDEO' | 'SIGNATURE';
@@ -22,6 +22,22 @@ export interface Journey {
   createdById: string;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
+  
+  // SmartMoving integration fields
+  title?: string;
+  description?: string;
+  customerName?: string;
+  customerPhone?: string;
+  customerEmail?: string;
+  originAddress?: string;
+  destinationAddress?: string;
+  estimatedCost?: string;
+  actualCost?: string;
+  tags?: string;
+  externalId?: string;
+  externalData?: any;
+  startDate?: string;
+  endDate?: string;
   
   // Relations (populated when fetched)
   location?: Location;
