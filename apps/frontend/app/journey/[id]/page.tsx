@@ -318,3 +318,17 @@ export default function JourneyDetailPage() {
     </div>
   );
 } 
+        isOpen={showMediaUpload}
+        onClose={() => setShowMediaUpload(false)}
+        onUploadComplete={handleMediaUpload}
+      />
+
+      <JourneyEditModal
+        journeyId={journeyId}
+        isOpen={showJourneyEdit}
+        onClose={() => setShowJourneyEdit(false)}
+        onSaveComplete={handleJourneyUpdate}
+      />
+    </div>
+  );
+} 

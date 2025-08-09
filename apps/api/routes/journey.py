@@ -1132,3 +1132,57 @@ async def validate_journey(journey_id: str) -> Dict[str, Any]:
         },
         "message": "Journey validation completed"
     }
+
+    # Get journey
+    success, journey, message = journey_engine.get_journey(
+        journey_id,
+        current_user["id"],
+        UserRole(current_user["role"])
+    )
+    
+    if not success:
+        return {
+            "success": False,
+            "error": "Journey not found",
+            "message": message
+        }
+    
+    # Validate completion
+    is_valid, errors = business_logic_validator.validate_journey_completion(journey)
+    
+    return {
+        "success": True,
+        "data": {
+            "is_valid": is_valid,
+            "errors": errors,
+            "journey_id": journey_id
+        },
+        "message": "Journey validation completed"
+    }
+
+    # Get journey
+    success, journey, message = journey_engine.get_journey(
+        journey_id,
+        current_user["id"],
+        UserRole(current_user["role"])
+    )
+    
+    if not success:
+        return {
+            "success": False,
+            "error": "Journey not found",
+            "message": message
+        }
+    
+    # Validate completion
+    is_valid, errors = business_logic_validator.validate_journey_completion(journey)
+    
+    return {
+        "success": True,
+        "data": {
+            "is_valid": is_valid,
+            "errors": errors,
+            "journey_id": journey_id
+        },
+        "message": "Journey validation completed"
+    }

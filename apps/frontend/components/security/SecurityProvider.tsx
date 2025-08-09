@@ -65,3 +65,23 @@ export const SecurityProvider: React.FC<SecurityProviderProps> = ({ children }) 
 };
 
 export default SecurityProvider;
+
+      }
+      
+      // Initialize with appropriate timeout settings
+      SecureSessionManager.initializeSession({
+        disableInactivityTimeout: false // Always enable, but with role-based timeouts
+      });
+      
+      if (isFieldWorker) {
+        console.log('🔐 Extended session timeout enabled for field worker');
+      }
+    } else {
+      SecureSessionManager.stopSessionManagement();
+    }
+  }, [isAuthenticated]);
+
+  return <>{children}</>;
+};
+
+export default SecurityProvider;

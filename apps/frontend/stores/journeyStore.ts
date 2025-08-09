@@ -1,19 +1,110 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { 
-  Journey, 
-  JourneyEntry, 
-  Media, 
-  AssignedCrew, 
-  JourneyStats, 
-  JourneyTimelineEvent,
-  CreateJourneyRequest,
-  UpdateJourneyRequest,
-  GetJourneysRequest,
-  CreateJourneyEntryRequest,
-  AssignCrewRequest
-} from '@/types/journey';
+import { persist } from 'zustand/middleware';
 
+// Journey Types
+interface Journey {
+  id: string;
+  title?: string;
+  truckNumber?: string;
+  date: string;
+  status: 'MORNING_PREP' | 'EN_ROUTE' | 'ONSITE' | 'COMPLETED' | 'AUDITED';
+  customerName?: string;
+  customerPhone?: string;
+  customerEmail?: string;
+  startLocation?: string;
+  endLocation?: string;
+  startTime?: string;
+  endTime?: string;
+  notes?: string;
+  locationId?: string;
+  clientId?: string;
+  createdById?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface JourneyEntry {
+  id: string;
+  journeyId: string;
+  type: string;
+  title: string;
+  description?: string;
+  timestamp: string;
+  location?: string;
+  userId?: string;
+  metadata?: any;
+}
+
+interface Media {
+  id: string;
+  journeyId: string;
+  fileName: string;
+  fileType: string;
+  fileUrl: string;
+  uploadedAt: string;
+  uploadedBy?: string;
+  description?: string;
+}
+
+interface AssignedCrew {
+  id: string;
+  journeyId: string;
+  userId: string;
+  role: string;
+  assignedAt: string;
+  assignedBy?: string;
+}
+
+interface JourneyStats {
+  total: number;
+  active: number;
+  completed: number;
+  onTime: number;
+  revenue: number;
+}
+
+interface JourneyTimelineEvent {
+  id: string;
+  journeyId: string;
+  timestamp: string;
+  event: string;
+  description: string;
+  user?: string;
+}
+
+// API Request Types
+interface GetJourneysRequest {
+  limit?: number;
+  offset?: number;
+  status?: string;
+  locationId?: string;
+}
+
+interface CreateJourneyRequest {
+  truckNumber: string;
+  date: string;
+  startTime?: string;
+  endTime?: string;
+  location?: string;
+  notes?: string;
+  crewMembers?: string[];
+}
+
+interface CreateJourneyEntryRequest {
+  journeyId: string;
+  type: string;
+  title: string;
+  description?: string;
+  location?: string;
+}
+
+interface AssignCrewRequest {
+  journeyId: string;
+  userId: string;
+  role: string;
+}
+
+// Store State
 interface JourneyState {
   journeys: Journey[];
   currentJourney: Journey | null;
@@ -26,6 +117,7 @@ interface JourneyState {
   error: string | null;
 }
 
+// Store Actions
 interface JourneyActions {
   // Journey Management
   setJourneys: (journeys: Journey[]) => void;
@@ -57,7 +149,7 @@ interface JourneyActions {
   setError: (error: string | null) => void;
   clearError: () => void;
   
-  // API Actions (Real implementations)
+  // API Actions (ONLY REAL LGM DATA)
   fetchJourneys: (params?: GetJourneysRequest) => Promise<void>;
   fetchTodayJourneys: (location_id?: string) => Promise<void>;
   fetchTomorrowJourneys: (location_id?: string) => Promise<void>;
@@ -70,7 +162,7 @@ interface JourneyActions {
 
 type JourneyStore = JourneyState & JourneyActions;
 
-// Real API data - no mock data
+// Initial state - NO DEMO DATA
 const initialJourneys: Journey[] = [];
 const initialStats: JourneyStats = {
   total: 0,
@@ -116,8 +208,6 @@ export const useJourneyStore = create<JourneyStore>()(
       // Journey Entries
       setJourneyEntries: (entries) => set({ journeyEntries: entries }),
       
-
-      
       updateJourneyEntry: (id, updates) => set(state => ({
         journeyEntries: state.journeyEntries.map(entry =>
           entry.id === id ? { ...entry, ...updates } : entry
@@ -158,19 +248,20 @@ export const useJourneyStore = create<JourneyStore>()(
       
       clearError: () => set({ error: null }),
       
-      // API Actions (Real API implementations)
+      // API Actions (ONLY REAL LGM DATA - NO DEMO DATA, NO FALLBACKS)
       fetchJourneys: async (params) => {
         set({ isLoading: true, error: null });
         try {
           const token = localStorage.getItem('access_token') || 
                        localStorage.getItem('auth-token') || 
                        document.cookie.split('auth-token=')[1]?.split(';')[0];
+          
           if (!token) {
             throw new Error('No authentication token found');
           }
 
-          // Use our working test journey endpoint that bypasses Prisma
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/smartmoving/test-journeys`, {
+          // Use ONLY real LGM data endpoint - NO DEMO DATA
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/smartmoving-real/journeys/today`, {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -185,182 +276,44 @@ export const useJourneyStore = create<JourneyStore>()(
           const data = await response.json();
           
           if (data.success) {
-            set({ journeys: data.data.journeys || [], isLoading: false });
+            console.log(`✅ Fetched ${data.journeys?.length || 0} REAL LGM journeys from database`);
+            console.log('Data source:', data.dataSource); // Should show "LGM_DATABASE_REAL"
+            
+            set({ 
+              journeys: data.journeys || [], 
+              isLoading: false,
+              error: null
+            });
           } else {
-            throw new Error(data.message || 'Failed to fetch journeys');
+            throw new Error(data.message || 'Failed to fetch real LGM journeys');
           }
         } catch (error) {
+          console.error('❌ Error fetching real LGM journeys:', error);
           set({ 
-            error: error instanceof Error ? error.message : 'Failed to fetch journeys',
-            isLoading: false 
+            isLoading: false, 
+            error: error instanceof Error ? error.message : 'Failed to fetch real LGM journeys' 
           });
         }
       },
-      
-      createJourney: async (data) => {
+
+      fetchTodayJourneys: async (location_id) => {
+        // Use the same real data endpoint
+        await get().fetchJourneys({ locationId: location_id });
+      },
+
+      fetchTomorrowJourneys: async (location_id) => {
         set({ isLoading: true, error: null });
         try {
           const token = localStorage.getItem('access_token') || 
                        localStorage.getItem('auth-token') || 
                        document.cookie.split('auth-token=')[1]?.split(';')[0];
+          
           if (!token) {
             throw new Error('No authentication token found');
           }
 
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/journey/`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          }
-
-          const result = await response.json();
-          
-          if (result.success) {
-            const newJourney = result.data;
-            set(state => ({
-              journeys: [...state.journeys, newJourney],
-              isLoading: false
-            }));
-            return newJourney;
-          } else {
-            throw new Error(result.message || 'Failed to create journey');
-          }
-        } catch (error) {
-          set({ 
-            error: error instanceof Error ? error.message : 'Failed to create journey',
-            isLoading: false 
-          });
-          throw error;
-        }
-      },
-      
-      updateJourneyStatus: async (id, status) => {
-        set({ isLoading: true, error: null });
-        try {
-          const token = localStorage.getItem('access_token') || 
-                       localStorage.getItem('auth-token') || 
-                       document.cookie.split('auth-token=')[1]?.split(';')[0];
-          if (!token) {
-            throw new Error('No authentication token found');
-          }
-
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/journey/${id}/status`, {
-            method: 'PATCH',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ status }),
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          }
-
-          const result = await response.json();
-          
-          if (result.success) {
-            set(state => ({
-              journeys: state.journeys.map(journey =>
-                journey.id === id ? { ...journey, status, updatedAt: new Date().toISOString() } : journey
-              ),
-              isLoading: false
-            }));
-          } else {
-            throw new Error(result.message || 'Failed to update journey status');
-          }
-        } catch (error) {
-          set({ 
-            error: error instanceof Error ? error.message : 'Failed to update journey status',
-            isLoading: false 
-          });
-        }
-      },
-      
-      addJourneyEntry: async (data) => {
-        set({ isLoading: true, error: null });
-        try {
-          // TODO: Replace with real API call
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          const newEntry: JourneyEntry = {
-            id: `entry_${Date.now()}`,
-            journeyId: data.journeyId,
-            createdBy: 'user1', // TODO: Get from auth
-            type: data.type,
-            data: data.data,
-            tag: data.tag,
-            timestamp: new Date().toISOString()
-          };
-          
-          set(state => ({
-            journeyEntries: [...state.journeyEntries, newEntry],
-            isLoading: false
-          }));
-          
-          return newEntry;
-        } catch (error) {
-          set({ 
-            error: error instanceof Error ? error.message : 'Failed to add journey entry',
-            isLoading: false 
-          });
-          throw error;
-        }
-      },
-      
-      assignCrewMember: async (data) => {
-        set({ isLoading: true, error: null });
-        try {
-          // TODO: Replace with real API call
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          const newAssignment: AssignedCrew = {
-            id: `crew_${Date.now()}`,
-            journeyId: data.journeyId,
-            userId: data.userId,
-            role: data.role,
-            assignedAt: new Date().toISOString()
-          };
-          
-          set(state => ({
-            assignedCrew: [...state.assignedCrew, newAssignment],
-            isLoading: false
-          }));
-          
-          return newAssignment;
-        } catch (error) {
-          set({ 
-            error: error instanceof Error ? error.message : 'Failed to assign crew member',
-            isLoading: false 
-          });
-          throw error;
-        }
-      },
-
-      // SmartMoving specific functions
-      fetchTodayJourneys: async (location_id?: string) => {
-        set({ isLoading: true, error: null });
-        try {
-          const token = localStorage.getItem('access_token') || 
-                       localStorage.getItem('auth-token') || 
-                       document.cookie.split('auth-token=')[1]?.split(';')[0];
-          if (!token) {
-            throw new Error('No authentication token found');
-          }
-
-          const url = new URL(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/smartmoving/journeys/today`);
-          if (location_id) {
-            url.searchParams.append('location_id', location_id);
-          }
-
-          const response = await fetch(url.toString(), {
+          // Tomorrow's journeys would be a similar endpoint
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/smartmoving-real/journeys/tomorrow`, {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -375,56 +328,20 @@ export const useJourneyStore = create<JourneyStore>()(
           const data = await response.json();
           
           if (data.success) {
-            set({ journeys: data.data || [], isLoading: false });
+            console.log(`✅ Fetched ${data.journeys?.length || 0} REAL LGM journeys for tomorrow`);
+            set({ 
+              journeys: data.journeys || [], 
+              isLoading: false,
+              error: null
+            });
           } else {
-            throw new Error(data.message || 'Failed to fetch today\'s journeys');
+            throw new Error(data.message || 'Failed to fetch tomorrow\'s real LGM journeys');
           }
         } catch (error) {
+          console.error('❌ Error fetching tomorrow\'s real LGM journeys:', error);
           set({ 
-            error: error instanceof Error ? error.message : 'Failed to fetch today\'s journeys',
-            isLoading: false 
-          });
-        }
-      },
-
-      fetchTomorrowJourneys: async (location_id?: string) => {
-        set({ isLoading: true, error: null });
-        try {
-          const token = localStorage.getItem('access_token') || 
-                       localStorage.getItem('auth-token') || 
-                       document.cookie.split('auth-token=')[1]?.split(';')[0];
-          if (!token) {
-            throw new Error('No authentication token found');
-          }
-
-          const url = new URL(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/smartmoving/journeys/tomorrow`);
-          if (location_id) {
-            url.searchParams.append('location_id', location_id);
-          }
-
-          const response = await fetch(url.toString(), {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          }
-
-          const data = await response.json();
-          
-          if (data.success) {
-            set({ journeys: data.data || [], isLoading: false });
-          } else {
-            throw new Error(data.message || 'Failed to fetch tomorrow\'s journeys');
-          }
-        } catch (error) {
-          set({ 
-            error: error instanceof Error ? error.message : 'Failed to fetch tomorrow\'s journeys',
-            isLoading: false 
+            isLoading: false, 
+            error: error instanceof Error ? error.message : 'Failed to fetch tomorrow\'s real LGM journeys' 
           });
         }
       },
@@ -435,11 +352,12 @@ export const useJourneyStore = create<JourneyStore>()(
           const token = localStorage.getItem('access_token') || 
                        localStorage.getItem('auth-token') || 
                        document.cookie.split('auth-token=')[1]?.split(';')[0];
+          
           if (!token) {
             throw new Error('No authentication token found');
           }
 
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/smartmoving/sync/automated/trigger`, {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/smartmoving/sync/jobs`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -454,25 +372,45 @@ export const useJourneyStore = create<JourneyStore>()(
           const data = await response.json();
           
           if (data.success) {
-            set({ isLoading: false });
-            // Optionally refresh journeys after sync
-            get().fetchJourneys();
+            console.log('✅ SmartMoving sync triggered successfully');
+            // Refresh journeys after sync
+            await get().fetchJourneys();
           } else {
             throw new Error(data.message || 'Failed to trigger SmartMoving sync');
           }
         } catch (error) {
+          console.error('❌ Error triggering SmartMoving sync:', error);
           set({ 
-            error: error instanceof Error ? error.message : 'Failed to trigger SmartMoving sync',
-            isLoading: false 
+            isLoading: false, 
+            error: error instanceof Error ? error.message : 'Failed to trigger SmartMoving sync' 
           });
         }
+      },
+
+      createJourney: async (data) => {
+        // This would call real API to create journey
+        throw new Error('Create journey not implemented - use SmartMoving integration');
+      },
+
+      updateJourneyStatus: async (id, status) => {
+        // This would call real API to update journey status
+        throw new Error('Update journey status not implemented - use SmartMoving integration');
+      },
+
+      addJourneyEntry: async (data) => {
+        // This would call real API to add journey entry
+        throw new Error('Add journey entry not implemented - use SmartMoving integration');
+      },
+
+      assignCrewMember: async (data) => {
+        // This would call real API to assign crew member
+        throw new Error('Assign crew member not implemented - use SmartMoving integration');
       }
     }),
     {
-      name: 'journey-storage',
-      storage: createJSONStorage(() => localStorage),
+      name: 'journey-store',
       partialize: (state) => ({
-        // Don't persist journeys - always fetch from API
+        journeys: state.journeys,
         currentJourney: state.currentJourney,
         stats: state.stats
       }),
@@ -485,4 +423,4 @@ export const useJourneys = () => useJourneyStore((state) => state.journeys);
 export const useCurrentJourney = () => useJourneyStore((state) => state.currentJourney);
 export const useJourneyStats = () => useJourneyStore((state) => state.stats);
 export const useJourneyLoading = () => useJourneyStore((state) => state.isLoading);
-export const useJourneyError = () => useJourneyStore((state) => state.error); 
+export const useJourneyError = () => useJourneyStore((state) => state.error);

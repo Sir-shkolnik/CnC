@@ -24,6 +24,7 @@ from apps.api.routes import users, mobile, locations, journey_steps, admin, setu
 from apps.api.routes import customers, quotes
 from apps.api.routes import journey_workflow, super_admin
 from apps.api.routes import smartmoving, smartmoving_integration, company_management, test_data
+from apps.api.routes import smartmoving_real
 # Import middleware
 from apps.api.middleware.auth import AuthMiddleware
 from apps.api.middleware.tenant import TenantMiddleware
@@ -295,6 +296,17 @@ except Exception as e:
     @app.get("/smartmoving/test")
     async def smartmoving_test():
         return {"message": "SmartMoving Sync test endpoint working"}
+
+# SmartMoving Real Data routes (ONLY REAL LGM DATA)
+try:
+    app.include_router(smartmoving_real.router, tags=["SmartMoving Real Data"])
+    print("✅ SmartMoving Real Data routes loaded successfully - NO DEMO DATA")
+except Exception as e:
+    print(f"❌ Error loading SmartMoving Real Data routes: {e}")
+    # Create a simple test endpoint
+    @app.get("/smartmoving-real/test")
+    async def smartmoving_real_test():
+        return {"message": "SmartMoving Real Data test endpoint working"}
 
 # Company Management routes
 try:

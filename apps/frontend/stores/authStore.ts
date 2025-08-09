@@ -131,3 +131,19 @@ export const useIsAuthenticated = () => useAuthStore((state) => state.isAuthenti
 export const useIsLoading = () => useAuthStore((state) => state.isLoading)
 export const useAuthError = () => useAuthStore((state) => state.error)
 export const useToken = () => useAuthStore((state) => state.token) 
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token,
+        isAuthenticated: state.isAuthenticated,
+      }),
+    }
+  )
+);
+
+// Export selectors for better performance
+export const useUser = () => useAuthStore((state) => state.user)
+export const useIsAuthenticated = () => useAuthStore((state) => state.isAuthenticated)
+export const useIsLoading = () => useAuthStore((state) => state.isLoading)
+export const useAuthError = () => useAuthStore((state) => state.error)
+export const useToken = () => useAuthStore((state) => state.token) 

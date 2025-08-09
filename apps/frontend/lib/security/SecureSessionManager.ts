@@ -255,3 +255,30 @@ export class SecureSessionManager {
 }
 
 export default SecureSessionManager;
+
+   * Check if session is about to expire (for warnings)
+   */
+  static isSessionExpiringSoon(warningMinutes: number = 5): boolean {
+    const status = this.getSessionStatus();
+    return status.isActive && status.timeUntilExpiry < (warningMinutes * 60 * 1000);
+  }
+  
+  /**
+   * Get formatted time until session expiry
+   */
+  static getTimeUntilExpiryFormatted(): string {
+    const status = this.getSessionStatus();
+    if (!status.isActive) return 'Session expired';
+    
+    const minutes = Math.floor(status.timeUntilExpiry / (60 * 1000));
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    
+    if (hours > 0) {
+      return `${hours}h ${remainingMinutes}m`;
+    }
+    return `${remainingMinutes}m`;
+  }
+}
+
+export default SecureSessionManager;

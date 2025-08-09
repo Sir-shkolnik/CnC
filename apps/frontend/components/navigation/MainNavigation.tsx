@@ -170,3 +170,5 @@ export const MainNavigation: React.FC<MainNavigationProps> = ({ children }) => {
     </div>
   );
 }; 
+  );
+}; 

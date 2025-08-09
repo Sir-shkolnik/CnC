@@ -77,3 +77,5 @@ export const DesktopMenu: React.FC<DesktopMenuProps> = ({
     </aside>
   );
 }; 
+  );
+}; 

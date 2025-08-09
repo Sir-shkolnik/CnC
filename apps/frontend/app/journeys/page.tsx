@@ -474,3 +474,113 @@ export default function JourneysPage() {
     </div>
   );
 } 
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <div key={index} className="animate-pulse">
+                    <div className="h-16 bg-gray-700 rounded"></div>
+                  </div>
+                ))}
+              </div>
+            ) : filteredJourneys.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-700">
+                      <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Journey</th>
+                      <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Status</th>
+                      <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Date</th>
+                      <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Crew</th>
+                      <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Location</th>
+                      <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredJourneys.map((journey) => (
+                      <tr key={journey.id} className="border-b border-gray-700 hover:bg-surface/50 transition-colors">
+                        <td className="py-3 px-4">
+                          <div>
+                            <p className="font-medium text-text-primary">{journey.truckNumber || 'Unassigned'}</p>
+                            <p className="text-sm text-text-secondary">ID: {journey.id}</p>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <Badge variant={getStatusColor(journey.status)}>
+                            {getStatusText(journey.status)}
+                          </Badge>
+                        </td>
+                        <td className="py-3 px-4 text-text-primary">
+                          {formatDate(journey.date)}
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center space-x-1">
+                            <Users className="w-4 h-4 text-text-secondary" />
+                            <span className="text-sm text-text-secondary">2 crew</span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center space-x-1">
+                            <MapPin className="w-4 h-4 text-text-secondary" />
+                            <span className="text-sm text-text-secondary">Location {journey.id}</span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center space-x-1">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              onClick={() => handleJourneyAction(journey.id, 'view')}
+                              title="View Journey"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              onClick={() => handleJourneyAction(journey.id, 'edit')}
+                              title="Edit Journey"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              onClick={() => handleJourneyAction(journey.id, 'delete')}
+                              title="Delete Journey"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Truck className="w-16 h-16 text-text-secondary mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-text-primary mb-2">No journeys found</h3>
+                <p className="text-text-secondary mb-6 text-sm max-w-md mx-auto">
+                  {searchTerm || statusFilter !== 'all' || dateFilter !== 'all'
+                    ? 'Try adjusting your filters to find what you\'re looking for.'
+                    : 'Get started by creating your first journey.'
+                  }
+                </p>
+                <Button onClick={handleCreateJourney} size="sm">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Journey
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+} 
