@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/atoms/Card';
 import { Button } from '@/components/atoms/Button';
 import { MessageSquare, Send, Users, Clock, Phone } from 'lucide-react';
@@ -21,13 +21,40 @@ interface JourneyChatProps {
 
 export const JourneyChat: React.FC<JourneyChatProps> = ({ journeyId }) => {
   const [newMessage, setNewMessage] = useState('');
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { id: '1', user: 'Mike Wilson', message: 'Arrived at pickup location', time: '09:15 AM', status: 'read' },
-    { id: '2', user: 'Sarah Johnson', message: 'Starting to load items', time: '09:20 AM', status: 'read' },
-    { id: '3', user: 'Mike Wilson', message: 'All items loaded, heading out', time: '09:45 AM', status: 'read' },
-    { id: '4', user: 'You', message: 'Great! Keep me updated on the route', time: '09:46 AM', isOwn: true, status: 'delivered' },
-    { id: '5', user: 'Sarah Johnson', message: 'Traffic is light, should arrive on time', time: '10:00 AM', status: 'read' }
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchJourneyMessages = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('access_token');
+        
+        // Fetch real chat messages from API for this specific journey
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/journey/${journeyId}/messages`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setMessages(data.messages || []);
+        } else {
+          console.warn(`No messages found for journey ${journeyId}, using empty chat`);
+          setMessages([]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch journey messages:', error);
+        setMessages([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJourneyMessages();
+  }, [journeyId]);
 
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
@@ -69,10 +96,26 @@ export const JourneyChat: React.FC<JourneyChatProps> = ({ journeyId }) => {
   };
 
   const onlineUsers = [
-    { name: 'Mike Wilson', role: 'Driver', status: 'online' },
-    { name: 'Sarah Johnson', role: 'Mover', status: 'online' },
-    { name: 'David Chen', role: 'Mover', status: 'busy' }
+    { name: 'Arshdeep', role: 'Driver', status: 'online' },
+    { name: 'Hakam', role: 'Mover', status: 'online' },
+    { name: 'Danylo', role: 'Mover', status: 'busy' }
   ];
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-semibold flex items-center">
+            <MessageSquare className="w-4 h-4 mr-2 text-primary" />
+            Crew Chat
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-4">Loading chat...</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -113,7 +156,14 @@ export const JourneyChat: React.FC<JourneyChatProps> = ({ journeyId }) => {
 
           {/* Messages */}
           <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-            {messages.map((message) => (
+            {messages.length === 0 ? (
+              <div className="text-center py-8 text-text-secondary">
+                <MessageSquare className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                <p className="text-sm">No messages yet</p>
+                <p className="text-xs mt-1">Start a conversation with the crew</p>
+              </div>
+            ) : (
+              messages.map((message) => (
               <div key={message.id} className={`flex items-start space-x-3 ${message.isOwn ? 'flex-row-reverse space-x-reverse' : ''}`}>
                 {/* Avatar */}
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${message.isOwn ? 'bg-primary' : 'bg-secondary'}`}>
@@ -144,7 +194,8 @@ export const JourneyChat: React.FC<JourneyChatProps> = ({ journeyId }) => {
                   </div>
                 </div>
               </div>
-            ))}
+            ))
+            )}
           </div>
 
           {/* Message Input */}

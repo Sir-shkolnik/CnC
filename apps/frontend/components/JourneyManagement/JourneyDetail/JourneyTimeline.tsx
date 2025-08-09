@@ -18,58 +18,56 @@ interface JourneyTimelineProps {
 }
 
 export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({ journeyId }) => {
-  // In a real app, this would fetch timeline data from the API
-  const timelineEvents: TimelineEvent[] = [
-    { 
-      time: '08:00 AM', 
-      event: 'Journey Created', 
-      status: 'completed',
-      icon: <Truck className="w-4 h-4" />,
-      description: 'Journey scheduled and assigned to crew'
-    },
-    { 
-      time: '08:30 AM', 
-      event: 'Crew Assigned', 
-      status: 'completed',
-      icon: <Users className="w-4 h-4" />,
-      description: 'Mike Wilson (Driver) and Sarah Johnson (Mover) assigned'
-    },
-    { 
-      time: '09:00 AM', 
-      event: 'Truck Loaded', 
-      status: 'completed',
-      icon: <Package className="w-4 h-4" />,
-      description: 'All items loaded and secured in truck'
-    },
-    { 
-      time: '09:30 AM', 
-      event: 'En Route', 
-      status: 'current',
-      icon: <Truck className="w-4 h-4" />,
-      description: 'Truck departed from pickup location'
-    },
-    { 
-      time: '10:30 AM', 
-      event: 'Arrive at Location', 
-      status: 'pending',
-      icon: <MapPin className="w-4 h-4" />,
-      description: 'Expected arrival at destination'
-    },
-    { 
-      time: '11:00 AM', 
-      event: 'Unloading', 
-      status: 'pending',
-      icon: <Package className="w-4 h-4" />,
-      description: 'Begin unloading items at destination'
-    },
-    { 
-      time: '12:00 PM', 
-      event: 'Journey Complete', 
-      status: 'pending',
-      icon: <CheckCircle className="w-4 h-4" />,
-      description: 'All items delivered and journey completed'
-    }
-  ];
+  const [timelineEvents, setTimelineEvents] = React.useState<TimelineEvent[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchJourneyTimeline = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('access_token');
+        
+        // Fetch real timeline data from API for this specific journey
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/journey-workflow/${journeyId}/progress`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setTimelineEvents(data.timeline || []);
+        } else {
+          console.warn(`No timeline data found for journey ${journeyId}, using empty timeline`);
+          setTimelineEvents([]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch journey timeline:', error);
+        setTimelineEvents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJourneyTimeline();
+  }, [journeyId]);
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold flex items-center">
+            <Clock className="w-5 h-5 mr-2" />
+            Journey Timeline
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-4">Loading timeline...</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -99,7 +97,14 @@ export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({ journeyId }) =
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {timelineEvents.map((item, index) => (
+          {timelineEvents.length === 0 ? (
+            <div className="text-center py-8 text-text-secondary">
+              <Clock className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+              <p className="text-sm">No timeline events yet</p>
+              <p className="text-xs mt-1">Timeline will be populated as the journey progresses</p>
+            </div>
+          ) : (
+            timelineEvents.map((item, index) => (
             <div key={index} className="relative">
               {/* Timeline Line */}
               {index < timelineEvents.length - 1 && (
@@ -151,32 +156,35 @@ export const JourneyTimeline: React.FC<JourneyTimelineProps> = ({ journeyId }) =
                 </div>
               </div>
             </div>
-          ))}
+          ))
+          )}
         </div>
         
-        {/* Timeline Summary */}
-        <div className="mt-6 pt-4 border-t border-gray-700">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-            <div className="p-3 bg-surface/30 rounded-lg">
-              <div className="text-lg font-bold text-success">
-                {timelineEvents.filter(e => e.status === 'completed').length}
+        {/* Timeline Summary - only show if there are events */}
+        {timelineEvents.length > 0 && (
+          <div className="mt-6 pt-4 border-t border-gray-700">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+              <div className="p-3 bg-surface/30 rounded-lg">
+                <div className="text-lg font-bold text-success">
+                  {timelineEvents.filter(e => e.status === 'completed').length}
+                </div>
+                <div className="text-xs text-text-secondary">Completed</div>
               </div>
-              <div className="text-xs text-text-secondary">Completed</div>
-            </div>
-            <div className="p-3 bg-surface/30 rounded-lg">
-              <div className="text-lg font-bold text-primary">
-                {timelineEvents.filter(e => e.status === 'current').length}
+              <div className="p-3 bg-surface/30 rounded-lg">
+                <div className="text-lg font-bold text-primary">
+                  {timelineEvents.filter(e => e.status === 'current').length}
+                </div>
+                <div className="text-xs text-text-secondary">In Progress</div>
               </div>
-              <div className="text-xs text-text-secondary">In Progress</div>
-            </div>
-            <div className="p-3 bg-surface/30 rounded-lg">
-              <div className="text-lg font-bold text-gray-400">
-                {timelineEvents.filter(e => e.status === 'pending').length}
+              <div className="p-3 bg-surface/30 rounded-lg">
+                <div className="text-lg font-bold text-gray-400">
+                  {timelineEvents.filter(e => e.status === 'pending').length}
+                </div>
+                <div className="text-xs text-text-secondary">Pending</div>
               </div>
-              <div className="text-xs text-text-secondary">Pending</div>
             </div>
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );

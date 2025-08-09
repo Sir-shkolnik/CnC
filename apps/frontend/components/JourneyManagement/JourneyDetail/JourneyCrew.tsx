@@ -22,39 +22,56 @@ interface JourneyCrewProps {
 }
 
 export const JourneyCrew: React.FC<JourneyCrewProps> = ({ journeyId }) => {
-  // In a real app, this would fetch crew data from the API
-  const crewMembers: CrewMember[] = [
-    { 
-      name: 'Mike Wilson', 
-      role: 'Driver', 
-      status: 'online', 
-      phone: '+1 (555) 123-4567', 
-      email: 'mike@lgm.com',
-      location: 'Toronto, ON',
-      rating: 4.8,
-      experience: '5 years'
-    },
-    { 
-      name: 'Sarah Johnson', 
-      role: 'Mover', 
-      status: 'online', 
-      phone: '+1 (555) 234-5678', 
-      email: 'sarah@lgm.com',
-      location: 'Toronto, ON',
-      rating: 4.6,
-      experience: '3 years'
-    },
-    { 
-      name: 'David Chen', 
-      role: 'Mover', 
-      status: 'busy', 
-      phone: '+1 (555) 345-6789', 
-      email: 'david@lgm.com',
-      location: 'Mississauga, ON',
-      rating: 4.9,
-      experience: '7 years'
-    }
-  ];
+  const [crewMembers, setCrewMembers] = React.useState<CrewMember[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchJourneyCrew = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('access_token');
+        
+        // Fetch real crew data from API for this specific journey
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/journey/${journeyId}/crew`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setCrewMembers(data.crew || []);
+        } else {
+          console.warn(`No crew data found for journey ${journeyId}, using empty crew list`);
+          setCrewMembers([]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch journey crew:', error);
+        setCrewMembers([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJourneyCrew();
+  }, [journeyId]);
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold flex items-center">
+            <Users className="w-5 h-5 mr-2" />
+            Crew Members
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-4">Loading crew data...</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const handleCall = (phone: string) => {
     // In a real app, this would initiate a call
@@ -94,7 +111,14 @@ export const JourneyCrew: React.FC<JourneyCrewProps> = ({ journeyId }) => {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {crewMembers.map((member, index) => (
+          {crewMembers.length === 0 ? (
+            <div className="text-center py-8 text-text-secondary">
+              <Users className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+              <p className="text-sm">No crew assigned to this journey yet</p>
+              <p className="text-xs mt-1">Crew will be assigned when the journey is scheduled</p>
+            </div>
+          ) : (
+            crewMembers.map((member, index) => (
             <div key={index} className="p-4 bg-surface/50 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                 {/* Member Info */}
@@ -166,32 +190,35 @@ export const JourneyCrew: React.FC<JourneyCrewProps> = ({ journeyId }) => {
                 </div>
               </div>
             </div>
-          ))}
+          ))
+          )}
         </div>
         
-        {/* Crew Summary */}
-        <div className="mt-6 pt-4 border-t border-gray-700">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-            <div className="p-3 bg-surface/30 rounded-lg">
-              <div className="text-lg font-bold text-primary">
-                {crewMembers.length}
+        {/* Crew Summary - only show if there are crew members */}
+        {crewMembers.length > 0 && (
+          <div className="mt-6 pt-4 border-t border-gray-700">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+              <div className="p-3 bg-surface/30 rounded-lg">
+                <div className="text-lg font-bold text-primary">
+                  {crewMembers.length}
+                </div>
+                <div className="text-xs text-text-secondary">Total Crew</div>
               </div>
-              <div className="text-xs text-text-secondary">Total Crew</div>
-            </div>
-            <div className="p-3 bg-surface/30 rounded-lg">
-              <div className="text-lg font-bold text-success">
-                {crewMembers.filter(m => m.status === 'online').length}
+              <div className="p-3 bg-surface/30 rounded-lg">
+                <div className="text-lg font-bold text-success">
+                  {crewMembers.filter(m => m.status === 'online').length}
+                </div>
+                <div className="text-xs text-text-secondary">Available</div>
               </div>
-              <div className="text-xs text-text-secondary">Available</div>
-            </div>
-            <div className="p-3 bg-surface/30 rounded-lg">
-              <div className="text-lg font-bold text-warning">
-                {crewMembers.filter(m => m.status === 'busy').length}
+              <div className="p-3 bg-surface/30 rounded-lg">
+                <div className="text-lg font-bold text-warning">
+                  {crewMembers.filter(m => m.status === 'busy').length}
+                </div>
+                <div className="text-xs text-text-secondary">Busy</div>
               </div>
-              <div className="text-xs text-text-secondary">Busy</div>
             </div>
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );
