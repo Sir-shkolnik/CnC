@@ -167,8 +167,8 @@ export const useJourneyStore = create<JourneyStore>()(
             throw new Error('No authentication token found');
           }
 
-          // Use our new SmartMoving journey endpoints that pull from our database
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/smartmoving/journeys/active`, {
+          // Use our working test journey endpoint that bypasses Prisma
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://c-and-c-crm-api.onrender.com'}/smartmoving/test-journeys`, {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -183,7 +183,7 @@ export const useJourneyStore = create<JourneyStore>()(
           const data = await response.json();
           
           if (data.success) {
-            set({ journeys: data.data || [], isLoading: false });
+            set({ journeys: data.data.journeys || [], isLoading: false });
           } else {
             throw new Error(data.message || 'Failed to fetch journeys');
           }

@@ -52,8 +52,9 @@ export default function DashboardPage() {
   // Filter journeys based on search and status
   const filteredJourneys = journeys.filter(journey => {
     const matchesSearch = 
-      journey.truckNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      journey.id.toLowerCase().includes(searchTerm.toLowerCase())
+      journey.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      journey.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      journey.id?.toLowerCase().includes(searchTerm.toLowerCase())
     
     const matchesStatus = statusFilter === 'all' || journey.status === statusFilter
     
@@ -63,14 +64,15 @@ export default function DashboardPage() {
   // Calculate statistics
   const stats = {
     total: journeys.length,
-    active: journeys.filter(j => j.status === 'MORNING_PREP' || j.status === 'EN_ROUTE' || j.status === 'ONSITE').length,
+    active: journeys.filter(j => j.status === 'ACTIVE').length,
     completed: journeys.filter(j => j.status === 'COMPLETED').length,
     onTime: journeys.filter(j => j.status === 'COMPLETED').length, // TODO: Calculate from actual data
-    revenue: 0 // TODO: Calculate from actual revenue data
+    revenue: journeys.reduce((sum, j) => sum + (parseFloat(j.actualCost) || 0), 0)
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case 'ACTIVE': return 'info'
       case 'MORNING_PREP': return 'warning'
       case 'EN_ROUTE': return 'info'
       case 'ONSITE': return 'secondary'
@@ -82,6 +84,7 @@ export default function DashboardPage() {
 
   const getStatusText = (status: string) => {
     switch (status) {
+      case 'ACTIVE': return '🔄 Active'
       case 'MORNING_PREP': return '🕐 Morning Prep'
       case 'EN_ROUTE': return '🚛 En Route'
       case 'ONSITE': return '📍 On Site'
