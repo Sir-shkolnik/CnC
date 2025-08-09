@@ -2,6 +2,7 @@
 
 ## 📋 **Project Overview**
 - [Current Status Summary](00_current_status_summary.md) - **✨ LATEST: Simplified System with 100% Real LGM Data**
+- [Simplified System Implementation](29_simplified_system_implementation.md) - **🎯 NEW: Complete Implementation Guide**
 - [Technical Implementation Summary](28_technical_implementation_summary.md) - **Updated for Simplified System**
 - [Company Management System](27_company_management_system.md)
 - [README](README.md) - **Updated for Streamlined Operations**
