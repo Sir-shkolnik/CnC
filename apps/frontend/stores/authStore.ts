@@ -64,6 +64,14 @@ export const useAuthStore = create<AuthStore>()(
           const data = await response.json();
           
           if (data.success) {
+            // Store token in multiple places for consistency
+            localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('auth-token', data.access_token);
+            localStorage.setItem('user_data', JSON.stringify(data.user));
+            
+            // Set cookies for middleware
+            document.cookie = `auth-token=${data.access_token}; path=/; max-age=3600; secure; samesite=strict`;
+            
             set({
               user: data.user,
               token: data.access_token,
@@ -84,6 +92,14 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       logout: () => {
+        // Clear all token storage
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('auth-token');
+        localStorage.removeItem('user_data');
+        
+        // Clear cookies
+        document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        
         set({
           user: null,
           token: null,

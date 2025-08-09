@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/atoms/Button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/atoms/Card';
@@ -23,19 +23,31 @@ import {
   MoreHorizontal,
   TrendingUp,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Camera,
+  Grid,
+  List
 } from 'lucide-react';
 import { useJourneyStore } from '@/stores/journeyStore';
+import { useAuthStore } from '@/stores/authStore';
+import { MobileJourneyCard } from '@/components/JourneyManagement/MobileJourneyCard';
 import toast from 'react-hot-toast';
 
 export default function JourneysPage() {
   const router = useRouter();
-  const { journeys, isLoading } = useJourneyStore();
+  const { journeys, isLoading, fetchJourneys } = useJourneyStore();
+  const { user } = useAuthStore();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
   const [sortBy, setSortBy] = useState('date');
+  const [viewMode, setViewMode] = useState<'mobile' | 'table'>('mobile'); // Default to mobile-friendly view
+
+  // Fetch journeys on component mount
+  useEffect(() => {
+    fetchJourneys();
+  }, [fetchJourneys]);
 
   // Filter and sort journeys
   const filteredJourneys = journeys
@@ -112,6 +124,23 @@ export default function JourneysPage() {
     }
   };
 
+  // Mobile journey handlers
+  const handleStartJourney = (journeyId: string) => {
+    toast.success('Journey started!');
+    router.push(`/journey/${journeyId}`);
+  };
+
+  const handleCompleteStep = (journeyId: string, stepId: string) => {
+    toast.success('Step completed!');
+    // Here you would call an API to update the journey step
+  };
+
+  const handleTakePhoto = (journeyId: string, stepId: string) => {
+    // For now, just show a toast - in production this would open camera
+    toast.success('Photo capture opened');
+    // In production: router.push(`/journey/${journeyId}/photo/${stepId}`);
+  };
+
   const handleCreateJourney = () => {
     router.push('/journey/create');
   };
@@ -132,11 +161,38 @@ export default function JourneysPage() {
           <p className="text-text-secondary text-sm">Manage and track all truck journeys</p>
         </div>
         <div className="flex items-center space-x-2 flex-shrink-0">
+          {/* View Mode Toggle */}
+          <div className="flex bg-surface border border-gray-600 rounded-lg p-1">
+            <Button
+              variant={viewMode === 'mobile' ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={() => setViewMode('mobile')}
+              className="px-3 py-1 h-8"
+            >
+              <Grid className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'table' ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={() => setViewMode('table')}
+              className="px-3 py-1 h-8"
+            >
+              <List className="w-4 h-4" />
+            </Button>
+          </div>
           <Button variant="secondary" size="sm" className="h-9">
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
-          <Button variant="secondary" size="sm" className="h-9">
+          <Button 
+            variant="secondary" 
+            size="sm" 
+            className="h-9"
+            onClick={() => {
+              fetchJourneys();
+              toast.success('Journeys refreshed!');
+            }}
+          >
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
           </Button>
@@ -248,100 +304,41 @@ export default function JourneysPage() {
         </CardContent>
       </Card>
 
-      {/* Journeys Table - Improved Layout */}
-      <Card className="hover:shadow-lg transition-shadow">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center">
-            <Truck className="w-5 h-5 mr-2 text-primary" />
-            Journeys ({filteredJourneys.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+      {/* Journeys List - Mobile/Table View */}
+      {viewMode === 'mobile' ? (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-text-primary flex items-center">
+              <Truck className="w-5 h-5 mr-2 text-primary" />
+              Journeys ({filteredJourneys.length})
+            </h2>
+            {user && ['DRIVER', 'MOVER'].includes(user.role) && (
+              <Badge variant="info" className="text-xs">
+                Touch-optimized for field work
+              </Badge>
+            )}
+          </div>
+          
           {isLoading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 5 }).map((_, index) => (
+            <div className="space-y-4">
+              {Array.from({ length: 3 }).map((_, index) => (
                 <div key={index} className="animate-pulse">
-                  <div className="h-16 bg-gray-700 rounded"></div>
+                  <div className="h-32 bg-surface/50 rounded-lg border border-gray-700"></div>
                 </div>
               ))}
             </div>
           ) : filteredJourneys.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-700">
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Journey</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Status</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Date</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Crew</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Location</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredJourneys.map((journey) => (
-                    <tr key={journey.id} className="border-b border-gray-700 hover:bg-surface/50 transition-colors">
-                      <td className="py-3 px-4">
-                        <div>
-                          <p className="font-medium text-text-primary">{journey.truckNumber || 'Unassigned'}</p>
-                          <p className="text-sm text-text-secondary">ID: {journey.id}</p>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <Badge variant={getStatusColor(journey.status)}>
-                          {getStatusText(journey.status)}
-                        </Badge>
-                      </td>
-                      <td className="py-3 px-4 text-text-primary">
-                        {formatDate(journey.date)}
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center space-x-1">
-                          <Users className="w-4 h-4 text-text-secondary" />
-                          <span className="text-sm text-text-secondary">2 crew</span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center space-x-1">
-                          <MapPin className="w-4 h-4 text-text-secondary" />
-                          <span className="text-sm text-text-secondary">Location {journey.id}</span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center space-x-1">
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => handleJourneyAction(journey.id, 'view')}
-                            title="View Journey"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => handleJourneyAction(journey.id, 'edit')}
-                            title="Edit Journey"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => handleJourneyAction(journey.id, 'delete')}
-                            title="Delete Journey"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="space-y-4">
+              {filteredJourneys.map((journey) => (
+                <MobileJourneyCard
+                  key={journey.id}
+                  journey={journey}
+                  userRole={user?.role || 'GUEST'}
+                  onStartJourney={handleStartJourney}
+                  onCompleteStep={handleCompleteStep}
+                  onTakePhoto={handleTakePhoto}
+                />
+              ))}
             </div>
           ) : (
             <div className="text-center py-12">
@@ -353,14 +350,127 @@ export default function JourneysPage() {
                   : 'Get started by creating your first journey.'
                 }
               </p>
-              <Button onClick={handleCreateJourney} size="sm">
+              <Button onClick={handleCreateJourney} size="lg" className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
                 Create Journey
               </Button>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      ) : (
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center">
+              <Truck className="w-5 h-5 mr-2 text-primary" />
+              Journeys ({filteredJourneys.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <div key={index} className="animate-pulse">
+                    <div className="h-16 bg-gray-700 rounded"></div>
+                  </div>
+                ))}
+              </div>
+            ) : filteredJourneys.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-700">
+                      <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Journey</th>
+                      <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Status</th>
+                      <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Date</th>
+                      <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Crew</th>
+                      <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Location</th>
+                      <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredJourneys.map((journey) => (
+                      <tr key={journey.id} className="border-b border-gray-700 hover:bg-surface/50 transition-colors">
+                        <td className="py-3 px-4">
+                          <div>
+                            <p className="font-medium text-text-primary">{journey.truckNumber || 'Unassigned'}</p>
+                            <p className="text-sm text-text-secondary">ID: {journey.id}</p>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <Badge variant={getStatusColor(journey.status)}>
+                            {getStatusText(journey.status)}
+                          </Badge>
+                        </td>
+                        <td className="py-3 px-4 text-text-primary">
+                          {formatDate(journey.date)}
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center space-x-1">
+                            <Users className="w-4 h-4 text-text-secondary" />
+                            <span className="text-sm text-text-secondary">2 crew</span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center space-x-1">
+                            <MapPin className="w-4 h-4 text-text-secondary" />
+                            <span className="text-sm text-text-secondary">Location {journey.id}</span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center space-x-1">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              onClick={() => handleJourneyAction(journey.id, 'view')}
+                              title="View Journey"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              onClick={() => handleJourneyAction(journey.id, 'edit')}
+                              title="Edit Journey"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                              onClick={() => handleJourneyAction(journey.id, 'delete')}
+                              title="Delete Journey"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Truck className="w-16 h-16 text-text-secondary mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-text-primary mb-2">No journeys found</h3>
+                <p className="text-text-secondary mb-6 text-sm max-w-md mx-auto">
+                  {searchTerm || statusFilter !== 'all' || dateFilter !== 'all'
+                    ? 'Try adjusting your filters to find what you\'re looking for.'
+                    : 'Get started by creating your first journey.'
+                  }
+                </p>
+                <Button onClick={handleCreateJourney} size="sm">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Journey
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 } 

@@ -162,7 +162,9 @@ export const useJourneyStore = create<JourneyStore>()(
       fetchJourneys: async (params) => {
         set({ isLoading: true, error: null });
         try {
-          const token = localStorage.getItem('auth-token') || document.cookie.split('auth-token=')[1]?.split(';')[0];
+          const token = localStorage.getItem('access_token') || 
+                       localStorage.getItem('auth-token') || 
+                       document.cookie.split('auth-token=')[1]?.split(';')[0];
           if (!token) {
             throw new Error('No authentication token found');
           }
@@ -198,7 +200,9 @@ export const useJourneyStore = create<JourneyStore>()(
       createJourney: async (data) => {
         set({ isLoading: true, error: null });
         try {
-          const token = localStorage.getItem('auth-token') || document.cookie.split('auth-token=')[1]?.split(';')[0];
+          const token = localStorage.getItem('access_token') || 
+                       localStorage.getItem('auth-token') || 
+                       document.cookie.split('auth-token=')[1]?.split(';')[0];
           if (!token) {
             throw new Error('No authentication token found');
           }
@@ -240,7 +244,9 @@ export const useJourneyStore = create<JourneyStore>()(
       updateJourneyStatus: async (id, status) => {
         set({ isLoading: true, error: null });
         try {
-          const token = localStorage.getItem('auth-token') || document.cookie.split('auth-token=')[1]?.split(';')[0];
+          const token = localStorage.getItem('access_token') || 
+                       localStorage.getItem('auth-token') || 
+                       document.cookie.split('auth-token=')[1]?.split(';')[0];
           if (!token) {
             throw new Error('No authentication token found');
           }
@@ -342,7 +348,9 @@ export const useJourneyStore = create<JourneyStore>()(
       fetchTodayJourneys: async (location_id?: string) => {
         set({ isLoading: true, error: null });
         try {
-          const token = localStorage.getItem('auth-token') || document.cookie.split('auth-token=')[1]?.split(';')[0];
+          const token = localStorage.getItem('access_token') || 
+                       localStorage.getItem('auth-token') || 
+                       document.cookie.split('auth-token=')[1]?.split(';')[0];
           if (!token) {
             throw new Error('No authentication token found');
           }
@@ -382,7 +390,9 @@ export const useJourneyStore = create<JourneyStore>()(
       fetchTomorrowJourneys: async (location_id?: string) => {
         set({ isLoading: true, error: null });
         try {
-          const token = localStorage.getItem('auth-token') || document.cookie.split('auth-token=')[1]?.split(';')[0];
+          const token = localStorage.getItem('access_token') || 
+                       localStorage.getItem('auth-token') || 
+                       document.cookie.split('auth-token=')[1]?.split(';')[0];
           if (!token) {
             throw new Error('No authentication token found');
           }
@@ -422,7 +432,9 @@ export const useJourneyStore = create<JourneyStore>()(
       triggerSmartMovingSync: async () => {
         set({ isLoading: true, error: null });
         try {
-          const token = localStorage.getItem('auth-token') || document.cookie.split('auth-token=')[1]?.split(';')[0];
+          const token = localStorage.getItem('access_token') || 
+                       localStorage.getItem('auth-token') || 
+                       document.cookie.split('auth-token=')[1]?.split(';')[0];
           if (!token) {
             throw new Error('No authentication token found');
           }
