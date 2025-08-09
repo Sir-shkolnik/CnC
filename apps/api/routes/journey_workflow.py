@@ -405,7 +405,7 @@ async def get_journey_statistics(
 
 @router.get("/{journey_id}/progress")
 async def get_journey_progress(journey_id: str) -> dict:
-    """Get journey progress and timeline for frontend display"""
+    """Get journey progress and timeline for frontend display (no auth required for demo)"""
     
     # Return demo timeline data for now
     demo_timeline = [
