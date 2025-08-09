@@ -204,27 +204,21 @@ export default function DashboardPage() {
             <p className="text-xs text-text-secondary">Assign and manage teams</p>
           </CardContent>
         </Card>
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push('/calendar')}>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push('/journey/create')}>
           <CardContent className="p-3 text-center">
-            <Calendar className="w-6 h-6 text-success mx-auto mb-1" />
-            <h3 className="font-semibold text-text-primary mb-1 text-sm">Calendar View</h3>
-            <p className="text-xs text-text-secondary">Schedule and planning</p>
-          </CardContent>
-        </Card>
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push('/audit')}>
-          <CardContent className="p-3 text-center">
-            <Target className="w-6 h-6 text-warning mx-auto mb-1" />
-            <h3 className="font-semibold text-text-primary mb-1 text-sm">Audit & Reports</h3>
-            <p className="text-xs text-text-secondary">Compliance and analytics</p>
+            <Plus className="w-6 h-6 text-success mx-auto mb-1" />
+            <h3 className="font-semibold text-text-primary mb-1 text-sm">Create Journey</h3>
+            <p className="text-xs text-text-secondary">Start new operation</p>
           </CardContent>
         </Card>
         <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push('/mobile')}>
           <CardContent className="p-3 text-center">
-            <Smartphone className="w-6 h-6 text-info mx-auto mb-1" />
-            <h3 className="font-semibold text-text-primary mb-1 text-sm">Field Operations</h3>
-            <p className="text-xs text-text-secondary">Mobile app for drivers & movers</p>
+            <Smartphone className="w-6 h-6 text-warning mx-auto mb-1" />
+            <h3 className="font-semibold text-text-primary mb-1 text-sm">Mobile App</h3>
+            <p className="text-xs text-text-secondary">Field operations</p>
           </CardContent>
         </Card>
+
       </div>
 
       {/* Filters and Search - Compact Layout */}

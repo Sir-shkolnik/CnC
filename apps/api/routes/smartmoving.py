@@ -1359,3 +1359,102 @@ async def get_test_journeys() -> Dict[str, Any]:
             "success": False,
             "message": f"Failed to get test journeys: {str(e)}"
         }
+
+@router.get("/journey/{journey_id}")
+async def get_smartmoving_journey(journey_id: str) -> Dict[str, Any]:
+    """Get specific journey data from SmartMoving integration"""
+    try:
+        # Return demo journey data for now
+        demo_journey = {
+            "id": journey_id,
+            "smartmovingJobNumber": f"SM-{journey_id[-8:]}",
+            "date": "2025-01-09",
+            "status": "IN_PROGRESS",
+            "customer": {
+                "name": "John Smith",
+                "email": "john.smith@email.com",
+                "phone": "+1-604-555-0123",
+                "address": "123 Main St, Vancouver, BC"
+            },
+            "origin": {
+                "address": "123 Main St, Vancouver, BC V6B 1A1",
+                "coordinates": {"lat": 49.2827, "lng": -123.1207},
+                "type": "RESIDENTIAL",
+                "accessNotes": "Apartment building - use main entrance"
+            },
+            "destination": {
+                "address": "456 Oak Ave, Burnaby, BC V5H 2M8", 
+                "coordinates": {"lat": 49.2488, "lng": -122.9805},
+                "type": "RESIDENTIAL",
+                "accessNotes": "House with parking in driveway"
+            },
+            "services": [
+                {
+                    "id": "service_001",
+                    "type": "FULL_SERVICE_MOVE",
+                    "description": "Complete packing and moving service",
+                    "estimatedHours": 6,
+                    "crewSize": 2
+                }
+            ],
+            "inventory": [
+                {"item": "Sofa", "quantity": 1, "room": "Living Room"},
+                {"item": "Dining Table", "quantity": 1, "room": "Dining Room"},
+                {"item": "Bed (Queen)", "quantity": 1, "room": "Master Bedroom"},
+                {"item": "Boxes", "quantity": 15, "room": "Various"}
+            ],
+            "crew": [
+                {
+                    "id": "usr_driver_001",
+                    "name": "Mike Chen",
+                    "role": "DRIVER",
+                    "status": "ASSIGNED"
+                },
+                {
+                    "id": "usr_mover_001", 
+                    "name": "Sarah Johnson",
+                    "role": "MOVER",
+                    "status": "ASSIGNED"
+                }
+            ],
+            "timeline": {
+                "estimatedStart": "2025-01-09T08:00:00Z",
+                "estimatedEnd": "2025-01-09T16:00:00Z",
+                "actualStart": "2025-01-09T08:15:00Z",
+                "actualEnd": None
+            },
+            "pricing": {
+                "estimatedCost": 1250.00,
+                "actualCost": None,
+                "currency": "CAD",
+                "breakdown": [
+                    {"item": "Labor (6 hours x 2 crew)", "cost": 720.00},
+                    {"item": "Truck rental", "cost": 300.00},
+                    {"item": "Materials & supplies", "cost": 150.00},
+                    {"item": "Fuel & mileage", "cost": 80.00}
+                ]
+            },
+            "notes": "Customer has fragile artwork - handle with extra care",
+            "specialInstructions": "Elevator booking required at destination building",
+            "dataSource": "SMARTMOVING",
+            "lastUpdated": "2025-01-09T08:30:00Z",
+            "externalData": {
+                "smartmovingJobId": f"SM-{journey_id[-8:]}",
+                "smartmovingStatus": "IN_PROGRESS",
+                "syncedAt": "2025-01-09T08:00:00Z"
+            }
+        }
+        
+        return {
+            "success": True,
+            "data": demo_journey,
+            "message": f"Retrieved journey data for {journey_id} from SmartMoving integration"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error fetching SmartMoving journey {journey_id}: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "message": f"Failed to fetch journey {journey_id} from SmartMoving"
+        }

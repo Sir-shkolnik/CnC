@@ -145,24 +145,7 @@ async def complete_checklist_item(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/{journey_id}/progress")
-async def get_journey_progress(
-    journey_id: str,
-    current_user: dict = Depends(get_current_user),
-    tenant_info: dict = Depends(get_tenant_context),
-    db = Depends(get_database_connection)
-):
-    """Get comprehensive journey progress with all phases"""
-    try:
-        service = JourneyPhaseService(tenant_info["client_id"], tenant_info["location_id"], db)
-        progress = await service.get_journey_progress(journey_id)
-        
-        return {
-            "success": True,
-            "data": progress
-        }
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+# Removed duplicate endpoint - using demo endpoint below for simplified system
 
 @router.get("/{journey_id}/phases/{phase_id}/checklist")
 async def get_phase_checklist(
