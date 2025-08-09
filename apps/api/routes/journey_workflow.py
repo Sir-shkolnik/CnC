@@ -401,4 +401,109 @@ async def get_journey_statistics(
             }
         }
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e)) 
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/{journey_id}/progress")
+async def get_journey_progress(journey_id: str) -> dict:
+    """Get journey progress and timeline for frontend display"""
+    
+    # Return demo timeline data for now
+    demo_timeline = [
+        {
+            "id": "event_001",
+            "journeyId": journey_id,
+            "type": "JOURNEY_CREATED",
+            "title": "Journey Created",
+            "description": "Journey created and crew assigned",
+            "timestamp": "2025-01-09T07:30:00Z",
+            "userId": "usr_dispatcher_001",
+            "userName": "Alex Thompson",
+            "userRole": "DISPATCHER",
+            "status": "COMPLETED",
+            "icon": "truck",
+            "color": "blue"
+        },
+        {
+            "id": "event_002", 
+            "journeyId": journey_id,
+            "type": "CREW_ASSIGNED",
+            "title": "Crew Assigned",
+            "description": "Driver and mover assigned to journey",
+            "timestamp": "2025-01-09T07:45:00Z",
+            "userId": "usr_dispatcher_001",
+            "userName": "Alex Thompson", 
+            "userRole": "DISPATCHER",
+            "status": "COMPLETED",
+            "icon": "users",
+            "color": "green"
+        },
+        {
+            "id": "event_003",
+            "journeyId": journey_id,
+            "type": "MORNING_PREP",
+            "title": "Morning Preparation",
+            "description": "Vehicle inspection and equipment check completed",
+            "timestamp": "2025-01-09T08:00:00Z",
+            "userId": "usr_driver_001",
+            "userName": "Mike Chen",
+            "userRole": "DRIVER", 
+            "status": "COMPLETED",
+            "icon": "check-circle",
+            "color": "green"
+        },
+        {
+            "id": "event_004",
+            "journeyId": journey_id,
+            "type": "EN_ROUTE_PICKUP",
+            "title": "En Route to Pickup",
+            "description": "Departed for pickup location",
+            "timestamp": "2025-01-09T08:30:00Z",
+            "userId": "usr_driver_001",
+            "userName": "Mike Chen",
+            "userRole": "DRIVER",
+            "status": "IN_PROGRESS",
+            "icon": "navigation",
+            "color": "blue"
+        },
+        {
+            "id": "event_005",
+            "journeyId": journey_id,
+            "type": "PICKUP_ARRIVAL",
+            "title": "Arrived at Pickup",
+            "description": "Arrived at customer location for pickup",
+            "timestamp": "2025-01-09T09:00:00Z",
+            "userId": "usr_driver_001",
+            "userName": "Mike Chen",
+            "userRole": "DRIVER",
+            "status": "PENDING",
+            "icon": "map-pin",
+            "color": "orange"
+        }
+    ]
+    
+    # Calculate progress
+    completed_events = [e for e in demo_timeline if e["status"] == "COMPLETED"]
+    total_events = len(demo_timeline)
+    progress_percentage = (len(completed_events) / total_events) * 100 if total_events > 0 else 0
+    
+    return {
+        "success": True,
+        "data": {
+            "timeline": demo_timeline,
+            "progress": {
+                "percentage": progress_percentage,
+                "completedEvents": len(completed_events),
+                "totalEvents": total_events,
+                "currentPhase": "EN_ROUTE_PICKUP",
+                "nextPhase": "PICKUP_OPERATIONS",
+                "estimatedCompletion": "2025-01-09T16:00:00Z"
+            },
+            "stats": {
+                "startTime": "2025-01-09T07:30:00Z",
+                "lastUpdate": "2025-01-09T08:30:00Z",
+                "duration": "1 hour",
+                "status": "IN_PROGRESS"
+            }
+        },
+        "message": f"Retrieved progress timeline for journey {journey_id}"
+    } 

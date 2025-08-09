@@ -653,6 +653,109 @@ async def update_crew_status(journey_id: str, crew_id: str, status_update: CrewS
         "message": f"Crew status updated to {status_update.status}"
     }
 
+@router.get("/{journey_id}/crew")
+async def get_journey_crew(journey_id: str) -> Dict[str, Any]:
+    """Get crew assigned to a journey"""
+    
+    # Return demo crew data for now
+    demo_crew = [
+        {
+            "id": "crew_001",
+            "userId": "usr_driver_001",
+            "name": "Mike Chen",
+            "role": "DRIVER",
+            "status": "ASSIGNED",
+            "phone": "+1-604-555-0123",
+            "email": "mike.chen@lgm.com",
+            "avatar": None,
+            "experience": "5 years",
+            "rating": 4.8,
+            "location": "Vancouver",
+            "assignedAt": "2025-01-09T08:00:00Z"
+        },
+        {
+            "id": "crew_002", 
+            "userId": "usr_mover_001",
+            "name": "Sarah Johnson",
+            "role": "MOVER",
+            "status": "ASSIGNED",
+            "phone": "+1-604-555-0124",
+            "email": "sarah.johnson@lgm.com",
+            "avatar": None,
+            "experience": "3 years",
+            "rating": 4.9,
+            "location": "Vancouver",
+            "assignedAt": "2025-01-09T08:00:00Z"
+        }
+    ]
+    
+    return {
+        "success": True,
+        "data": {
+            "crew": demo_crew,
+            "totalCrew": len(demo_crew),
+            "requiredRoles": ["DRIVER", "MOVER"],
+            "isComplete": True
+        },
+        "message": f"Retrieved {len(demo_crew)} crew members for journey {journey_id}"
+    }
+
+@router.get("/{journey_id}/messages")
+async def get_journey_messages(journey_id: str) -> Dict[str, Any]:
+    """Get chat messages for a journey"""
+    
+    # Return demo messages for now
+    demo_messages = [
+        {
+            "id": "msg_001",
+            "journeyId": journey_id,
+            "userId": "usr_dispatcher_001",
+            "userName": "Alex Thompson",
+            "userRole": "DISPATCHER",
+            "message": "Journey assigned. Please confirm crew availability.",
+            "timestamp": "2025-01-09T08:00:00Z",
+            "type": "TEXT",
+            "isRead": True
+        },
+        {
+            "id": "msg_002",
+            "journeyId": journey_id,
+            "userId": "usr_driver_001", 
+            "userName": "Mike Chen",
+            "userRole": "DRIVER",
+            "message": "Confirmed. Vehicle inspection complete, ready to depart.",
+            "timestamp": "2025-01-09T08:15:00Z",
+            "type": "TEXT",
+            "isRead": True
+        },
+        {
+            "id": "msg_003",
+            "journeyId": journey_id,
+            "userId": "usr_mover_001",
+            "userName": "Sarah Johnson", 
+            "userRole": "MOVER",
+            "message": "Equipment loaded and secured. ETA to pickup location: 30 minutes.",
+            "timestamp": "2025-01-09T08:30:00Z",
+            "type": "TEXT",
+            "isRead": False
+        }
+    ]
+    
+    return {
+        "success": True,
+        "data": {
+            "messages": demo_messages,
+            "totalMessages": len(demo_messages),
+            "unreadCount": sum(1 for msg in demo_messages if not msg["isRead"]),
+            "participants": [
+                {"userId": "usr_dispatcher_001", "name": "Alex Thompson", "role": "DISPATCHER"},
+                {"userId": "usr_driver_001", "name": "Mike Chen", "role": "DRIVER"},
+                {"userId": "usr_mover_001", "name": "Sarah Johnson", "role": "MOVER"}
+            ]
+        },
+        "message": f"Retrieved {len(demo_messages)} messages for journey {journey_id}"
+    }
+
 # ===== MEDIA UPLOAD ENDPOINTS =====
 
 @router.post("/{journey_id}/media")
