@@ -35,30 +35,32 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
       isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
     )}>
       <div className={cn(
-        "fixed left-0 top-0 h-full w-80 bg-surface border-r border-border transform transition-transform duration-300",
+        "fixed left-0 top-0 h-full bg-surface border-r border-border transform transition-transform duration-300",
+        // Make menu wider on mobile for easier touch interaction
+        "w-80 sm:w-72",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         {/* Mobile Menu Header */}
-        <div className="flex items-center justify-between p-3 border-b border-border bg-surface/95 backdrop-blur-sm">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <span className="text-white font-semibold text-sm">
+        <div className="flex items-center justify-between p-4 border-b border-border bg-surface/95 backdrop-blur-sm">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+              <span className="text-white font-semibold text-base">
                 {user.name.charAt(0).toUpperCase()}
               </span>
             </div>
             <div>
-              <p className="text-sm font-medium text-text-primary">{user.name}</p>
-              <p className="text-xs text-text-secondary capitalize">{user.role}</p>
+              <p className="text-base font-medium text-text-primary">{user.name}</p>
+              <p className="text-sm text-text-secondary capitalize">{user.role}</p>
             </div>
           </div>
           <Button
             variant="ghost"
-            size="sm"
+            size="lg"
             onClick={onClose}
-            className="text-text-secondary hover:text-text-primary"
+            className="text-text-secondary hover:text-text-primary p-3 min-h-[48px] min-w-[48px]"
             aria-label="Close menu"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </Button>
         </div>
 
@@ -72,43 +74,44 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
         </nav>
 
         {/* Mobile Menu Footer */}
-        <div className="p-3 border-t border-border bg-surface/95 backdrop-blur-sm">
-          <div className="space-y-2">
+        <div className="p-4 border-t border-border bg-surface/95 backdrop-blur-sm">
+          <div className="space-y-3">
             {/* Quick Actions */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-3">
               <Button
                 variant="ghost"
-                size="sm"
-                className="flex-col h-auto py-2 text-xs"
+                size="lg"
+                className="flex-col h-auto py-3 text-xs min-h-[56px]"
               >
-                <User className="w-4 h-4 mb-1" />
+                <User className="w-5 h-5 mb-1" />
                 Profile
               </Button>
               <Button
                 variant="ghost"
-                size="sm"
-                className="flex-col h-auto py-2 text-xs"
+                size="lg"
+                className="flex-col h-auto py-3 text-xs min-h-[56px]"
               >
-                <Bell className="w-4 h-4 mb-1" />
+                <Bell className="w-5 h-5 mb-1" />
                 Notifications
               </Button>
               <Button
                 variant="ghost"
-                size="sm"
-                className="flex-col h-auto py-2 text-xs"
+                size="lg"
+                className="flex-col h-auto py-3 text-xs min-h-[56px]"
               >
-                <Settings className="w-4 h-4 mb-1" />
+                <Settings className="w-5 h-5 mb-1" />
                 Settings
               </Button>
             </div>
             
             {/* Logout Button */}
             <Button
-              variant="ghost"
+              variant="danger"
+              size="lg"
               onClick={handleLogout}
-              className="w-full justify-start text-text-secondary hover:text-text-primary"
+              className="w-full min-h-[48px] text-base"
             >
-              <LogOut className="w-4 h-4 mr-2" />
+              <LogOut className="w-5 h-5 mr-2" />
               Sign Out
             </Button>
           </div>

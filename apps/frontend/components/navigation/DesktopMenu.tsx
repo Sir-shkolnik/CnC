@@ -24,6 +24,8 @@ export const DesktopMenu: React.FC<DesktopMenuProps> = ({
   return (
     <aside className={cn(
       "fixed left-0 top-0 h-full bg-surface border-r border-border transition-all duration-300 z-40",
+      // Hide on mobile, show on desktop
+      "hidden lg:block",
       isCollapsed ? "w-16" : "w-64"
     )}>
       {/* Desktop Menu Header */}

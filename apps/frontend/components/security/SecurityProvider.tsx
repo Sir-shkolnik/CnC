@@ -35,7 +35,27 @@ export const SecurityProvider: React.FC<SecurityProviderProps> = ({ children }) 
   useEffect(() => {
     // Re-initialize session management when authentication state changes
     if (isAuthenticated) {
-      SecureSessionManager.initializeSession();
+      // Check if user is a field worker who needs extended sessions
+      const userData = localStorage.getItem('user_data');
+      let isFieldWorker = false;
+      
+      if (userData) {
+        try {
+          const user = JSON.parse(userData);
+          isFieldWorker = user.role && ['DRIVER', 'MOVER'].includes(user.role.toUpperCase());
+        } catch (e) {
+          console.warn('Could not parse user data for session configuration');
+        }
+      }
+      
+      // Initialize with appropriate timeout settings
+      SecureSessionManager.initializeSession({
+        disableInactivityTimeout: false // Always enable, but with role-based timeouts
+      });
+      
+      if (isFieldWorker) {
+        console.log('🔐 Extended session timeout enabled for field worker');
+      }
     } else {
       SecureSessionManager.stopSessionManagement();
     }

@@ -110,7 +110,9 @@ export const MainNavigation: React.FC<MainNavigationProps> = ({ children }) => {
       {/* Main Content Area */}
       <div className={cn(
         "transition-all duration-300",
-        isDesktopMenuCollapsed ? "ml-16" : "ml-64"
+        // Only apply left margin on desktop (lg and above)
+        "lg:ml-64",
+        isDesktopMenuCollapsed && "lg:ml-16"
       )}>
         {/* Top Navigation Bar */}
         <header className="sticky top-0 z-30 bg-surface border-b border-border">
@@ -119,12 +121,12 @@ export const MainNavigation: React.FC<MainNavigationProps> = ({ children }) => {
             <div className="flex items-center space-x-3">
               <Button
                 variant="ghost"
-                size="sm"
+                size="lg"
                 onClick={toggleMobileMenu}
-                className="lg:hidden text-text-secondary hover:text-text-primary"
+                className="lg:hidden text-text-secondary hover:text-text-primary p-3 min-h-[48px] min-w-[48px]"
                 aria-label="Open menu"
               >
-                <Menu className="w-4 h-4" />
+                <Menu className="w-5 h-5" />
               </Button>
               
               <Breadcrumbs pathname={pathname} user={mapUserToMenuUser(user)} />

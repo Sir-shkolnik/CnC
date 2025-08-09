@@ -7,7 +7,8 @@ import SecureTokenManager from './SecureTokenManager';
 
 export class SecureSessionManager {
   private static readonly SESSION_TIMEOUT = 8 * 60 * 60 * 1000; // 8 hours
-  private static readonly INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+  private static readonly INACTIVITY_TIMEOUT_DESKTOP = 30 * 60 * 1000; // 30 minutes for desktop
+  private static readonly INACTIVITY_TIMEOUT_MOBILE = 4 * 60 * 60 * 1000; // 4 hours for mobile field workers
   private static inactivityTimer: NodeJS.Timeout | null = null;
   private static lastActivity: number = Date.now();
   private static sessionHeartbeatInterval: NodeJS.Timeout | null = null;
@@ -15,13 +16,38 @@ export class SecureSessionManager {
   /**
    * Initialize session management
    */
-  static initializeSession(): void {
-    this.resetInactivityTimer();
+  static initializeSession(options?: { disableInactivityTimeout?: boolean }): void {
+    // Only set up inactivity timer if not disabled
+    if (!options?.disableInactivityTimeout) {
+      this.resetInactivityTimer();
+    }
+    
     this.setupActivityListeners();
     this.startSessionHeartbeat();
     this.logSecurityEvent('SESSION_INITIALIZED', { timestamp: new Date().toISOString() });
   }
   
+  /**
+   * Get appropriate inactivity timeout based on user role
+   */
+  private static getInactivityTimeout(): number {
+    // Check if user is a field worker (driver/mover) who needs longer sessions
+    const userData = localStorage.getItem('user_data');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        if (user.role && ['DRIVER', 'MOVER'].includes(user.role.toUpperCase())) {
+          return this.INACTIVITY_TIMEOUT_MOBILE;
+        }
+      } catch (e) {
+        // Fallback to desktop timeout if parsing fails
+      }
+    }
+    
+    // Default to desktop timeout for managers/admins
+    return this.INACTIVITY_TIMEOUT_DESKTOP;
+  }
+
   /**
    * Reset inactivity timer
    */
@@ -30,9 +56,10 @@ export class SecureSessionManager {
       clearTimeout(this.inactivityTimer);
     }
     
+    const timeout = this.getInactivityTimeout();
     this.inactivityTimer = setTimeout(() => {
       this.handleInactivity();
-    }, this.INACTIVITY_TIMEOUT);
+    }, timeout);
   }
   
   /**
