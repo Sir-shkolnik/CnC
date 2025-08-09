@@ -1,14 +1,25 @@
-# 🚀 **C&C CRM - Complete Customer Relationship Management System**
+# 🚀 **C&C CRM - Simplified Operations Management System**
 
 **Version:** 3.2.0  
-**Last Updated:** August 8, 2025  
-**Status:** 🚀 **PRODUCTION READY - Complete CRM System with Full RBAC**
+**Last Updated:** January 9, 2025  
+**Status:** 🎯 **PRODUCTION READY - Simplified System with 100% Real LGM Data**
 
 ---
 
 ## 🎯 **SYSTEM OVERVIEW**
 
-C&C CRM is a comprehensive **Customer Relationship Management** system designed for moving and logistics companies. The system provides complete journey management, customer management, sales pipeline, and operational oversight with **enterprise-grade security** and **role-based access control**.
+C&C CRM is a **streamlined operations management system** designed for moving and logistics companies. The system now features **only essential functionality** with a **simplified navigation** containing just three core areas: **Dashboard**, **Journey Management**, and **Crew Management**. All data comes from **100% real LGM (Let's Get Moving) operations** via SmartMoving API integration - no hardcoded or demo data exists in the system.
+
+### **🎯 SIMPLIFIED NAVIGATION**
+- **Dashboard** - Real-time operational metrics and statistics
+- **Journey Management** - Live journey tracking and management  
+- **Crew Management** - Real LGM crew members (drivers and movers)
+
+### **📊 100% REAL DATA**
+- **SmartMoving API Integration** - Live data from actual LGM operations
+- **Real Journey Statistics** - Authentic business metrics and KPIs
+- **Actual Crew Members** - Real drivers and movers from LGM database
+- **Live Customer Data** - Authentic customer and job information
 
 ---
 
