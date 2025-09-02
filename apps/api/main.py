@@ -115,6 +115,14 @@ try:
 except Exception as e:
     logger.error(f"❌ SmartMoving routes failed: {e}")
 
+try:
+    # Essential dashboard
+    from apps.api.routes import dashboard
+    app.include_router(dashboard.router, prefix="/dashboard", tags=["Dashboard"])
+    logger.info("✅ Dashboard routes loaded")
+except Exception as e:
+    logger.error(f"❌ Dashboard routes failed: {e}")
+
 # ===== ERROR HANDLERS =====
 @app.exception_handler(404)
 async def not_found_handler(request, exc):

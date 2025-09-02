@@ -1,427 +1,267 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/atoms/Button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/atoms/Card';
+import { Button } from '@/components/atoms/Button';
 import { Input } from '@/components/atoms/Input';
-import { Badge } from '@/components/atoms/Badge';
+import { Label } from '@/components/atoms/Label';
 import { 
   Truck, 
+  Calendar, 
+  MapPin, 
+  Users, 
+  Save, 
   ArrowLeft,
-  ArrowRight,
-  Check,
-  MapPin,
-  Calendar,
-  Clock,
-  Users,
-  FileText,
-  Save,
-  X
+  AlertCircle
 } from 'lucide-react';
-import { useJourneyStore } from '@/stores/journeyStore';
-import toast from 'react-hot-toast';
 
-interface JourneyFormData {
-  truckNumber: string;
+interface CreateJourneyForm {
   date: string;
-  startTime: string;
-  endTime: string;
-  location: string;
+  truckNumber: string;
+  locationId: string;
+  driverId: string;
+  moverId: string;
+  estimatedStartTime: string;
+  estimatedEndTime: string;
   notes: string;
-  crewMembers: string[];
-  status: string;
 }
-
-const initialFormData: JourneyFormData = {
-  truckNumber: '',
-  date: new Date().toISOString().split('T')[0],
-  startTime: '',
-  endTime: '',
-  location: '',
-  notes: '',
-  crewMembers: [],
-  status: 'MORNING_PREP'
-};
 
 export default function CreateJourneyPage() {
   const router = useRouter();
-  const { addJourney } = useJourneyStore();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<JourneyFormData>(initialFormData);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [formData, setFormData] = useState<CreateJourneyForm>({
+    date: new Date().toISOString().split('T')[0],
+    truckNumber: '',
+    locationId: '',
+    driverId: '',
+    moverId: '',
+    estimatedStartTime: '08:00',
+    estimatedEndTime: '17:00',
+    notes: ''
+  });
 
-  const steps = [
-    { id: 1, title: 'Basic Info', icon: Truck },
-    { id: 2, title: 'Schedule', icon: Calendar },
-    { id: 3, title: 'Crew', icon: Users },
-    { id: 4, title: 'Review', icon: Check }
-  ];
-
-  const handleInputChange = (field: keyof JourneyFormData, value: string | string[]) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleInputChange = (field: keyof CreateJourneyForm, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
-  const handleNext = () => {
-    if (currentStep < steps.length) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
 
-  const handlePrevious = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
     try {
-      const newJourney = {
-        id: `journey_${Date.now()}`,
-        truckNumber: formData.truckNumber,
-        date: formData.date,
-        status: 'MORNING_PREP' as const,
-        notes: formData.notes,
-        locationId: 'default-location',
-        clientId: 'default-client',
-        createdById: 'default-user',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      
-      addJourney(newJourney);
-      toast.success('Journey created successfully!');
-      router.push('/journeys');
-    } catch (error) {
-      toast.error('Failed to create journey');
+      const response = await fetch('/api/journey', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        router.push(`/journey/${result.id}`);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.detail || 'Failed to create journey');
+      }
+    } catch (err) {
+      setError('Network error occurred');
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
-  const isStepValid = (step: number) => {
-    switch (step) {
-      case 1:
-        return formData.truckNumber && formData.location;
-      case 2:
-        return formData.date && formData.startTime;
-      case 3:
-        return formData.crewMembers.length > 0;
-      default:
-        return true;
-    }
-  };
-
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">
-                Truck Number *
-              </label>
-              <Input
-                placeholder="Enter truck number (e.g., TRK-2024-001)"
-                value={formData.truckNumber}
-                onChange={(e) => handleInputChange('truckNumber', e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">
-                Location *
-              </label>
-              <Input
-                placeholder="Enter location address"
-                value={formData.location}
-                onChange={(e) => handleInputChange('location', e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">
-                Notes
-              </label>
-              <textarea
-                className="w-full px-3 py-2 bg-surface border border-gray-600 rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-                placeholder="Enter any special instructions or notes..."
-                rows={3}
-                value={formData.notes}
-                onChange={(e) => handleInputChange('notes', e.target.value)}
-              />
-            </div>
-          </div>
-        );
-
-      case 2:
-        return (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">
-                Date *
-              </label>
-              <Input
-                type="date"
-                value={formData.date}
-                onChange={(e) => handleInputChange('date', e.target.value)}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-2">
-                  Start Time *
-                </label>
-                <Input
-                  type="time"
-                  value={formData.startTime}
-                  onChange={(e) => handleInputChange('startTime', e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-2">
-                  End Time
-                </label>
-                <Input
-                  type="time"
-                  value={formData.endTime}
-                  onChange={(e) => handleInputChange('endTime', e.target.value)}
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">
-                Initial Status
-              </label>
-              <select
-                className="w-full px-3 py-2 bg-surface border border-gray-600 rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-                value={formData.status}
-                onChange={(e) => handleInputChange('status', e.target.value)}
-              >
-                <option value="MORNING_PREP">Morning Prep</option>
-                <option value="EN_ROUTE">En Route</option>
-                <option value="ONSITE">On Site</option>
-              </select>
-            </div>
-          </div>
-        );
-
-      case 3:
-        return (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">
-                Assign Crew Members *
-              </label>
-              <div className="space-y-2">
-                {['Driver', 'Mover 1', 'Mover 2'].map((role, index) => (
-                  <div key={role} className="flex items-center space-x-2">
-                    <Input
-                      placeholder={`Enter ${role} name`}
-                      value={formData.crewMembers[index] || ''}
-                      onChange={(e) => {
-                        const newCrew = [...formData.crewMembers];
-                        newCrew[index] = e.target.value;
-                        handleInputChange('crewMembers', newCrew);
-                      }}
-                    />
-                    <Badge variant="secondary" className="text-xs">
-                      {role}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="p-3 bg-surface/50 rounded-lg">
-              <p className="text-sm text-text-secondary">
-                <Users className="w-4 h-4 inline mr-2" />
-                Crew members will be notified once the journey is created
-              </p>
-            </div>
-          </div>
-        );
-
-      case 4:
-        return (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Journey Details</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-text-secondary">Truck:</span>
-                    <span className="text-text-primary">{formData.truckNumber}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-text-secondary">Location:</span>
-                    <span className="text-text-primary">{formData.location}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-text-secondary">Date:</span>
-                    <span className="text-text-primary">{formData.date}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-text-secondary">Status:</span>
-                    <Badge variant="warning" className="text-xs">
-                      {formData.status}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Schedule</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-text-secondary">Start Time:</span>
-                    <span className="text-text-primary">{formData.startTime}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-text-secondary">End Time:</span>
-                    <span className="text-text-primary">{formData.endTime || 'TBD'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-text-secondary">Crew Size:</span>
-                    <span className="text-text-primary">{formData.crewMembers.filter(m => m).length}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            {formData.notes && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Notes</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-text-secondary">{formData.notes}</p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        );
-
-      default:
-        return null;
-    }
+  const isFormValid = () => {
+    return formData.date && 
+           formData.truckNumber && 
+           formData.locationId && 
+           formData.driverId && 
+           formData.moverId;
   };
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.back()}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-text-primary mb-1">Create New Journey</h1>
-            <p className="text-text-secondary text-sm">Set up a new truck journey</p>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="secondary" size="sm">
-            <Save className="w-4 h-4 mr-2" />
-            Save Draft
-          </Button>
+    <div className="p-6 max-w-2xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center mb-6">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={() => router.back()}
+          className="mr-4"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back
+        </Button>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Create New Journey</h1>
+          <p className="text-gray-600">Set up a new truck journey for your crew</p>
         </div>
       </div>
 
-      {/* Progress Steps */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            {steps.map((step, index) => {
-              const Icon = step.icon;
-              const isActive = currentStep === step.id;
-              const isCompleted = currentStep > step.id;
-              
-              return (
-                <div key={step.id} className="flex items-center">
-                  <div className={`
-                    flex items-center justify-center w-8 h-8 rounded-full border-2 text-sm font-medium
-                    ${isActive ? 'bg-primary border-primary text-white' : ''}
-                    ${isCompleted ? 'bg-success border-success text-white' : ''}
-                    ${!isActive && !isCompleted ? 'border-gray-600 text-text-secondary' : ''}
-                  `}>
-                    {isCompleted ? <Check className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
-                  </div>
-                  <span className={`
-                    ml-2 text-sm font-medium
-                    ${isActive ? 'text-text-primary' : 'text-text-secondary'}
-                  `}>
-                    {step.title}
-                  </span>
-                  {index < steps.length - 1 && (
-                    <div className={`
-                      w-12 h-0.5 mx-4
-                      ${isCompleted ? 'bg-success' : 'bg-gray-600'}
-                    `} />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Step Content */}
+      {/* Form */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">
-            Step {currentStep}: {steps[currentStep - 1]?.title}
+          <CardTitle className="flex items-center">
+            <Truck className="w-5 h-5 mr-2" />
+            Journey Details
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {renderStepContent()}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Date and Truck */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="date">Journey Date</Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => handleInputChange('date', e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="truckNumber">Truck Number</Label>
+                <Input
+                  id="truckNumber"
+                  placeholder="e.g., T-001"
+                  value={formData.truckNumber}
+                  onChange={(e) => handleInputChange('truckNumber', e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Location */}
+            <div className="space-y-2">
+              <Label htmlFor="locationId">Location</Label>
+              <select
+                id="locationId"
+                value={formData.locationId}
+                onChange={(e) => handleInputChange('locationId', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">Select a location</option>
+                <option value="loc-001">Toronto Main Office</option>
+                <option value="loc-002">Mississauga Branch</option>
+                <option value="loc-003">Brampton Branch</option>
+              </select>
+            </div>
+
+            {/* Crew Assignment */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="driverId">Driver</Label>
+                <select
+                  id="driverId"
+                  value={formData.driverId}
+                  onChange={(e) => handleInputChange('driverId', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Select a driver</option>
+                  <option value="user-001">John Smith (Driver)</option>
+                  <option value="user-002">Mike Johnson (Driver)</option>
+                  <option value="user-003">Sarah Wilson (Driver)</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="moverId">Mover</Label>
+                <select
+                  id="moverId"
+                  value={formData.moverId}
+                  onChange={(e) => handleInputChange('moverId', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Select a mover</option>
+                  <option value="user-004">Alex Brown (Mover)</option>
+                  <option value="user-005">Chris Davis (Mover)</option>
+                  <option value="user-006">Emma Taylor (Mover)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Time Estimates */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="estimatedStartTime">Estimated Start Time</Label>
+                <Input
+                  id="estimatedStartTime"
+                  type="time"
+                  value={formData.estimatedStartTime}
+                  onChange={(e) => handleInputChange('estimatedStartTime', e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="estimatedEndTime">Estimated End Time</Label>
+                <Input
+                  id="estimatedEndTime"
+                  type="time"
+                  value={formData.estimatedEndTime}
+                  onChange={(e) => handleInputChange('estimatedEndTime', e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Notes */}
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes</Label>
+              <textarea
+                id="notes"
+                rows={3}
+                placeholder="Any special instructions or notes for this journey..."
+                value={formData.notes}
+                onChange={(e) => handleInputChange('notes', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Error Display */}
+            {error && (
+              <div className="flex items-center p-3 bg-red-50 border border-red-200 rounded-md">
+                <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
+                <span className="text-red-700">{error}</span>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <div className="flex justify-end space-x-3">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => router.back()}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={!isFormValid() || loading}
+                className="min-w-[120px]"
+              >
+                {loading ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Create Journey
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
         </CardContent>
       </Card>
-
-      {/* Navigation */}
-      <div className="flex items-center justify-between">
-        <Button
-          variant="secondary"
-          onClick={handlePrevious}
-          disabled={currentStep === 1}
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Previous
-        </Button>
-        
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="secondary"
-            onClick={() => router.push('/journeys')}
-          >
-            <X className="w-4 h-4 mr-2" />
-            Cancel
-          </Button>
-          
-          {currentStep < steps.length ? (
-            <Button
-              onClick={handleNext}
-              disabled={!isStepValid(currentStep)}
-            >
-              Next
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          ) : (
-            <Button
-              onClick={handleSubmit}
-              disabled={isSubmitting || !isStepValid(currentStep)}
-            >
-              {isSubmitting ? 'Creating...' : 'Create Journey'}
-              <Truck className="w-4 h-4 ml-2" />
-            </Button>
-          )}
-        </div>
-      </div>
     </div>
   );
 } 
