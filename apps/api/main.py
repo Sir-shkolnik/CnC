@@ -123,6 +123,30 @@ try:
 except Exception as e:
     logger.error(f"❌ Dashboard routes failed: {e}")
 
+try:
+    # Essential customer management
+    from apps.api.routes import customers
+    app.include_router(customers.router, prefix="/customers", tags=["Customer Management"])
+    logger.info("✅ Customer routes loaded")
+except Exception as e:
+    logger.error(f"❌ Customer routes failed: {e}")
+
+try:
+    # Essential financial management
+    from apps.api.routes import financial
+    app.include_router(financial.router, prefix="/financial", tags=["Financial Management"])
+    logger.info("✅ Financial routes loaded")
+except Exception as e:
+    logger.error(f"❌ Financial routes failed: {e}")
+
+try:
+    # Essential operations intelligence
+    from apps.api.routes import operations
+    app.include_router(operations.router, prefix="/operations", tags=["Operations Intelligence"])
+    logger.info("✅ Operations routes loaded")
+except Exception as e:
+    logger.error(f"❌ Operations routes failed: {e}")
+
 # ===== ERROR HANDLERS =====
 @app.exception_handler(404)
 async def not_found_handler(request, exc):
