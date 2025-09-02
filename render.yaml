@@ -1,6 +1,5 @@
-# C&C CRM - Render Deployment Configuration
-# Command & Control CRM for Moving & Logistics Operations
-# Last Updated: January 2025 - Fixed deployment sync issues
+# C&C CRM - Simplified Render Deployment
+# Command & Control CRM - Just the essentials
 
 services:
   # ===== BACKEND API SERVICE =====
@@ -10,11 +9,9 @@ services:
     plan: starter
     buildCommand: |
       python -m pip install --upgrade pip
-      pip install fastapi uvicorn prisma asyncpg python-jose PyJWT passlib[bcrypt] python-multipart httpx requests python-dotenv python-dateutil structlog pytest pytest-asyncio black isort flake8 mypy gunicorn psycopg2-binary psutil bcrypt
-      python -m prisma py fetch
+      pip install -r requirements.txt
       python -m prisma generate
     startCommand: |
-      # Start the API server
       python -m uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DATABASE_URL
@@ -23,38 +20,10 @@ services:
           property: connectionString
       - key: JWT_SECRET
         generateValue: true
-      - key: JWT_ALGORITHM
-        value: HS256
-      - key: ACCESS_TOKEN_EXPIRE_MINUTES
-        value: 720
       - key: ENVIRONMENT
         value: production
       - key: DEBUG
         value: false
-      - key: API_HOST
-        value: 0.0.0.0
-      - key: CORS_ORIGINS
-        value: https://c-and-c-crm-frontend.onrender.com,https://c-and-c-crm-mobile.onrender.com,https://c-and-c-crm-storage.onrender.com
-      - key: REDIS_URL
-        value: redis://c-and-c-crm-redis.onrender.com:6379
-      - key: UPLOAD_DIR
-        value: ./uploads
-      - key: MAX_FILE_SIZE
-        value: 10485760
-      - key: LOG_LEVEL
-        value: INFO
-      - key: LOG_FORMAT
-        value: json
-      - key: AUDIT_ENABLED
-        value: true
-      - key: AUDIT_RETENTION_DAYS
-        value: 365
-      - key: DEFAULT_TIMEZONE
-        value: America/Toronto
-      - key: DEFAULT_CLIENT_ID
-        value: clm_f55e13de_a5c4_4990_ad02_34bb07187daa
-      - key: PYTHONPATH
-        value: .
     healthCheckPath: /health
     autoDeploy: true
 
@@ -72,63 +41,9 @@ services:
     envVars:
       - key: NEXT_PUBLIC_API_URL
         value: https://c-and-c-crm-api.onrender.com
-      - key: NEXT_PUBLIC_APP_URL
-        value: https://c-and-c-crm-frontend.onrender.com
       - key: NEXT_PUBLIC_ENVIRONMENT
-        value: production
-      - key: NODE_ENV
         value: production
     healthCheckPath: /
-    autoDeploy: true
-
-  # ===== MOBILE FIELD OPERATIONS PORTAL =====
-  - type: web
-    name: c-and-c-crm-mobile
-    env: node
-    plan: starter
-    buildCommand: |
-      npm ci --include=dev
-      npm run build --workspace=apps/frontend
-    startCommand: |
-      cd apps/frontend
-      npm run start -- -p $PORT
-    envVars:
-      - key: NEXT_PUBLIC_API_URL
-        value: https://c-and-c-crm-api.onrender.com
-      - key: NEXT_PUBLIC_APP_URL
-        value: https://c-and-c-crm-mobile.onrender.com
-      - key: NEXT_PUBLIC_ENVIRONMENT
-        value: production
-      - key: NODE_ENV
-        value: production
-      - key: NEXT_PUBLIC_MOBILE_MODE
-        value: true
-    healthCheckPath: /mobile
-    autoDeploy: true
-
-  # ===== STORAGE SYSTEM PORTAL =====
-  - type: web
-    name: c-and-c-crm-storage
-    env: node
-    plan: starter
-    buildCommand: |
-      npm ci --include=dev
-      npm run build --workspace=apps/frontend
-    startCommand: |
-      cd apps/frontend
-      npm run start -- -p $PORT
-    envVars:
-      - key: NEXT_PUBLIC_API_URL
-        value: https://c-and-c-crm-api.onrender.com
-      - key: NEXT_PUBLIC_APP_URL
-        value: https://c-and-c-crm-storage.onrender.com
-      - key: NEXT_PUBLIC_ENVIRONMENT
-        value: production
-      - key: NODE_ENV
-        value: production
-      - key: NEXT_PUBLIC_STORAGE_MODE
-        value: true
-    healthCheckPath: /storage
     autoDeploy: true
 
 databases:
@@ -136,8 +51,4 @@ databases:
   - name: c-and-c-crm-db
     databaseName: c_and_c_crm
     user: c_and_c_user
-    plan: free
-
-  # ===== REDIS CACHE =====
-  - name: c-and-c-crm-redis
     plan: free 

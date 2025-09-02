@@ -8,28 +8,12 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev:api\" \"npm run dev:frontend\"",
-    "dev:api": "cd apps/api && python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000",
-    "dev:frontend": "cd apps/frontend && npm run dev",
-    "build": "npm run build:api && npm run build:frontend",
-    "build:api": "cd apps/api && pip install -r requirements.txt",
+    "build": "npm run build:frontend",
     "build:frontend": "cd apps/frontend && npm run build",
-    "test": "npm run test:api && npm run test:frontend",
-    "test:api": "cd apps/api && python -m pytest",
-    "test:frontend": "cd apps/frontend && npm run test",
-    "lint": "npm run lint:api && npm run lint:frontend",
-    "lint:api": "cd apps/api && python -m black . && python -m isort .",
-    "lint:frontend": "cd apps/frontend && npm run lint",
-    "db:generate": "cd prisma && npx prisma generate",
-    "db:migrate": "cd prisma && npx prisma migrate dev",
-    "db:seed": "cd prisma && npx prisma db seed",
-    "db:studio": "cd prisma && npx prisma studio",
-    "docker:build": "docker build -t c-and-c-crm .",
-    "docker:run": "docker run -p 8000:8000 -p 3000:3000 c-and-c-crm"
+    "db:generate": "cd prisma && npx prisma generate"
   },
   "devDependencies": {
     "@prisma/client": "^5.17.0",
-    "concurrently": "^8.2.2",
     "prisma": "^5.17.0"
   },
   "engines": {
